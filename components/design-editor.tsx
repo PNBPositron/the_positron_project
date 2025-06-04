@@ -87,6 +87,8 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
+import { ImageLibrary } from "@/components/image-library"
+import { TemplateLibrary } from "@/components/template-library"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -295,6 +297,8 @@ export default function DesignEditor() {
   const [isSingleSlideExport, setIsSingleSlideExport] = useState(false)
   const [showTextEffectsPanel, setShowTextEffectsPanel] = useState(false)
   const [showImage3dEffectsPanel, setShowImage3dEffectsPanel] = useState(false)
+  const [showImageLibrary, setShowImageLibrary] = useState(false)
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -901,6 +905,67 @@ export default function DesignEditor() {
     ? slides[currentSlideIndex].elements.find((el) => el.id === selectedElementId)
     : null
 
+  const addImageFromLibrary = (imageSrc: string) => {
+    const currentSlide = slides[currentSlideIndex]
+    const newElement = {
+      id: `image-${Date.now()}`,
+      type: "image" as const,
+      src: imageSrc,
+      x: 250,
+      y: 200,
+      width: 300,
+      height: 200,
+      filters: {
+        grayscale: 0,
+        sepia: 0,
+        blur: 0,
+        brightness: 100,
+        contrast: 100,
+        hueRotate: 0,
+        saturate: 100,
+        opacity: 100,
+      },
+      effects: {
+        borderRadius: 0,
+        borderWidth: 0,
+        borderColor: "#ffffff",
+        shadowBlur: 0,
+        shadowColor: "#000000",
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+      },
+      animation: {
+        type: "fade",
+        delay: 0.4,
+        duration: 1.2,
+        trigger: "onLoad",
+        easing: "ease-in-out",
+      },
+    }
+
+    const updatedSlides = [...slides]
+    updatedSlides[currentSlideIndex] = {
+      ...currentSlide,
+      elements: [...currentSlide.elements, newElement],
+    }
+
+    setSlides(updatedSlides)
+    setSelectedElementId(newElement.id)
+  }
+
+  const handleSelectTemplate = (template: any) => {
+    setPresentationTitle(template.title)
+    setSlides(template.slides)
+    setCurrentSlideIndex(0)
+    setSelectedElementId(null)
+
+    toast({
+      title: "Template applied",
+      description: `"${template.title}" template has been applied to your presentation.`,
+      variant: "default",
+    })
+  }
+
   if (isPresentationMode) {
     return (
       <PresentationMode slides={slides} initialSlide={currentSlideIndex} onExit={() => setIsPresentationMode(false)} />
@@ -953,6 +1018,15 @@ export default function DesignEditor() {
           >
             <HelpCircle className="h-4 w-4 mr-1 text-blue-400" />
             About
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            onClick={() => setShowTemplateLibrary(true)}
+          >
+            <LayoutGrid className="h-4 w-4 mr-1 text-blue-400" />
+            Templates
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1261,15 +1335,28 @@ export default function DesignEditor() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <label>
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100" asChild>
-                <span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100">
                   <ImageIcon className="h-4 w-4 mr-1 text-blue-400" />
                   Image
-                </span>
-              </Button>
-              <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
-            </label>
+                  <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-gray-800 border-gray-700 text-gray-100">
+                <DropdownMenuItem onClick={() => setShowImageLibrary(true)} className="hover:bg-gray-700">
+                  <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+                  Browse Library
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="hover:bg-gray-700">
+                  <label>
+                    <Upload className="h-4 w-4 mr-2 text-blue-400" />
+                    Upload Image
+                    <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
+                  </label>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <label>
               <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100" asChild>
@@ -1579,6 +1666,9 @@ export default function DesignEditor() {
                 size="sm"
                 onClick={deleteElement}
                 className="text-gray-300 hover:bg-gray-800 hover:text-red-400 w-full justify-start mt-2"
+                size="sm"
+                onClick={deleteElement}
+                className="text-gray-300 hover:bg-gray-800 hover:text-red-400 w-full justify-start mt-2"
               >
                 <Trash2 className="h-4 w-4 mr-2 text-red-400" />
                 Delete Element
@@ -1623,6 +1713,16 @@ export default function DesignEditor() {
         onOpenChange={setIsGifExportDialogOpen}
         onExport={(options) => handleGifExportWithOptions(options, isSingleSlideExport)}
         isSingleSlide={isSingleSlideExport}
+      />
+
+      {/* Image Library Dialog */}
+      <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={addImageFromLibrary} />
+
+      {/* Template Library Dialog */}
+      <TemplateLibrary
+        open={showTemplateLibrary}
+        onOpenChange={setShowTemplateLibrary}
+        onSelectTemplate={handleSelectTemplate}
       />
     </div>
   )
