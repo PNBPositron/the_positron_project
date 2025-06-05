@@ -5,32 +5,29 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Eye, Download, Sparkles, Briefcase, GraduationCap, Atom, BarChart3, Palette } from "lucide-react"
-import type { Slide } from "@/types/editor"
+import { Search, Sparkles, Briefcase, GraduationCap, Palette, Zap, Heart, Globe } from "lucide-react"
 
 interface Template {
   id: string
   title: string
   description: string
-  category: "business" | "education" | "science" | "creative" | "analytics"
+  category: string
   tags: string[]
-  thumbnail: string
-  slides: Slide[]
-  author: string
-  featured?: boolean
+  slides: any[]
+  preview: string
 }
 
 const TEMPLATES: Template[] = [
+  // Business Templates
   {
     id: "business-pitch",
     title: "Business Pitch Deck",
-    description: "Professional pitch deck template for startups and business presentations",
+    description: "Professional presentation for startups and business proposals",
     category: "business",
-    tags: ["pitch", "startup", "business", "professional"],
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    author: "Positron Team",
-    featured: true,
+    tags: ["professional", "corporate", "startup"],
+    preview: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
     slides: [
       {
         id: "slide-1",
@@ -42,11 +39,13 @@ const TEMPLATES: Template[] = [
             x: 100,
             y: 150,
             width: 800,
-            height: 100,
+            height: 120,
             fontSize: 64,
             fontWeight: "bold",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "shadow", depth: 3, color: "#000000" },
           },
           {
             id: "subtitle-1",
@@ -60,22 +59,10 @@ const TEMPLATES: Template[] = [
             fontWeight: "normal",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "logo-placeholder",
-            type: "shape",
-            shape: "circle",
-            x: 450,
-            y: 400,
-            width: 100,
-            height: 100,
-            color: "#0ea5e9",
+            color: "#e2e8f0",
           },
         ],
-        background: {
-          type: "gradient",
-          value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        },
+        background: { type: "gradient", value: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" },
       },
       {
         id: "slide-2",
@@ -92,48 +79,13 @@ const TEMPLATES: Template[] = [
             fontWeight: "bold",
             textAlign: "left",
             fontFamily: "Inter, sans-serif",
+            color: "#1e40af",
           },
           {
-            id: "problem-text",
+            id: "content-2",
             type: "text",
             content:
-              "• Current solutions are inefficient\n• Market gap exists\n• Customer pain points unaddressed\n• Opportunity for innovation",
-            x: 100,
-            y: 200,
-            width: 800,
-            height: 300,
-            fontSize: 24,
-            fontWeight: "normal",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
-          },
-        ],
-        background: {
-          type: "color",
-          value: "#1e293b",
-        },
-      },
-      {
-        id: "slide-3",
-        elements: [
-          {
-            id: "title-3",
-            type: "text",
-            content: "Our Solution",
-            x: 100,
-            y: 80,
-            width: 800,
-            height: 80,
-            fontSize: 48,
-            fontWeight: "bold",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "solution-text",
-            type: "text",
-            content:
-              "Innovative approach that solves key problems through cutting-edge technology and user-centered design.",
+              "• Market inefficiencies cost businesses billions\n• Current solutions are outdated and slow\n• Customers demand better experiences",
             x: 100,
             y: 200,
             width: 800,
@@ -142,367 +94,488 @@ const TEMPLATES: Template[] = [
             fontWeight: "normal",
             textAlign: "left",
             fontFamily: "Inter, sans-serif",
+            color: "#334155",
           },
         ],
-        background: {
-          type: "gradient",
-          value: "linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)",
-        },
+        background: { type: "solid", value: "#ffffff" },
       },
     ],
   },
   {
-    id: "education-lecture",
-    title: "Educational Lecture",
-    description: "Clean and organized template for academic presentations and lectures",
-    category: "education",
-    tags: ["education", "lecture", "academic", "clean"],
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    author: "Positron Team",
+    id: "corporate-report",
+    title: "Corporate Annual Report",
+    description: "Clean and professional template for annual reports and financial presentations",
+    category: "business",
+    tags: ["corporate", "financial", "annual"],
+    preview: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
     slides: [
       {
         id: "slide-1",
         elements: [
           {
-            id: "course-title",
+            id: "title-1",
             type: "text",
-            content: "Course Title",
+            content: "Annual Report 2024",
             x: 100,
-            y: 120,
-            width: 800,
+            y: 200,
+            width: 600,
+            height: 100,
+            fontSize: 56,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "Building Tomorrow, Today",
+            x: 100,
+            y: 320,
+            width: 500,
+            height: 60,
+            fontSize: 24,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#94a3b8",
+          },
+          {
+            id: "shape-1",
+            type: "shape",
+            shape: "rectangle",
+            x: 750,
+            y: 150,
+            width: 200,
+            height: 300,
+            color: "#3b82f6",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" },
+      },
+    ],
+  },
+
+  // Creative Templates
+  {
+    id: "creative-portfolio",
+    title: "Creative Portfolio",
+    description: "Showcase your creative work with style and flair",
+    category: "creative",
+    tags: ["portfolio", "artistic", "colorful"],
+    preview: "linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%)",
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "title-1",
+            type: "text",
+            content: "Creative Portfolio",
+            x: 200,
+            y: 100,
+            width: 600,
+            height: 120,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "neon", intensity: 8, color: "#ec4899" },
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "Where Ideas Come to Life",
+            x: 200,
+            y: 250,
+            width: 600,
+            height: 60,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#f1f5f9",
+          },
+          {
+            id: "shape-1",
+            type: "shape",
+            shape: "circle",
+            x: 100,
+            y: 350,
+            width: 100,
+            height: 100,
+            color: "#ec4899",
+          },
+          {
+            id: "shape-2",
+            type: "shape",
+            shape: "triangle",
+            x: 800,
+            y: 100,
+            width: 80,
             height: 80,
+            color: "#8b5cf6",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%)" },
+      },
+    ],
+  },
+  {
+    id: "design-showcase",
+    title: "Design Showcase",
+    description: "Modern template for showcasing design projects and creative work",
+    category: "creative",
+    tags: ["design", "modern", "showcase"],
+    preview: "linear-gradient(135deg, #000000 0%, #374151 100%)",
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "title-1",
+            type: "text",
+            content: "DESIGN",
+            x: 100,
+            y: 150,
+            width: 400,
+            height: 100,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "extrude", depth: 8, color: "#374151" },
+          },
+          {
+            id: "title-2",
+            type: "text",
+            content: "SHOWCASE",
+            x: 500,
+            y: 250,
+            width: 400,
+            height: 100,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "right",
+            fontFamily: "Inter, sans-serif",
+            color: "#fbbf24",
+          },
+          {
+            id: "shape-1",
+            type: "shape",
+            shape: "rectangle",
+            x: 50,
+            y: 400,
+            width: 900,
+            height: 4,
+            color: "#fbbf24",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #000000 0%, #374151 100%)" },
+      },
+    ],
+  },
+
+  // Educational Templates
+  {
+    id: "academic-lecture",
+    title: "Academic Lecture",
+    description: "Clean and focused template for educational presentations",
+    category: "education",
+    tags: ["academic", "lecture", "educational"],
+    preview: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "title-1",
+            type: "text",
+            content: "Introduction to Data Science",
+            x: 100,
+            y: 150,
+            width: 800,
+            height: 100,
+            fontSize: 52,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "Lecture 1: Fundamentals and Applications",
+            x: 100,
+            y: 270,
+            width: 800,
+            height: 60,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#d1fae5",
+          },
+          {
+            id: "author-1",
+            type: "text",
+            content: "Dr. Sarah Johnson | University of Technology",
+            x: 100,
+            y: 380,
+            width: 800,
+            height: 40,
+            fontSize: 20,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#a7f3d0",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #059669 0%, #10b981 100%)" },
+      },
+    ],
+  },
+  {
+    id: "student-project",
+    title: "Student Project",
+    description: "Engaging template for student presentations and projects",
+    category: "education",
+    tags: ["student", "project", "colorful"],
+    preview: "linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)",
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "title-1",
+            type: "text",
+            content: "My Science Project",
+            x: 150,
+            y: 120,
+            width: 700,
+            height: 100,
             fontSize: 56,
             fontWeight: "bold",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "shadow", depth: 4, color: "#581c87" },
           },
           {
-            id: "lecture-number",
+            id: "subtitle-1",
             type: "text",
-            content: "Lecture 01: Introduction",
-            x: 100,
-            y: 220,
-            width: 800,
+            content: "Exploring Renewable Energy Solutions",
+            x: 150,
+            y: 240,
+            width: 700,
             height: 60,
             fontSize: 32,
             fontWeight: "normal",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#fdf2f8",
           },
           {
-            id: "instructor",
+            id: "name-1",
             type: "text",
-            content: "Professor Name\nUniversity Name",
-            x: 100,
+            content: "By: Alex Thompson | Grade 10",
+            x: 150,
             y: 350,
-            width: 800,
-            height: 100,
+            width: 700,
+            height: 40,
             fontSize: 24,
             fontWeight: "normal",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#f3e8ff",
           },
         ],
-        background: {
-          type: "color",
-          value: "#f8fafc",
-        },
-      },
-      {
-        id: "slide-2",
-        elements: [
-          {
-            id: "agenda-title",
-            type: "text",
-            content: "Today's Agenda",
-            x: 100,
-            y: 80,
-            width: 800,
-            height: 80,
-            fontSize: 48,
-            fontWeight: "bold",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "agenda-items",
-            type: "text",
-            content:
-              "1. Introduction to the topic\n2. Key concepts and definitions\n3. Practical examples\n4. Discussion and Q&A",
-            x: 100,
-            y: 200,
-            width: 800,
-            height: 300,
-            fontSize: 28,
-            fontWeight: "normal",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
-          },
-        ],
-        background: {
-          type: "color",
-          value: "#ffffff",
-        },
+        background: { type: "gradient", value: "linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)" },
       },
     ],
   },
+
+  // Technology Templates
   {
-    id: "science-research",
-    title: "Scientific Research",
-    description: "Professional template for research presentations and scientific conferences",
-    category: "science",
-    tags: ["research", "science", "academic", "conference"],
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    author: "Positron Team",
-    featured: true,
+    id: "tech-startup",
+    title: "Tech Startup",
+    description: "Modern and innovative template for technology companies",
+    category: "technology",
+    tags: ["tech", "startup", "innovation"],
+    preview: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)",
     slides: [
       {
         id: "slide-1",
         elements: [
           {
-            id: "research-title",
+            id: "title-1",
             type: "text",
-            content: "Research Title",
+            content: "INNOVATE",
             x: 100,
             y: 100,
             width: 800,
             height: 120,
-            fontSize: 48,
+            fontSize: 72,
             fontWeight: "bold",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "neon", intensity: 10, color: "#0ea5e9" },
           },
           {
-            id: "authors",
+            id: "subtitle-1",
             type: "text",
-            content: "Author Names¹, Co-Author²\n¹Institution Name, ²Institution Name",
+            content: "The Future of Technology",
             x: 100,
             y: 250,
             width: 800,
-            height: 100,
-            fontSize: 24,
-            fontWeight: "normal",
-            textAlign: "center",
-            fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "conference",
-            type: "text",
-            content: "Conference Name 2024",
-            x: 100,
-            y: 400,
-            width: 800,
             height: 60,
-            fontSize: 28,
+            fontSize: 36,
             fontWeight: "normal",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#bae6fd",
           },
-        ],
-        background: {
-          type: "gradient",
-          value: "linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)",
-        },
-      },
-      {
-        id: "slide-2",
-        elements: [
           {
-            id: "abstract-title",
-            type: "text",
-            content: "Abstract",
-            x: 100,
+            id: "shape-1",
+            type: "shape",
+            shape: "hexagon",
+            x: 50,
+            y: 350,
+            width: 60,
+            height: 60,
+            color: "#0ea5e9",
+          },
+          {
+            id: "shape-2",
+            type: "shape",
+            shape: "hexagon",
+            x: 890,
             y: 80,
-            width: 800,
-            height: 80,
-            fontSize: 48,
-            fontWeight: "bold",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "abstract-text",
-            type: "text",
-            content:
-              "Brief summary of your research objectives, methodology, key findings, and conclusions. This section provides an overview of the entire study.",
-            x: 100,
-            y: 200,
-            width: 800,
-            height: 300,
-            fontSize: 24,
-            fontWeight: "normal",
-            textAlign: "left",
-            fontFamily: "Inter, sans-serif",
+            width: 60,
+            height: 60,
+            color: "#38bdf8",
           },
         ],
-        background: {
-          type: "color",
-          value: "#f1f5f9",
-        },
+        background: { type: "gradient", value: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)" },
       },
     ],
   },
+
+  // Marketing Templates
   {
-    id: "creative-portfolio",
-    title: "Creative Portfolio",
-    description: "Stylish template for showcasing creative work and design portfolios",
-    category: "creative",
-    tags: ["portfolio", "creative", "design", "showcase"],
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    author: "Positron Team",
+    id: "product-launch",
+    title: "Product Launch",
+    description: "Eye-catching template for product launches and marketing campaigns",
+    category: "marketing",
+    tags: ["product", "launch", "marketing"],
+    preview: "linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #eab308 100%)",
     slides: [
       {
         id: "slide-1",
         elements: [
           {
-            id: "portfolio-title",
+            id: "title-1",
             type: "text",
-            content: "Creative Portfolio",
+            content: "LAUNCH DAY",
             x: 100,
-            y: 150,
+            y: 120,
             width: 800,
             height: 100,
             fontSize: 64,
             fontWeight: "bold",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "extrude", depth: 6, color: "#991b1b" },
           },
           {
-            id: "designer-name",
+            id: "subtitle-1",
             type: "text",
-            content: "Your Name",
+            content: "Introducing Our Revolutionary Product",
             x: 100,
-            y: 280,
+            y: 250,
             width: 800,
             height: 60,
             fontSize: 32,
             fontWeight: "normal",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#fef3c7",
           },
           {
-            id: "creative-shape-1",
-            type: "shape",
-            shape: "circle",
-            x: 200,
-            y: 400,
-            width: 80,
-            height: 80,
-            color: "#f59e0b",
-          },
-          {
-            id: "creative-shape-2",
-            type: "shape",
-            shape: "triangle",
-            x: 400,
-            y: 420,
-            width: 60,
-            height: 60,
-            color: "#ef4444",
-          },
-          {
-            id: "creative-shape-3",
-            type: "shape",
-            shape: "square",
-            x: 600,
-            y: 400,
-            width: 80,
-            height: 80,
-            color: "#8b5cf6",
+            id: "cta-1",
+            type: "text",
+            content: "Get Ready to Be Amazed",
+            x: 100,
+            y: 350,
+            width: 800,
+            height: 50,
+            fontSize: 24,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
           },
         ],
-        background: {
-          type: "gradient",
-          value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        },
+        background: { type: "gradient", value: "linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #eab308 100%)" },
       },
     ],
   },
+
+  // Minimal Templates
   {
-    id: "analytics-dashboard",
-    title: "Analytics Dashboard",
-    description: "Data-focused template for presenting metrics, KPIs, and analytical insights",
-    category: "analytics",
-    tags: ["analytics", "data", "metrics", "dashboard"],
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    author: "Positron Team",
+    id: "minimal-clean",
+    title: "Minimal Clean",
+    description: "Simple and elegant template focusing on content",
+    category: "minimal",
+    tags: ["minimal", "clean", "simple"],
+    preview: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
     slides: [
       {
         id: "slide-1",
         elements: [
           {
-            id: "dashboard-title",
+            id: "title-1",
             type: "text",
-            content: "Analytics Dashboard",
+            content: "Simple. Clean. Effective.",
             x: 100,
-            y: 80,
+            y: 200,
             width: 800,
-            height: 80,
+            height: 100,
             fontSize: 48,
-            fontWeight: "bold",
+            fontWeight: "300",
             textAlign: "center",
             fontFamily: "Inter, sans-serif",
+            color: "#1e293b",
           },
           {
-            id: "period",
-            type: "text",
-            content: "Q4 2024 Performance Report",
-            x: 100,
-            y: 180,
-            width: 800,
-            height: 60,
-            fontSize: 28,
-            fontWeight: "normal",
-            textAlign: "center",
-            fontFamily: "Inter, sans-serif",
-          },
-          {
-            id: "metric-1",
+            id: "line-1",
             type: "shape",
-            shape: "rounded-rect",
-            x: 100,
-            y: 300,
-            width: 200,
-            height: 120,
-            color: "#10b981",
-          },
-          {
-            id: "metric-2",
-            type: "shape",
-            shape: "rounded-rect",
+            shape: "rectangle",
             x: 400,
-            y: 300,
+            y: 320,
             width: 200,
-            height: 120,
-            color: "#3b82f6",
-          },
-          {
-            id: "metric-3",
-            type: "shape",
-            shape: "rounded-rect",
-            x: 700,
-            y: 300,
-            width: 200,
-            height: 120,
-            color: "#f59e0b",
+            height: 2,
+            color: "#64748b",
           },
         ],
-        background: {
-          type: "color",
-          value: "#0f172a",
-        },
+        background: { type: "gradient", value: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)" },
       },
     ],
   },
 ]
 
 const CATEGORIES = [
-  { id: "all", label: "All Templates", icon: Sparkles },
-  { id: "business", label: "Business", icon: Briefcase },
-  { id: "education", label: "Education", icon: GraduationCap },
-  { id: "science", label: "Science", icon: Atom },
-  { id: "creative", label: "Creative", icon: Palette },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "all", name: "All Templates", icon: Globe },
+  { id: "business", name: "Business", icon: Briefcase },
+  { id: "creative", name: "Creative", icon: Palette },
+  { id: "education", name: "Education", icon: GraduationCap },
+  { id: "technology", name: "Technology", icon: Zap },
+  { id: "marketing", name: "Marketing", icon: Heart },
+  { id: "minimal", name: "Minimal", icon: Sparkles },
 ]
 
 interface TemplateLibraryProps {
@@ -514,7 +587,6 @@ interface TemplateLibraryProps {
 export function TemplateLibrary({ open, onOpenChange, onSelectTemplate }: TemplateLibraryProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null)
 
   const filteredTemplates = TEMPLATES.filter((template) => {
     const matchesSearch =
@@ -527,295 +599,116 @@ export function TemplateLibrary({ open, onOpenChange, onSelectTemplate }: Templa
     return matchesSearch && matchesCategory
   })
 
-  const featuredTemplates = filteredTemplates.filter((template) => template.featured)
-  const regularTemplates = filteredTemplates.filter((template) => !template.featured)
-
-  const handleUseTemplate = (template: Template) => {
-    onSelectTemplate(template)
-    onOpenChange(false)
-  }
-
-  return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-6xl h-[80vh] bg-gray-900/95 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/95">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-yellow-300">
-              Template Library
-            </DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Choose from professionally designed templates to jumpstart your presentation
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex flex-col h-full">
-            {/* Search and Filters */}
-            <div className="flex gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search templates..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-700 text-gray-100 focus-visible:ring-blue-500/70"
-                />
-              </div>
-            </div>
-
-            {/* Category Tabs */}
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col">
-              <TabsList className="grid grid-cols-6 bg-gray-800/50 mb-4">
-                {CATEGORIES.map((category) => {
-                  const Icon = category.icon
-                  return (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className="text-gray-300 data-[state=active]:bg-gray-700 data-[state=active]:text-gray-100"
-                    >
-                      <Icon className="h-4 w-4 mr-2" />
-                      {category.label}
-                    </TabsTrigger>
-                  )
-                })}
-              </TabsList>
-
-              <TabsContent value={selectedCategory} className="flex-1 overflow-y-auto">
-                <div className="space-y-6">
-                  {/* Featured Templates */}
-                  {featuredTemplates.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="h-5 w-5 text-yellow-400" />
-                        <h3 className="text-lg font-semibold text-gray-200">Featured Templates</h3>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {featuredTemplates.map((template) => (
-                          <TemplateCard
-                            key={template.id}
-                            template={template}
-                            onPreview={() => setPreviewTemplate(template)}
-                            onUse={() => handleUseTemplate(template)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Regular Templates */}
-                  {regularTemplates.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-200 mb-4">All Templates</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {regularTemplates.map((template) => (
-                          <TemplateCard
-                            key={template.id}
-                            template={template}
-                            onPreview={() => setPreviewTemplate(template)}
-                            onUse={() => handleUseTemplate(template)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {filteredTemplates.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-gray-400 text-lg">No templates found matching your criteria</p>
-                      <p className="text-gray-500 text-sm mt-2">Try adjusting your search or category filter</p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Template Preview Dialog */}
-      {previewTemplate && (
-        <TemplatePreview
-          template={previewTemplate}
-          open={!!previewTemplate}
-          onOpenChange={() => setPreviewTemplate(null)}
-          onUse={() => handleUseTemplate(previewTemplate)}
-        />
-      )}
-    </>
-  )
-}
-
-interface TemplateCardProps {
-  template: Template
-  onPreview: () => void
-  onUse: () => void
-}
-
-function TemplateCard({ template, onPreview, onUse }: TemplateCardProps) {
-  const categoryColors = {
-    business: "bg-blue-500/20 text-blue-300",
-    education: "bg-green-500/20 text-green-300",
-    science: "bg-purple-500/20 text-purple-300",
-    creative: "bg-pink-500/20 text-pink-300",
-    analytics: "bg-orange-500/20 text-orange-300",
-  }
-
-  return (
-    <div className="group relative bg-gray-800/50 rounded-lg border border-gray-700/60 overflow-hidden hover:border-blue-500/50 transition-all duration-300">
-      {template.featured && (
-        <div className="absolute top-2 right-2 z-10">
-          <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-            <Sparkles className="h-3 w-3 mr-1" />
-            Featured
-          </Badge>
-        </div>
-      )}
-
-      <div className="aspect-video bg-gray-700/50 relative overflow-hidden">
-        <img
-          src={template.thumbnail || "/placeholder.svg"}
-          alt={template.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onPreview}
-            className="bg-gray-900/80 border-gray-600 text-gray-100 hover:bg-gray-800"
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Preview
-          </Button>
-          <Button size="sm" onClick={onUse} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Download className="h-4 w-4 mr-1" />
-            Use Template
-          </Button>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h4 className="font-semibold text-gray-100 group-hover:text-blue-300 transition-colors">{template.title}</h4>
-          <Badge className={categoryColors[template.category]}>{template.category}</Badge>
-        </div>
-
-        <p className="text-sm text-gray-400 mb-3 line-clamp-2">{template.description}</p>
-
-        <div className="flex items-center justify-between">
-          <div className="flex flex-wrap gap-1">
-            {template.tags.slice(0, 2).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs border-gray-600 text-gray-400">
-                {tag}
-              </Badge>
-            ))}
-            {template.tags.length > 2 && (
-              <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
-                +{template.tags.length - 2}
-              </Badge>
-            )}
-          </div>
-          <span className="text-xs text-gray-500">{template.slides.length} slides</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface TemplatePreviewProps {
-  template: Template
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onUse: () => void
-}
-
-function TemplatePreview({ template, open, onOpenChange, onUse }: TemplatePreviewProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[80vh] bg-gray-900/95 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/95">
+      <DialogContent className="max-w-6xl h-[80vh] bg-gray-900/95 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/95">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{template.title}</DialogTitle>
-          <DialogDescription className="text-gray-400">{template.description}</DialogDescription>
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-yellow-300 bg-clip-text text-transparent">
+            Template Library
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Choose from our collection of professionally designed templates
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">{template.category}</Badge>
-                <span className="text-sm text-gray-400">
-                  {template.slides.length} slides • By {template.author}
-                </span>
-              </div>
-              <Button onClick={onUse} className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Download className="h-4 w-4 mr-2" />
-                Use This Template
-              </Button>
-            </div>
+        <div className="flex flex-col gap-4 h-full">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-gray-800/50 border-gray-700/60 text-gray-100 focus-visible:ring-blue-500/70"
+            />
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {template.slides.map((slide, index) => (
-                <div key={slide.id} className="relative">
-                  <div className="aspect-video bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+          {/* Category Tabs */}
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col">
+            <TabsList className="grid grid-cols-7 bg-gray-800/50 backdrop-blur-md">
+              {CATEGORIES.map((category) => {
+                const Icon = category.icon
+                return (
+                  <TabsTrigger
+                    key={category.id}
+                    value={category.id}
+                    className="text-gray-300 data-[state=active]:bg-gray-700 data-[state=active]:text-white flex items-center gap-1"
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{category.name}</span>
+                  </TabsTrigger>
+                )
+              })}
+            </TabsList>
+
+            <TabsContent value={selectedCategory} className="flex-1 mt-4">
+              <ScrollArea className="h-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
+                  {filteredTemplates.map((template) => (
                     <div
-                      className="w-full h-full relative"
-                      style={{
-                        background:
-                          typeof slide.background === "string"
-                            ? slide.background
-                            : slide.background.type === "color"
-                              ? slide.background.value
-                              : slide.background.value,
+                      key={template.id}
+                      className="group relative bg-gray-800/40 rounded-xl border border-gray-700/40 overflow-hidden hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer"
+                      onClick={() => {
+                        onSelectTemplate(template)
+                        onOpenChange(false)
                       }}
                     >
-                      {slide.elements.map((element) => (
-                        <div
-                          key={element.id}
-                          className="absolute text-white"
-                          style={{
-                            left: `${(element.x / 1000) * 100}%`,
-                            top: `${(element.y / 562.5) * 100}%`,
-                            width: `${(element.width / 1000) * 100}%`,
-                            height: `${(element.height / 562.5) * 100}%`,
-                            fontSize: `${(element.fontSize || 16) * 0.3}px`,
-                            fontWeight: element.fontWeight,
-                            textAlign: element.textAlign as any,
-                            fontFamily: element.fontFamily,
-                          }}
-                        >
-                          {element.type === "text" && element.content}
-                          {element.type === "shape" && (
-                            <div
-                              className="w-full h-full"
-                              style={{
-                                backgroundColor: element.color,
-                                borderRadius:
-                                  element.shape === "circle" ? "50%" : element.shape === "rounded-rect" ? "8px" : "0",
-                              }}
-                            />
+                      {/* Preview */}
+                      <div className="h-32 w-full relative overflow-hidden" style={{ background: template.preview }}>
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="secondary" className="bg-gray-900/80 text-gray-100 text-xs">
+                            {template.slides.length} slide{template.slides.length !== 1 ? "s" : ""}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-100 mb-1 group-hover:text-blue-400 transition-colors">
+                          {template.title}
+                        </h3>
+                        <p className="text-sm text-gray-400 mb-3 line-clamp-2">{template.description}</p>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1">
+                          {template.tags.slice(0, 3).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-xs border-gray-600 text-gray-300 bg-gray-800/50"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {template.tags.length > 3 && (
+                            <Badge variant="outline" className="text-xs border-gray-600 text-gray-400 bg-gray-800/50">
+                              +{template.tags.length - 3}
+                            </Badge>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                    Slide {index + 1}
-                  </div>
-                </div>
-              ))}
-            </div>
+                      </div>
 
-            <div className="mt-6">
-              <h4 className="font-semibold text-gray-200 mb-2">Tags</h4>
-              <div className="flex flex-wrap gap-2">
-                {template.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="border-gray-600 text-gray-400">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg">
+                          Use Template
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {filteredTemplates.length === 0 && (
+                  <div className="text-center py-12">
+                    <Sparkles className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-300 mb-2">No templates found</h3>
+                    <p className="text-gray-500">Try adjusting your search or category filter</p>
+                  </div>
+                )}
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>

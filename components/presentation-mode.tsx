@@ -7,6 +7,7 @@ import type { Slide, SlideElement } from "@/types/editor"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import { RenderShape } from "@/utils/shape-utils"
 import { getTextEffectStyle } from "./text-effects"
+import { getImage3DEffectStyle } from "./image-3d-effects"
 
 interface PresentationModeProps {
   slides: Slide[]
@@ -19,6 +20,7 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
   const [previousSlideIndex, setPreviousSlideIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [clickedElements, setClickedElements] = useState<Set<string>>(new Set())
+  const [hoveredElements, setHoveredElements] = useState<Set<string>>(new Set())
 
   const slideContainerRef = useRef<HTMLDivElement>(null)
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -82,6 +84,18 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
     setClickedElements((prev) => {
       const newSet = new Set(prev)
       newSet.add(elementId)
+      return newSet
+    })
+  }
+
+  const handleElementHover = (elementId: string, isHovering: boolean) => {
+    setHoveredElements((prev) => {
+      const newSet = new Set(prev)
+      if (isHovering) {
+        newSet.add(elementId)
+      } else {
+        newSet.delete(elementId)
+      }
       return newSet
     })
   }
@@ -394,6 +408,22 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
     return transform || "none"
   }
 
+  useEffect(() => {
+    // Pause all videos and audio when changing slides
+    if (isTransitioning) {
+      const videos = document.querySelectorAll("video")
+      const audios = document.querySelectorAll("audio")
+
+      videos.forEach((video) => {
+        if (!video.paused) video.pause()
+      })
+
+      audios.forEach((audio) => {
+        if (!audio.paused) audio.pause()
+      })
+    }
+  }, [isTransitioning])
+
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black z-50 flex flex-col">
       <style jsx global>{`
@@ -487,6 +517,18 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
         @keyframes roomRight {
           from { transform: perspective(1000px) translateZ(-100px) translateX(0) rotateY(0); }
           to { transform: perspective(1000px) translateZ(-100px) translateX(100%) rotateY(-90deg); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes tilt3d {
+          0%, 100% { transform: perspective(800px) rotateY(0); }
+          50% { transform: perspective(800px) rotateY(15deg); }
+        }
+        @keyframes flip3d {
+          0% { transform: perspective(800px) rotateY(0); }
+          100% { transform: perspective(800px) rotateY(360deg); }
         }
       `}</style>
 
@@ -603,7 +645,48 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
 
               if (element.type === "image") {
                 const imageStyle = getImageFilterStyle(element)
+                const isHovering = hoveredElements.has(element.id)
+                const image3DEffectStyle = element.imageEffect3d
+                  ? getImage3DEffectStyle(element.imageEffect3d, element.imageEffect3d.hover && isHovering)
+                  : {}
 
+                return (
+                  <div
+                    key={element.id}
+                    className="absolute"
+                    style={{
+                      left: `${element.x}px`,
+                      top: `${element.y}px`,
+                      width: `${element.width}px`,
+                      height: `${element.height}px`,
+                      transform: getElementTransform(element),
+                      transformOrigin: "center center",
+                      perspective: element.imageEffect3d?.perspective || 800,
+                      ...getElementAnimationStyle(element),
+                    }}
+                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
+                    onMouseEnter={() => handleElementHover(element.id, true)}
+                    onMouseLeave={() => handleElementHover(element.id, false)}
+                  >
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        ...image3DEffectStyle,
+                        transition: "all 0.5s ease",
+                      }}
+                    >
+                      <img
+                        src={element.src || "/placeholder.svg"}
+                        alt="Slide element"
+                        className="w-full h-full object-cover"
+                        style={imageStyle}
+                      />
+                    </div>
+                  </div>
+                )
+              }
+
+              if (element.type === "video") {
                 return (
                   <div
                     key={element.id}
@@ -619,12 +702,44 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
                     }}
                     onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
                   >
-                    <img
-                      src={element.src || "/placeholder.svg"}
-                      alt="Slide element"
+                    <video
+                      src={element.src}
                       className="w-full h-full object-cover"
-                      style={imageStyle}
+                      autoPlay={element.autoplay}
+                      controls={element.controls}
+                      loop={element.loop}
+                      muted={element.muted}
+                      playsInline
                     />
+                  </div>
+                )
+              }
+
+              if (element.type === "audio") {
+                return (
+                  <div
+                    key={element.id}
+                    className="absolute"
+                    style={{
+                      left: `${element.x}px`,
+                      top: `${element.y}px`,
+                      width: `${element.width}px`,
+                      height: `${element.height}px`,
+                      transform: getElementTransform(element),
+                      transformOrigin: "center center",
+                      ...getElementAnimationStyle(element),
+                    }}
+                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
+                  >
+                    <div className="w-full h-full flex items-center justify-center bg-gray-800/50 rounded-lg p-2">
+                      <audio
+                        src={element.src}
+                        className="w-full"
+                        autoPlay={element.autoplay}
+                        controls={element.controls}
+                        loop={element.loop}
+                      />
+                    </div>
                   </div>
                 )
               }

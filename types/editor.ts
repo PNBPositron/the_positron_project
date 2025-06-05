@@ -121,7 +121,25 @@ export interface AudioElement {
   rotation?: number
 }
 
-export type SlideElement = TextElement | ShapeElement | ImageElement | VideoElement | AudioElement
+export interface DrawingElement {
+  id: string
+  type: "drawing"
+  paths: Array<{
+    id: string
+    d: string // SVG path data
+    stroke: string
+    strokeWidth: number
+    fill?: string
+  }>
+  x: number
+  y: number
+  width: number
+  height: number
+  animation?: ElementAnimation
+  rotation?: number
+}
+
+export type SlideElement = TextElement | ShapeElement | ImageElement | VideoElement | AudioElement | DrawingElement
 
 export interface SlideBackground {
   type: "color" | "gradient" | "image"

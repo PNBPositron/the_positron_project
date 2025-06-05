@@ -858,6 +858,89 @@ export default function SlideCanvas({
             )
           }
 
+          if (element.type === "drawing") {
+            return (
+              <div
+                key={element.id}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-green-500" : ""}`}
+                style={{
+                  left: `${element.x}px`,
+                  top: `${element.y}px`,
+                  width: `${element.width}px`,
+                  height: `${element.height}px`,
+                  transform: getElementTransform(element),
+                  transformOrigin: "center center",
+                }}
+                onMouseDown={(e) => handleElementMouseDown(e, element)}
+              >
+                <svg
+                  className="w-full h-full"
+                  viewBox={`0 0 ${element.width} ${element.height}`}
+                  preserveAspectRatio="none"
+                >
+                  {element.paths.map((path) => (
+                    <path
+                      key={path.id}
+                      d={path.d}
+                      stroke={path.stroke}
+                      strokeWidth={path.strokeWidth}
+                      fill={path.fill || "none"}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+                </svg>
+
+                {isSelected && (
+                  <>
+                    {/* Resize handles */}
+                    <div
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-green-500 cursor-nw-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
+                    />
+                    <div
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-green-500 cursor-n-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
+                    />
+                    <div
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 cursor-ne-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
+                    />
+                    <div
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-green-500 cursor-w-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
+                    />
+                    <div
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-green-500 cursor-e-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
+                    />
+                    <div
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-green-500 cursor-sw-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
+                    />
+                    <div
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-green-500 cursor-s-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
+                    />
+                    <div
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 cursor-se-resize rounded-sm"
+                      onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
+                    />
+
+                    {/* Rotation handle */}
+                    <div
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-green-500 cursor-grab rounded-full"
+                      onMouseDown={(e) => handleRotateMouseDown(e, element)}
+                    >
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-green-500"></div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          }
+
           return null
         })}
       </div>

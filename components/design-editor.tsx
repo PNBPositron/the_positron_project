@@ -40,6 +40,7 @@ import {
   Film,
   HelpCircle,
   CuboidIcon as Cube,
+  Pencil,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -89,6 +90,7 @@ import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
 import { ImageLibrary } from "@/components/image-library"
 import { TemplateLibrary } from "@/components/template-library"
+import DrawingCanvas from "@/components/drawing-canvas"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -299,6 +301,7 @@ export default function DesignEditor() {
   const [showImage3dEffectsPanel, setShowImage3dEffectsPanel] = useState(false)
   const [showImageLibrary, setShowImageLibrary] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
+  const [isDrawingMode, setIsDrawingMode] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -673,6 +676,35 @@ export default function DesignEditor() {
 
     // Reset the input value so the same file can be selected again
     e.target.value = ""
+  }
+
+  const addDrawingElement = (paths: any[]) => {
+    const currentSlide = slides[currentSlideIndex]
+    const newElement = {
+      id: `drawing-${Date.now()}`,
+      type: "drawing" as const,
+      paths: paths,
+      x: 0,
+      y: 0,
+      width: 1000,
+      height: 562.5,
+      animation: {
+        type: "fade",
+        delay: 0.4,
+        duration: 1.2,
+        trigger: "onLoad",
+        easing: "ease-in-out",
+      },
+    }
+
+    const updatedSlides = [...slides]
+    updatedSlides[currentSlideIndex] = {
+      ...currentSlide,
+      elements: [...currentSlide.elements, newElement],
+    }
+
+    setSlides(updatedSlides)
+    setSelectedElementId(newElement.id)
   }
 
   const updateElement = (elementId: string, updates: Record<string, any>) => {
@@ -1249,44 +1281,56 @@ export default function DesignEditor() {
 
         {/* Canvas Area */}
         <div className="flex-1 bg-gray-950 flex flex-col">
-          {/* Canvas Controls - Floating Bar */}
-          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 px-4 py-2 flex justify-between items-center bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/70 border border-gray-700/60 rounded-full shadow-lg min-w-[400px]">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-8 rounded-full"
-              onClick={() => handleExport("png", true)}
-              disabled={isExporting}
-            >
-              <ImageIcon className="h-4 w-4 mr-1 text-blue-400" />
-              Export
-            </Button>
-
-            <div className="flex items-center gap-1 px-2">
+          {/* Canvas Controls - macOS Dock Style */}
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 px-6 py-3 flex items-center gap-2 bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/80 border border-gray-700/60 rounded-2xl shadow-2xl">
+            <div className="flex items-center gap-1 transition-all duration-300 ease-out group">
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center"
+                onClick={() => handleExport("png", true)}
+                disabled={isExporting}
+                title="Export Current Slide"
+              >
+                <ImageIcon className="h-5 w-5 text-blue-400" />
+              </Button>
+
+              <div className="w-px h-8 bg-gray-700/60 mx-2" />
+
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
                 disabled={currentSlideIndex === 0}
-                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-8 w-8 rounded-full"
+                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
+                title="Previous Slide"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-5 w-5" />
               </Button>
-              <span className="text-sm py-1 px-2 text-gray-300">
-                {currentSlideIndex + 1}/{slides.length}
-              </span>
+
+              <div className="px-3 py-1 bg-gray-800/50 rounded-lg border border-gray-700/40 transition-all duration-300 ease-out hover:scale-110">
+                <span className="text-sm font-medium text-gray-300">
+                  {currentSlideIndex + 1}/{slides.length}
+                </span>
+              </div>
+
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
                 disabled={currentSlideIndex === slides.length - 1}
-                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-8 w-8 rounded-full"
+                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
+                title="Next Slide"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" />
               </Button>
-            </div>
 
-            <ZoomControls zoomLevel={zoomLevel} onZoomChange={handleZoomChange} />
+              <div className="w-px h-8 bg-gray-700/60 mx-2" />
+
+              <div className="transition-all duration-300 ease-out hover:scale-110">
+                <ZoomControls zoomLevel={zoomLevel} onZoomChange={handleZoomChange} />
+              </div>
+            </div>
           </div>
 
           {/* Canvas */}
@@ -1377,6 +1421,16 @@ export default function DesignEditor() {
               </Button>
               <input type="file" accept="audio/*" className="hidden" onChange={addAudioElement} ref={audioInputRef} />
             </label>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsDrawingMode(true)}
+              className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            >
+              <Pencil className="h-4 w-4 mr-1 text-blue-400" />
+              Draw
+            </Button>
           </div>
 
           <Separator className="my-2 bg-gray-700" />
@@ -1723,6 +1777,14 @@ export default function DesignEditor() {
         open={showTemplateLibrary}
         onOpenChange={setShowTemplateLibrary}
         onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Drawing Canvas */}
+      <DrawingCanvas
+        isDrawing={isDrawingMode}
+        onSaveDrawing={addDrawingElement}
+        onClose={() => setIsDrawingMode(false)}
+        zoomLevel={zoomLevel}
       />
     </div>
   )
