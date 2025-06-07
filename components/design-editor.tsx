@@ -38,7 +38,6 @@ import {
   Music,
   FileType,
   Film,
-  HelpCircle,
   CuboidIcon as Cube,
   Pencil,
 } from "lucide-react"
@@ -1039,17 +1038,10 @@ export default function DesignEditor() {
             variant="ghost"
             size="sm"
             className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
-            onClick={() => {
-              toast({
-                title: "About Positron",
-                description:
-                  "Positron is an advanced presentation editor with animations, effects, and export capabilities.",
-                duration: 4000,
-              })
-            }}
+            onClick={() => setIsPresentationMode(true)}
           >
-            <HelpCircle className="h-4 w-4 mr-1 text-blue-400" />
-            About
+            <Film className="h-4 w-4 mr-1 text-blue-400" />
+            Present
           </Button>
           <Button
             variant="ghost"
