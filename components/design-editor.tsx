@@ -40,6 +40,7 @@ import {
   Film,
   CuboidIcon as Cube,
   Pencil,
+  UploadCloud,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -89,6 +90,7 @@ import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
 import { ImageLibrary } from "@/components/image-library"
 import { TemplateLibrary } from "@/components/template-library"
+import { ImageUploader } from "@/components/image-uploader"
 import DrawingCanvas from "@/components/drawing-canvas"
 
 const FONT_OPTIONS = [
@@ -300,6 +302,7 @@ export default function DesignEditor() {
   const [showImage3dEffectsPanel, setShowImage3dEffectsPanel] = useState(false)
   const [showImageLibrary, setShowImageLibrary] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
+  const [showImageUploader, setShowImageUploader] = useState(false)
   const [isDrawingMode, setIsDrawingMode] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -984,6 +987,57 @@ export default function DesignEditor() {
     setSelectedElementId(newElement.id)
   }
 
+  const handleImagesUploaded = (uploadedImages: Array<{ src: string; file: File }>) => {
+    const currentSlide = slides[currentSlideIndex]
+    const newElements = uploadedImages.map((image, index) => ({
+      id: `image-${Date.now()}-${index}`,
+      type: "image" as const,
+      src: image.src,
+      x: 250 + index * 20, // Offset each image slightly
+      y: 200 + index * 20,
+      width: 300,
+      height: 200,
+      filters: {
+        grayscale: 0,
+        sepia: 0,
+        blur: 0,
+        brightness: 100,
+        contrast: 100,
+        hueRotate: 0,
+        saturate: 100,
+        opacity: 100,
+      },
+      effects: {
+        borderRadius: 0,
+        borderWidth: 0,
+        borderColor: "#ffffff",
+        shadowBlur: 0,
+        shadowColor: "#000000",
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+      },
+      animation: {
+        type: "fade",
+        delay: 0.4 + index * 0.1, // Stagger animations
+        duration: 1.2,
+        trigger: "onLoad",
+        easing: "ease-in-out",
+      },
+    }))
+
+    const updatedSlides = [...slides]
+    updatedSlides[currentSlideIndex] = {
+      ...currentSlide,
+      elements: [...currentSlide.elements, ...newElements],
+    }
+
+    setSlides(updatedSlides)
+    // Select the first uploaded image
+    if (newElements.length > 0) {
+      setSelectedElementId(newElements[0].id)
+    }
+  }
+
   const handleSelectTemplate = (template: any) => {
     setPresentationTitle(template.title)
     setSlides(template.slides)
@@ -1384,10 +1438,14 @@ export default function DesignEditor() {
                   <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
                   Browse Library
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowImageUploader(true)} className="hover:bg-gray-700">
+                  <UploadCloud className="h-4 w-4 mr-2 text-blue-400" />
+                  Advanced Upload
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild className="hover:bg-gray-700">
                   <label>
                     <Upload className="h-4 w-4 mr-2 text-blue-400" />
-                    Upload Image
+                    Quick Upload
                     <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
                   </label>
                 </DropdownMenuItem>
@@ -1712,9 +1770,6 @@ export default function DesignEditor() {
                 size="sm"
                 onClick={deleteElement}
                 className="text-gray-300 hover:bg-gray-800 hover:text-red-400 w-full justify-start mt-2"
-                size="sm"
-                onClick={deleteElement}
-                className="text-gray-300 hover:bg-gray-800 hover:text-red-400 w-full justify-start mt-2"
               >
                 <Trash2 className="h-4 w-4 mr-2 text-red-400" />
                 Delete Element
@@ -1769,6 +1824,16 @@ export default function DesignEditor() {
         open={showTemplateLibrary}
         onOpenChange={setShowTemplateLibrary}
         onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Enhanced Image Uploader Dialog */}
+      <ImageUploader
+        open={showImageUploader}
+        onOpenChange={setShowImageUploader}
+        onImagesUploaded={handleImagesUploaded}
+        maxFileSize={10}
+        maxFiles={10}
+        enableCompression={true}
       />
 
       {/* Drawing Canvas */}
