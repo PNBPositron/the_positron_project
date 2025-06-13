@@ -1,33 +1,30 @@
 import type React from "react"
-import "./globals.css"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from "@/contexts/auth-context"
-
-const inter = Inter({ subsets: ["latin"] })
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Positron - Design Editor",
-  description: "A powerful design editor for creating stunning presentations",
-    generator: 'v0.dev'
+  title: "Positron Project - Advanced Presentation Editor",
+  description: "Create stunning presentations with animations and effects",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning className="font-mono">
+      <head />
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

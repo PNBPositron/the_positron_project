@@ -92,10 +92,6 @@ import { ImageLibrary } from "@/components/image-library"
 import { TemplateLibrary } from "@/components/template-library"
 import { ImageUploader } from "@/components/image-uploader"
 import DrawingCanvas from "@/components/drawing-canvas"
-import { UserMenu } from "@/components/auth/user-menu"
-import { savePresentation, updatePresentation } from "@/utils/presentation-utils"
-import { useAuth } from "@/contexts/auth-context"
-import Link from "next/link"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -308,7 +304,6 @@ export default function DesignEditor() {
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
   const [isDrawingMode, setIsDrawingMode] = useState(false)
-  const [presentationId, setPresentationId] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -316,8 +311,6 @@ export default function DesignEditor() {
   const fontInputRef = useRef<HTMLInputElement>(null)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
-
-  const { user } = useAuth()
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -364,58 +357,6 @@ export default function DesignEditor() {
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [selectedElementId])
-
-  const handleSavePresentation = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to save your presentation.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      if (presentationId) {
-        // Update existing presentation
-        const { data, error } = await updatePresentation(presentationId, presentationTitle, slides)
-
-        if (error) {
-          throw error
-        }
-
-        toast({
-          title: "Presentation updated",
-          description: "Your presentation has been updated successfully.",
-          variant: "default",
-        })
-      } else {
-        // Create new presentation
-        const { data, error } = await savePresentation(presentationTitle, slides)
-
-        if (error) {
-          throw error
-        }
-
-        if (data) {
-          setPresentationId(data.id)
-        }
-
-        toast({
-          title: "Presentation saved",
-          description: "Your presentation has been saved successfully.",
-          variant: "default",
-        })
-      }
-    } catch (error: any) {
-      console.error("Error saving presentation:", error)
-      toast({
-        title: "Save failed",
-        description: error.message || "There was an error saving your presentation.",
-        variant: "destructive",
-      })
-    }
-  }
 
   const handleExportJson = () => {
     exportToJson(presentationTitle, slides)
@@ -1147,16 +1088,6 @@ export default function DesignEditor() {
             <Keyboard className="h-4 w-4 mr-1 text-gray-400" />
             Shortcuts
           </Button>
-          <Link href="/presentations">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
-            >
-              <LayoutGrid className="h-4 w-4 mr-1 text-blue-400" />
-              My Presentations
-            </Button>
-          </Link>
           <Button
             variant="ghost"
             size="sm"
@@ -1175,7 +1106,6 @@ export default function DesignEditor() {
             <LayoutGrid className="h-4 w-4 mr-1 text-blue-400" />
             Templates
           </Button>
-          <UserMenu />
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
             <Button
               variant="ghost"
@@ -1193,6 +1123,98 @@ export default function DesignEditor() {
               GitHub
             </Button>
           </a>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-700/30 bg-gray-800/20 hover:bg-gray-700/30 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/5"
+              >
+                <Save className="h-4 w-4 mr-2 text-blue-400" />
+                Save
+                <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10">
+              <DropdownMenuItem className="hover:bg-gray-700">
+                <Save className="h-4 w-4 mr-2 text-blue-400" />
+                Save Project
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuItem className="hover:bg-gray-700" onClick={handleExportJson}>
+                <FileJson className="h-4 w-4 mr-2 text-blue-400" />
+                Export as JSON
+              </DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-700" onClick={handleImportClick}>
+                <Upload className="h-4 w-4 mr-2 text-blue-400" />
+                Import from JSON
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => handleExport("pdf")}
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2 text-blue-400" />
+                {isExporting ? "Exporting..." : "Export as PDF"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => handleExport("png")}
+                disabled={isExporting}
+              >
+                <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+                Export as PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => handleExport("jpg")}
+                disabled={isExporting}
+              >
+                <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+                Export as JPG
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => {
+                  setIsSingleSlideExport(false)
+                  setIsGifExportDialogOpen(true)
+                }}
+                disabled={isExporting}
+              >
+                <Film className="h-4 w-4 mr-2 text-blue-400" />
+                Export as GIF (Advanced)
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => handleExport("png", true)}
+                disabled={isExporting}
+              >
+                <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
+                Export Current Slide (PNG)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => handleExport("jpg", true)}
+                disabled={isExporting}
+              >
+                <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
+                Export Current Slide (JPG)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-gray-700"
+                onClick={() => {
+                  setIsSingleSlideExport(true)
+                  setIsGifExportDialogOpen(true)
+                }}
+                disabled={isExporting}
+              >
+                <Film className="h-4 w-4 mr-2 text-yellow-400" />
+                Export Current Slide as GIF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -1437,12 +1459,7 @@ export default function DesignEditor() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-gray-800 border-gray-700 text-gray-100">
-                <DropdownMenuItem
-                  onClick={() => setShowImageLibrary(true)}
-                  className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                  role="button"
-                  onKeyDown={(e) => e.key === "Enter" && setShowImageLibrary(true)}
-                >
+                <DropdownMenuItem onClick={() => setShowImageLibrary(true)} className="hover:bg-gray-700">
                   <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
                   Browse Library
                 </DropdownMenuItem>
@@ -1861,81 +1878,6 @@ export default function DesignEditor() {
         onClose={() => setIsDrawingMode(false)}
         zoomLevel={zoomLevel}
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Save className="h-4 w-4 mr-2" />
-            Save
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10">
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleSavePresentation}>
-            <Save className="h-4 w-4 mr-2 text-blue-400" />
-            {presentationId ? "Update Presentation" : "Save Presentation"}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-gray-700" />
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleExportJson}>
-            <FileJson className="h-4 w-4 mr-2 text-blue-400" />
-            Export as JSON
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleImportClick}>
-            <Upload className="h-4 w-4 mr-2 text-blue-400" />
-            Import from JSON
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-gray-700" />
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("pdf")} disabled={isExporting}>
-            <Download className="h-4 w-4 mr-2 text-blue-400" />
-            {isExporting ? "Exporting..." : "Export as PDF"}
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("png")} disabled={isExporting}>
-            <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
-            Export as PNG
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("jpg")} disabled={isExporting}>
-            <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
-            Export as JPG
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-gray-700"
-            onClick={() => {
-              setIsSingleSlideExport(false)
-              setIsGifExportDialogOpen(true)
-            }}
-            disabled={isExporting}
-          >
-            <Film className="h-4 w-4 mr-2 text-blue-400" />
-            Export as GIF (Advanced)
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-gray-700" />
-          <DropdownMenuItem
-            className="hover:bg-gray-700"
-            onClick={() => handleExport("png", true)}
-            disabled={isExporting}
-          >
-            <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
-            Export Current Slide (PNG)
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-gray-700"
-            onClick={() => handleExport("jpg", true)}
-            disabled={isExporting}
-          >
-            <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
-            Export Current Slide (JPG)
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-gray-700"
-            onClick={() => {
-              setIsSingleSlideExport(true)
-              setIsGifExportDialogOpen(true)
-            }}
-            disabled={isExporting}
-          >
-            <Film className="h-4 w-4 mr-2 text-yellow-400" />
-            Export Current Slide as GIF
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   )
 }
