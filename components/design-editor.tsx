@@ -1382,7 +1382,7 @@ export default function DesignEditor() {
           {/* Canvas */}
           <div
             ref={canvasContainerRef}
-            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[linear-gradient(135deg,#0ea5e9_0%,#eab308_100%)] rounded-3xl"
+            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[linear-gradient(135deg,#0ea5e9_0%,#eab308_100%)] rounded-3xl font-mono"
           >
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/50 to-yellow-400/50 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>

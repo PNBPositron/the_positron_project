@@ -10,7 +10,7 @@ interface KeyboardShortcutsProps {
 export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-800 border-gray-700 text-gray-100 max-w-2xl">
+      <DialogContent className="bg-gray-800 border-gray-700 text-gray-100 max-w-2xl font-mono">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-100">Keyboard Shortcuts</DialogTitle>
           <DialogDescription className="text-gray-400">
