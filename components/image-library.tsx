@@ -2,254 +2,153 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Search, Download, X, ImageIcon } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-
-interface LibraryImage {
-  id: string
-  src: string
-  title: string
-  category: string
-  tags: string[]
-  description: string
-}
-
-const LIBRARY_IMAGES: LibraryImage[] = [
-  {
-    id: "observatory-sunset",
-    src: "/images/observatory-sunset.jpg",
-    title: "Observatory at Sunset",
-    category: "Science",
-    tags: ["observatory", "telescope", "sunset", "astronomy", "science"],
-    description: "Astronomical observatory complex during golden hour with dramatic sky",
-  },
-  {
-    id: "arecibo-telescope",
-    src: "/images/arecibo-telescope.jpg",
-    title: "Arecibo Radio Telescope",
-    category: "Science",
-    tags: ["radio telescope", "arecibo", "science", "research", "technology"],
-    description: "Famous Arecibo radio telescope dish surrounded by tropical forest",
-  },
-  {
-    id: "observatory-teal",
-    src: "/images/observatory-teal.png",
-    title: "Observatory (Teal)",
-    category: "Science",
-    tags: ["observatory", "telescope", "filtered", "astronomy", "blue"],
-    description: "Observatory complex with artistic teal color treatment",
-  },
-  {
-    id: "digital-abstract",
-    src: "/images/digital-abstract.png",
-    title: "Digital Code Abstract",
-    category: "Technology",
-    tags: ["code", "programming", "abstract", "digital", "colorful"],
-    description: "Abstract visualization of code and digital elements with vibrant colors",
-  },
-  {
-    id: "space-observatory",
-    src: "/images/space-observatory.jpg",
-    title: "Space Observatory Fantasy",
-    category: "Space",
-    tags: ["space", "planets", "observatory", "fantasy", "cosmic", "stars"],
-    description: "Fantasy space scene with observatory dome and multiple planets",
-  },
-]
-
-const CATEGORIES = ["All", "Science", "Technology", "Space"]
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { ImageUploader } from "./image-uploader"
+import { Search, Upload, ImageIcon } from "lucide-react"
 
 interface ImageLibraryProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSelectImage: (imageSrc: string) => void
+  onSelectImage: (src: string) => void
 }
 
-export function ImageLibrary({ open, onOpenChange, onSelectImage }: ImageLibraryProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [selectedImage, setSelectedImage] = useState<LibraryImage | null>(null)
+// Sample images for the library
+const sampleImages = [
+  "/images/arecibo-telescope.jpg",
+  "/images/digital-abstract.png",
+  "/images/observatory-sunset.jpg",
+  "/images/observatory-teal.png",
+  "/images/space-observatory.jpg",
+]
 
-  const filteredImages = LIBRARY_IMAGES.filter((image) => {
-    const matchesSearch =
-      image.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      image.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      image.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+export function ImageLibrary({ onSelectImage }: ImageLibraryProps) {
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [userImages, setUserImages] = useState<Array<{ src: string; name?: string }>>([])
 
-    const matchesCategory = selectedCategory === "All" || image.category === selectedCategory
+  const filteredSampleImages = sampleImages.filter((img) => img.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    return matchesSearch && matchesCategory
-  })
+  const filteredUserImages = userImages.filter(
+    (img) => img.name?.toLowerCase().includes(searchQuery.toLowerCase()) || !searchQuery,
+  )
 
-  const handleImageSelect = (image: LibraryImage) => {
-    onSelectImage(image.src)
-    onOpenChange(false)
-  }
+  const handleImageUpload = (images: Array<{ src: string; file: File }>) => {
+    const newImages = images.map((img) => ({
+      src: img.src,
+      name: img.file.name,
+    }))
 
-  const handleImageClick = (image: LibraryImage) => {
-    setSelectedImage(image)
+    setUserImages([...userImages, ...newImages])
+
+    // If only one image was uploaded, select it automatically
+    if (images.length === 1) {
+      onSelectImage(images[0].src)
+    }
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-gray-800/90 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/90 max-w-4xl max-h-[80vh] overflow-hidden">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-blue-400" />
-              Image Library
-            </DialogTitle>
+            <DialogTitle>Image Library</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4">
-            {/* Search and Filters */}
-            <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search images..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-700/60 text-gray-100"
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex gap-2">
-                {CATEGORIES.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className={
-                      selectedCategory === category
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "border-gray-700 bg-gray-800/50 hover:bg-gray-700 text-gray-300"
-                    }
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
+              <Button onClick={() => setUploadDialogOpen(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Upload
+              </Button>
             </div>
 
-            {/* Image Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2">
-              {filteredImages.map((image) => (
-                <div
-                  key={image.id}
-                  className="group relative bg-gray-900/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-blue-500/50 transition-all cursor-pointer"
-                  onClick={() => handleImageClick(image)}
-                >
-                  <div className="aspect-video relative overflow-hidden">
-                    <img
-                      src={image.src || "/placeholder.svg"}
-                      alt={image.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleImageSelect(image)
+            <Tabs defaultValue="sample" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="sample">Sample Images</TabsTrigger>
+                <TabsTrigger value="uploaded">Your Uploads</TabsTrigger>
+              </TabsList>
+              <TabsContent value="sample" className="mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {filteredSampleImages.length > 0 ? (
+                    filteredSampleImages.map((image, index) => (
+                      <div
+                        key={index}
+                        className="aspect-square rounded-md overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => {
+                          onSelectImage(image)
+                          setOpen(false)
                         }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white h-8 px-3"
                       >
-                        <Download className="h-3 w-3 mr-1" />
-                        Use
-                      </Button>
+                        <img
+                          src={image || "/placeholder.svg"}
+                          alt={`Sample ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-muted-foreground">
+                      No images found matching your search.
                     </div>
-                  </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium text-gray-200 mb-1 truncate">{image.title}</h3>
-                    <div className="flex items-center justify-between">
-                      <Badge variant="secondary" className="bg-gray-700/50 text-gray-300 text-xs">
-                        {image.category}
-                      </Badge>
-                      <span className="text-xs text-gray-400">{image.tags.length} tags</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
-
-            {filteredImages.length === 0 && (
-              <div className="text-center py-8 text-gray-400">
-                <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No images found matching your search.</p>
-              </div>
-            )}
+              </TabsContent>
+              <TabsContent value="uploaded" className="mt-4">
+                {filteredUserImages.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {filteredUserImages.map((image, index) => (
+                      <div
+                        key={index}
+                        className="aspect-square rounded-md overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => {
+                          onSelectImage(image.src)
+                          setOpen(false)
+                        }}
+                      >
+                        <img
+                          src={image.src || "/placeholder.svg"}
+                          alt={image.name || `Uploaded ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 space-y-4">
+                    <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium">No images uploaded yet</p>
+                      <p className="text-sm text-muted-foreground">Upload images to use in your presentation</p>
+                    </div>
+                    <Button onClick={() => setUploadDialogOpen(true)}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Images
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Image Preview Dialog */}
-      {selectedImage && (
-        <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="bg-gray-800/90 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/90 max-w-3xl">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <DialogTitle>{selectedImage.title}</DialogTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSelectedImage(null)}
-                  className="text-gray-400 hover:text-gray-200"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </DialogHeader>
+      <ImageUploader open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} onImagesUploaded={handleImageUpload} />
 
-            <div className="space-y-4">
-              <div className="relative">
-                <img
-                  src={selectedImage.src || "/placeholder.svg"}
-                  alt={selectedImage.title}
-                  className="w-full max-h-64 object-cover rounded-lg"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-gray-300 text-sm">{selectedImage.description}</p>
-
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
-                    {selectedImage.category}
-                  </Badge>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedImage.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="border-gray-600 text-gray-400 text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    onClick={() => handleImageSelect(selectedImage)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Use This Image
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedImage(null)}
-                    className="border-gray-700 bg-gray-800/50 hover:bg-gray-700 text-gray-300"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <ImageIcon className="h-4 w-4 mr-2" />
+        Image Library
+      </Button>
     </>
   )
 }
