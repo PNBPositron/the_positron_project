@@ -53,16 +53,16 @@ export default function SlidesThumbnails({ slides, currentSlideIndex, onSelectSl
               <div className="flex-1">
                 <div
                   className={`
-                    border rounded-md overflow-hidden cursor-pointer transition-all group
+                    border rounded-xl overflow-hidden cursor-pointer transition-all group
                     ${
                       isCurrentSlide
-                        ? "ring-2 ring-blue-500/70 border-gray-700 shadow-lg shadow-blue-500/10"
-                        : "border-gray-800 hover:ring-1 hover:ring-blue-500/50"
+                        ? "ring-2 ring-blue-500/70 border-gray-700/30 shadow-lg shadow-blue-500/20"
+                        : "border-gray-800/30 hover:ring-1 hover:ring-blue-500/50"
                     }
                   `}
                   onClick={() => onSelectSlide(index)}
                 >
-                  <div className="flex items-center justify-between px-2 py-1 bg-gray-800/70">
+                  <div className="flex items-center justify-between px-2 py-1 bg-gray-800/40 backdrop-blur-md">
                     <span className="text-xs text-gray-300 truncate max-w-[120px]">
                       {slide.elements.find((el) => el.type === "text")?.content || `Slide ${index + 1}`}
                     </span>
@@ -208,7 +208,7 @@ export default function SlidesThumbnails({ slides, currentSlideIndex, onSelectSl
                 {hasTransition && index < slides.length - 1 && !isCollapsed[index] && (
                   <div className="flex items-center justify-center my-1 opacity-70 group-hover:opacity-100">
                     <div className="h-px w-8 bg-gradient-to-r from-blue-400/50 to-yellow-400/50"></div>
-                    <div className="px-1 py-0.5 rounded-sm bg-gray-800/70 text-[10px] text-gray-400 flex items-center">
+                    <div className="px-1 py-0.5 rounded-md bg-gray-800/40 backdrop-blur-md text-[10px] text-gray-400 flex items-center">
                       <ArrowRightLeft size={8} className="mr-1" />
                       {slide.transition?.type}
                     </div>

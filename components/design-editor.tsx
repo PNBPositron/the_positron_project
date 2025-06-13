@@ -92,6 +92,10 @@ import { ImageLibrary } from "@/components/image-library"
 import { TemplateLibrary } from "@/components/template-library"
 import { ImageUploader } from "@/components/image-uploader"
 import DrawingCanvas from "@/components/drawing-canvas"
+import { UserMenu } from "@/components/auth/user-menu"
+import { savePresentation, updatePresentation } from "@/utils/presentation-utils"
+import { useAuth } from "@/contexts/auth-context"
+import Link from "next/link"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -134,7 +138,7 @@ function GifExportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-800/80 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/80">
+      <DialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl">
         <DialogHeader>
           <DialogTitle>{isSingleSlide ? "Export Slide as GIF" : "Export Presentation as GIF"}</DialogTitle>
           <DialogDescription className="text-gray-400">Customize your GIF export settings</DialogDescription>
@@ -304,6 +308,7 @@ export default function DesignEditor() {
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
   const [isDrawingMode, setIsDrawingMode] = useState(false)
+  const [presentationId, setPresentationId] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -311,6 +316,8 @@ export default function DesignEditor() {
   const fontInputRef = useRef<HTMLInputElement>(null)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
+
+  const { user } = useAuth()
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -357,6 +364,58 @@ export default function DesignEditor() {
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [selectedElementId])
+
+  const handleSavePresentation = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to save your presentation.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      if (presentationId) {
+        // Update existing presentation
+        const { data, error } = await updatePresentation(presentationId, presentationTitle, slides)
+
+        if (error) {
+          throw error
+        }
+
+        toast({
+          title: "Presentation updated",
+          description: "Your presentation has been updated successfully.",
+          variant: "default",
+        })
+      } else {
+        // Create new presentation
+        const { data, error } = await savePresentation(presentationTitle, slides)
+
+        if (error) {
+          throw error
+        }
+
+        if (data) {
+          setPresentationId(data.id)
+        }
+
+        toast({
+          title: "Presentation saved",
+          description: "Your presentation has been saved successfully.",
+          variant: "default",
+        })
+      }
+    } catch (error: any) {
+      console.error("Error saving presentation:", error)
+      toast({
+        title: "Save failed",
+        description: error.message || "There was an error saving your presentation.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleExportJson = () => {
     exportToJson(presentationTitle, slides)
@@ -1063,7 +1122,7 @@ export default function DesignEditor() {
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
       {/* Header */}
-      <header className="border-b border-gray-800/60 p-4 flex items-center justify-between bg-gray-900/40 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/40">
+      <header className="border-b border-gray-800/30 p-4 flex items-center justify-between bg-gray-900/20 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/20 shadow-lg shadow-blue-500/5">
         <div className="flex items-center gap-2">
           <div className="bg-gradient-to-r from-blue-500 to-yellow-400 p-1.5 rounded-md">
             <Atom className="h-5 w-5 text-white" />
@@ -1072,7 +1131,7 @@ export default function DesignEditor() {
             Positron
           </span>
           <Input
-            className="w-64 h-8 bg-gray-800/50 border-gray-700/60 text-gray-100 focus-visible:ring-blue-500/70 backdrop-blur-md"
+            className="w-64 h-8 bg-gray-800/30 border-gray-700/40 text-gray-100 focus-visible:ring-blue-500/70 backdrop-blur-xl rounded-lg"
             placeholder="Untitled Presentation"
             value={presentationTitle}
             onChange={(e) => setPresentationTitle(e.target.value)}
@@ -1082,16 +1141,26 @@ export default function DesignEditor() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             onClick={() => setShowKeyboardShortcuts(true)}
           >
             <Keyboard className="h-4 w-4 mr-1 text-gray-400" />
             Shortcuts
           </Button>
+          <Link href="/presentations">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+            >
+              <LayoutGrid className="h-4 w-4 mr-1 text-blue-400" />
+              My Presentations
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             onClick={() => setIsPresentationMode(true)}
           >
             <Film className="h-4 w-4 mr-1 text-blue-400" />
@@ -1100,14 +1169,19 @@ export default function DesignEditor() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             onClick={() => setShowTemplateLibrary(true)}
           >
             <LayoutGrid className="h-4 w-4 mr-1 text-blue-400" />
             Templates
           </Button>
+          <UserMenu />
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+            >
               <svg
                 className="h-4 w-4 mr-1 text-blue-400"
                 viewBox="0 0 24 24"
@@ -1119,112 +1193,20 @@ export default function DesignEditor() {
               GitHub
             </Button>
           </a>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-700/60 bg-gray-800/30 hover:bg-gray-700/50 text-gray-100 backdrop-blur-md"
-              >
-                <Save className="h-4 w-4 mr-2 text-blue-400" />
-                Save
-                <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-gray-800/70 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/70">
-              <DropdownMenuItem className="hover:bg-gray-700">
-                <Save className="h-4 w-4 mr-2 text-blue-400" />
-                Save Project
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-700" />
-              <DropdownMenuItem className="hover:bg-gray-700" onClick={handleExportJson}>
-                <FileJson className="h-4 w-4 mr-2 text-blue-400" />
-                Export as JSON
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-gray-700" onClick={handleImportClick}>
-                <Upload className="h-4 w-4 mr-2 text-blue-400" />
-                Import from JSON
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-700" />
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => handleExport("pdf")}
-                disabled={isExporting}
-              >
-                <Download className="h-4 w-4 mr-2 text-blue-400" />
-                {isExporting ? "Exporting..." : "Export as PDF"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => handleExport("png")}
-                disabled={isExporting}
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
-                Export as PNG
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => handleExport("jpg")}
-                disabled={isExporting}
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
-                Export as JPG
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => {
-                  setIsSingleSlideExport(false)
-                  setIsGifExportDialogOpen(true)
-                }}
-                disabled={isExporting}
-              >
-                <Film className="h-4 w-4 mr-2 text-blue-400" />
-                Export as GIF (Advanced)
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-700" />
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => handleExport("png", true)}
-                disabled={isExporting}
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
-                Export Current Slide (PNG)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => handleExport("jpg", true)}
-                disabled={isExporting}
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
-                Export Current Slide (JPG)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-gray-700"
-                onClick={() => {
-                  setIsSingleSlideExport(true)
-                  setIsGifExportDialogOpen(true)
-                }}
-                disabled={isExporting}
-              >
-                <Film className="h-4 w-4 mr-2 text-yellow-400" />
-                Export Current Slide as GIF
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Slides Sidebar - Floating Panel */}
-        <div className="absolute left-4 top-24 w-64 rounded-xl bg-gray-900/40 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/40 p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-8rem)] shadow-lg shadow-black/20 border border-gray-700/30 z-10">
+        <div className="absolute left-4 top-24 w-64 rounded-2xl bg-gray-900/20 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/20 p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-8rem)] shadow-xl shadow-black/10 border border-gray-700/20 z-10">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-medium text-gray-300">Slides</h3>
             <Button
               variant="ghost"
               size="icon"
               onClick={addNewSlide}
-              className="text-gray-300 hover:bg-gray-800 hover:text-gray-100 h-7 w-7"
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 h-7 w-7"
             >
               <Plus className="h-4 w-4 text-blue-400" />
             </Button>
@@ -1341,12 +1323,12 @@ export default function DesignEditor() {
         {/* Canvas Area */}
         <div className="flex-1 bg-gray-950 flex flex-col">
           {/* Canvas Controls - macOS Dock Style */}
-          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 px-6 py-3 flex items-center gap-2 bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/80 border border-gray-700/60 rounded-2xl shadow-2xl">
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 px-6 py-3 flex items-center gap-2 bg-gray-900/30 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/30 border border-gray-700/30 rounded-3xl shadow-2xl shadow-blue-500/10">
             <div className="flex items-center gap-1 transition-all duration-300 ease-out group">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center"
                 onClick={() => handleExport("png", true)}
                 disabled={isExporting}
                 title="Export Current Slide"
@@ -1361,7 +1343,7 @@ export default function DesignEditor() {
                 size="sm"
                 onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
                 disabled={currentSlideIndex === 0}
-                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
                 title="Previous Slide"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -1378,7 +1360,7 @@ export default function DesignEditor() {
                 size="sm"
                 onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
                 disabled={currentSlideIndex === slides.length - 1}
-                className="text-gray-300 hover:bg-gray-800/60 hover:text-gray-100 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 h-10 w-10 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100"
                 title="Next Slide"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -1395,10 +1377,10 @@ export default function DesignEditor() {
           {/* Canvas */}
           <div
             ref={canvasContainerRef}
-            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[linear-gradient(135deg,#0ea5e9_0%,#eab308_100%)] rounded-3xl font-mono"
+            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top_right,#0ea5e9_0%,#eab308_100%)] rounded-3xl font-mono"
           >
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/50 to-yellow-400/50 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
               <SlideCanvas
                 slide={slides[currentSlideIndex]}
                 selectedElementId={selectedElementId}
@@ -1411,7 +1393,7 @@ export default function DesignEditor() {
         </div>
 
         {/* Right Toolbar Panel */}
-        <div className="w-56 absolute right-4 top-24 rounded-xl bg-gray-900/60 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/60 p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-8rem)] shadow-lg shadow-black/20 border border-gray-700/30 z-10">
+        <div className="w-56 absolute right-4 top-24 rounded-2xl bg-gray-900/20 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/20 p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-8rem)] shadow-xl shadow-black/10 border border-gray-700/20 z-10">
           <h3 className="text-sm font-medium text-gray-300 mb-2">Tools</h3>
 
           <div className="flex flex-wrap gap-2">
@@ -1419,7 +1401,7 @@ export default function DesignEditor() {
               variant="ghost"
               size="sm"
               onClick={addTextElement}
-              className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             >
               <Type className="h-4 w-4 mr-1 text-blue-400" />
               Text
@@ -1427,7 +1409,11 @@ export default function DesignEditor() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+                >
                   <Square className="h-4 w-4 mr-1 text-blue-400" />
                   Shapes
                   <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
@@ -1440,14 +1426,23 @@ export default function DesignEditor() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+                >
                   <ImageIcon className="h-4 w-4 mr-1 text-blue-400" />
                   Image
                   <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-gray-800 border-gray-700 text-gray-100">
-                <DropdownMenuItem onClick={() => setShowImageLibrary(true)} className="hover:bg-gray-700">
+                <DropdownMenuItem
+                  onClick={() => setShowImageLibrary(true)}
+                  className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                  role="button"
+                  onKeyDown={(e) => e.key === "Enter" && setShowImageLibrary(true)}
+                >
                   <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
                   Browse Library
                 </DropdownMenuItem>
@@ -1466,7 +1461,12 @@ export default function DesignEditor() {
             </DropdownMenu>
 
             <label>
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100" asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+                asChild
+              >
                 <span>
                   <Video className="h-4 w-4 mr-1 text-blue-400" />
                   Video
@@ -1476,7 +1476,12 @@ export default function DesignEditor() {
             </label>
 
             <label>
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800 hover:text-gray-100" asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+                asChild
+              >
                 <span>
                   <Music className="h-4 w-4 mr-1 text-blue-400" />
                   Audio
@@ -1489,7 +1494,7 @@ export default function DesignEditor() {
               variant="ghost"
               size="sm"
               onClick={() => setIsDrawingMode(true)}
-              className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             >
               <Pencil className="h-4 w-4 mr-1 text-blue-400" />
               Draw
@@ -1502,7 +1507,7 @@ export default function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${showBackgroundPanel ? "bg-gray-800" : ""}`}
+              className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${showBackgroundPanel ? "bg-gray-800" : ""}`}
               onClick={() => {
                 setShowBackgroundPanel(!showBackgroundPanel)
                 setShowImagePanel(false)
@@ -1519,7 +1524,7 @@ export default function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${showAnimationPanel ? "bg-gray-800" : ""}`}
+              className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${showAnimationPanel ? "bg-gray-800" : ""}`}
               onClick={() => {
                 setShowAnimationPanel(!showAnimationPanel)
                 setShowBackgroundPanel(false)
@@ -1550,7 +1555,7 @@ export default function DesignEditor() {
                           fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
                         })
                       }
-                      className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${selectedElement.fontWeight === "bold" ? "bg-gray-800" : ""}`}
+                      className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${selectedElement.fontWeight === "bold" ? "bg-gray-800" : ""}`}
                     >
                       <Bold className="h-4 w-4" />
                     </Button>
@@ -1562,7 +1567,7 @@ export default function DesignEditor() {
                           fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
                         })
                       }
-                      className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+                      className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
                     >
                       <Italic className="h-4 w-4" />
                     </Button>
@@ -1574,7 +1579,7 @@ export default function DesignEditor() {
                           textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
                         })
                       }
-                      className="text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+                      className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
                     >
                       <Underline className="h-4 w-4" />
                     </Button>
@@ -1585,7 +1590,7 @@ export default function DesignEditor() {
                       variant="ghost"
                       size="icon"
                       onClick={() => updateElement(selectedElementId!, { textAlign: "left" })}
-                      className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${selectedElement.textAlign === "left" ? "bg-gray-800" : ""}`}
+                      className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${selectedElement.textAlign === "left" ? "bg-gray-800" : ""}`}
                     >
                       <AlignLeft className="h-4 w-4" />
                     </Button>
@@ -1593,7 +1598,7 @@ export default function DesignEditor() {
                       variant="ghost"
                       size="icon"
                       onClick={() => updateElement(selectedElementId!, { textAlign: "center" })}
-                      className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${selectedElement.textAlign === "center" ? "bg-gray-800" : ""}`}
+                      className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${selectedElement.textAlign === "center" ? "bg-gray-800" : ""}`}
                     >
                       <AlignCenter className="h-4 w-4" />
                     </Button>
@@ -1601,7 +1606,7 @@ export default function DesignEditor() {
                       variant="ghost"
                       size="icon"
                       onClick={() => updateElement(selectedElementId!, { textAlign: "right" })}
-                      className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 ${selectedElement.textAlign === "right" ? "bg-gray-800" : ""}`}
+                      className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 ${selectedElement.textAlign === "right" ? "bg-gray-800" : ""}`}
                     >
                       <AlignRight className="h-4 w-4" />
                     </Button>
@@ -1613,7 +1618,7 @@ export default function DesignEditor() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-gray-300 hover:bg-gray-800 hover:text-gray-100 gap-1 w-full justify-between"
+                          className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 gap-1 w-full justify-between"
                         >
                           <span className="flex items-center">
                             <FileType className="h-4 w-4 mr-2 text-blue-400" />
@@ -1622,7 +1627,7 @@ export default function DesignEditor() {
                           <ChevronDown className="h-3 w-3 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-gray-800/70 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/70">
+                      <DropdownMenuContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10">
                         {allFonts.map((font) => (
                           <DropdownMenuItem
                             key={font.value}
@@ -1657,7 +1662,7 @@ export default function DesignEditor() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 w-full justify-start ${showTextEffectsPanel ? "bg-gray-800" : ""}`}
+                    className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 w-full justify-start ${showTextEffectsPanel ? "bg-gray-800" : ""}`}
                     onClick={() => {
                       setShowTextEffectsPanel(!showTextEffectsPanel)
                       setShowBackgroundPanel(false)
@@ -1680,7 +1685,7 @@ export default function DesignEditor() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-300 hover:bg-gray-800 hover:text-gray-100 gap-1 w-full justify-between"
+                        className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 gap-1 w-full justify-between"
                       >
                         <span className="flex items-center">
                           <Palette className="h-4 w-4 mr-2 text-blue-400" />
@@ -1710,7 +1715,7 @@ export default function DesignEditor() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 w-full justify-start ${
+                    className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 w-full justify-start ${
                       showImagePanel ? "bg-gray-800" : ""
                     }`}
                     onClick={() => {
@@ -1729,7 +1734,7 @@ export default function DesignEditor() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 w-full justify-start ${
+                    className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 w-full justify-start ${
                       showImage3dEffectsPanel ? "bg-gray-800" : ""
                     }`}
                     onClick={() => {
@@ -1752,7 +1757,7 @@ export default function DesignEditor() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`text-gray-300 hover:bg-gray-800 hover:text-gray-100 w-full justify-start ${showMediaPanel ? "bg-gray-800" : ""}`}
+                    className={`text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 w-full justify-start ${showMediaPanel ? "bg-gray-800" : ""}`}
                     onClick={() => {
                       setShowMediaPanel(!showMediaPanel)
                       setShowBackgroundPanel(false)
@@ -1772,7 +1777,7 @@ export default function DesignEditor() {
                 variant="ghost"
                 size="sm"
                 onClick={duplicateElement}
-                className="text-gray-300 hover:bg-gray-800 hover:text-gray-100 w-full justify-start mt-2"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300 w-full justify-start mt-2"
               >
                 <Copy className="h-4 w-4 mr-2 text-blue-400" />
                 Duplicate Element
@@ -1782,7 +1787,7 @@ export default function DesignEditor() {
                 variant="ghost"
                 size="sm"
                 onClick={deleteElement}
-                className="text-gray-300 hover:bg-gray-800 hover:text-red-400 w-full justify-start mt-2"
+                className="text-gray-300 hover:bg-gray-800/40 hover:text-red-400 transition-all duration-300 w-full justify-start mt-2"
               >
                 <Trash2 className="h-4 w-4 mr-2 text-red-400" />
                 Delete Element
@@ -1803,7 +1808,7 @@ export default function DesignEditor() {
 
       {/* Import error dialog */}
       <AlertDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <AlertDialogContent className="bg-gray-800/80 border-gray-700/60 text-gray-100 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/80">
+        <AlertDialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Import Error</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
@@ -1856,6 +1861,81 @@ export default function DesignEditor() {
         onClose={() => setIsDrawingMode(false)}
         zoomLevel={zoomLevel}
       />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10">
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleSavePresentation}>
+            <Save className="h-4 w-4 mr-2 text-blue-400" />
+            {presentationId ? "Update Presentation" : "Save Presentation"}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-gray-700" />
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleExportJson}>
+            <FileJson className="h-4 w-4 mr-2 text-blue-400" />
+            Export as JSON
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={handleImportClick}>
+            <Upload className="h-4 w-4 mr-2 text-blue-400" />
+            Import from JSON
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-gray-700" />
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("pdf")} disabled={isExporting}>
+            <Download className="h-4 w-4 mr-2 text-blue-400" />
+            {isExporting ? "Exporting..." : "Export as PDF"}
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("png")} disabled={isExporting}>
+            <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+            Export as PNG
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:bg-gray-700" onClick={() => handleExport("jpg")} disabled={isExporting}>
+            <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+            Export as JPG
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-gray-700"
+            onClick={() => {
+              setIsSingleSlideExport(false)
+              setIsGifExportDialogOpen(true)
+            }}
+            disabled={isExporting}
+          >
+            <Film className="h-4 w-4 mr-2 text-blue-400" />
+            Export as GIF (Advanced)
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-gray-700" />
+          <DropdownMenuItem
+            className="hover:bg-gray-700"
+            onClick={() => handleExport("png", true)}
+            disabled={isExporting}
+          >
+            <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
+            Export Current Slide (PNG)
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-gray-700"
+            onClick={() => handleExport("jpg", true)}
+            disabled={isExporting}
+          >
+            <ImageIcon className="h-4 w-4 mr-2 text-yellow-400" />
+            Export Current Slide (JPG)
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-gray-700"
+            onClick={() => {
+              setIsSingleSlideExport(true)
+              setIsGifExportDialogOpen(true)
+            }}
+            disabled={isExporting}
+          >
+            <Film className="h-4 w-4 mr-2 text-yellow-400" />
+            Export Current Slide as GIF
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

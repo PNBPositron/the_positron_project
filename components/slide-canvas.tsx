@@ -9,7 +9,6 @@ import {
   snapToGrid,
   findAlignmentGuides,
   type AlignmentGuide,
-  ALIGNMENT_LINE_COLOR,
   calculateRotationAngle,
   constrainRotation,
 } from "@/utils/drag-utils"
@@ -412,7 +411,7 @@ export default function SlideCanvas({
     >
       <div
         ref={canvasRef}
-        className="w-[1000px] h-[562.5px] shadow-xl relative overflow-hidden origin-top-left"
+        className="w-[1000px] h-[562.5px] shadow-2xl shadow-blue-500/10 relative overflow-hidden origin-top-left"
         style={{
           ...getBackgroundStyles(),
           transform: `scale(${zoomLevel / 100})`,
@@ -420,6 +419,7 @@ export default function SlideCanvas({
           marginLeft: "20px",
           marginTop: "20px",
           borderRadius: "32px",
+          boxShadow: "0 0 30px rgba(14, 165, 233, 0.2), 0 0 10px rgba(234, 179, 8, 0.1)",
         }}
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
@@ -433,7 +433,7 @@ export default function SlideCanvas({
               className="w-full h-full"
               style={{
                 backgroundImage:
-                  "linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                  "linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px)",
                 backgroundSize: "10px 10px",
               }}
             />
@@ -464,7 +464,8 @@ export default function SlideCanvas({
             key={`guide-${index}`}
             className="absolute pointer-events-none"
             style={{
-              backgroundColor: ALIGNMENT_LINE_COLOR,
+              backgroundColor: "rgba(14, 165, 233, 0.7)",
+              boxShadow: "0 0 5px rgba(14, 165, 233, 0.5)",
               opacity: 0.7,
               ...(guide.type === "vertical"
                 ? {
