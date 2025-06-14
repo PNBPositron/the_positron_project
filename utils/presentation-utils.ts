@@ -1,7 +1,7 @@
 import { supabase } from "./supabase-client"
 import type { Slide } from "@/types/editor"
 
-export async function savePresentation(title: string, slides: Slide[], isPublic = false, additionalData = {}) {
+export async function savePresentation(title: string, slides: Slide[], isPublic = false) {
   try {
     // Get the current user session
     const {
@@ -18,8 +18,7 @@ export async function savePresentation(title: string, slides: Slide[], isPublic 
         title,
         slides,
         is_public: isPublic,
-        user_id: session.user.id,
-        ...additionalData,
+        user_id: session.user.id, // Explicitly set the user_id
       })
       .select()
       .single()
@@ -35,13 +34,7 @@ export async function savePresentation(title: string, slides: Slide[], isPublic 
   }
 }
 
-export async function updatePresentation(
-  id: string,
-  title: string,
-  slides: Slide[],
-  isPublic = false,
-  additionalData = {},
-) {
+export async function updatePresentation(id: string, title: string, slides: Slide[], isPublic = false) {
   try {
     // Get the current user session
     const {
@@ -59,7 +52,6 @@ export async function updatePresentation(
         slides,
         is_public: isPublic,
         updated_at: new Date().toISOString(),
-        ...additionalData,
       })
       .eq("id", id)
       .eq("user_id", session.user.id) // Ensure the user can only update their own presentations
