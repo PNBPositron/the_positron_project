@@ -24,7 +24,6 @@ import {
   Trash2,
   Copy,
   Save,
-  Atom,
   ChevronDown,
   Palette,
   Wand2,
@@ -1066,7 +1065,7 @@ export default function DesignEditor() {
       <header className="border-b border-gray-800/30 p-4 flex items-center justify-between bg-gray-900/20 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-900/20 shadow-lg shadow-blue-500/5">
         <div className="flex items-center gap-2">
           <div className="bg-gradient-to-r from-blue-500 to-yellow-400 p-1.5 rounded-md">
-            <Atom className="h-5 w-5 text-white" />
+            <img src="/favicon.png" alt="Positron" className="h-5 w-5" />
           </div>
           <span className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-yellow-300 ml-1 mr-2">
             Positron

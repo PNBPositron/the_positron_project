@@ -14,47 +14,34 @@ interface ImageLibraryProps {
   onSelectImage: (src: string) => void
 }
 
-// Sample images for the library - including the new sci-fi images
+// Sample images for the library - futuristic science-themed images
 const sampleImages = [
   {
-    src: "/images/cyberpunk-station-ufo.jpg",
-    name: "Cyberpunk Station with UFO",
-    description: "Futuristic science station with radio telescopes, waterfall, and flying saucer",
+    src: "/images/futuristic-science-city.jpg",
+    name: "Futuristic Science City",
+    description:
+      "A high-resolution futuristic science city with radio telescopes, glowing blue waterfalls, and cosmic sky",
   },
   {
     src: "/images/space-station-city.jpg",
     name: "Space Station City",
-    description: "Vast scientific station city floating in space with radio telescope arrays",
+    description:
+      "A vast scientific station city floating in space with interconnected modules and radio telescope arrays",
+  },
+  {
+    src: "/images/science-city-sunset.jpg",
+    name: "Science City Sunset",
+    description: "A science city with radio telescopes in artistic style with warm sunset colors and cosmic atmosphere",
   },
   {
     src: "/images/futuristic-city-waterfalls.jpg",
     name: "Futuristic City with Waterfalls",
-    description: "Advanced cityscape with tall spires, waterfalls, and floating structures",
+    description: "Advanced cityscape with tall spires, waterfalls, and floating structures in a dramatic landscape",
   },
   {
-    src: "/images/arecibo-telescope.jpg",
-    name: "Arecibo Telescope",
-    description: "Famous radio telescope observatory",
-  },
-  {
-    src: "/images/digital-abstract.png",
-    name: "Digital Abstract",
-    description: "Abstract digital art pattern",
-  },
-  {
-    src: "/images/observatory-sunset.jpg",
-    name: "Observatory at Sunset",
-    description: "Observatory silhouetted against sunset sky",
-  },
-  {
-    src: "/images/observatory-teal.png",
-    name: "Observatory Teal",
-    description: "Modern observatory with teal lighting",
-  },
-  {
-    src: "/images/space-observatory.jpg",
-    name: "Space Observatory",
-    description: "Advanced space-based observatory",
+    src: "/images/cyberpunk-station-ufo.jpg",
+    name: "Cyberpunk Station with UFO",
+    description: "Futuristic science station with radio telescopes, waterfall, and a classic UFO hovering above",
   },
 ]
 
