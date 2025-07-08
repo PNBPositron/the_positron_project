@@ -41,6 +41,8 @@ import {
   CuboidIcon as Cube,
   Pencil,
   UploadCloud,
+  User,
+  Cloud,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -92,6 +94,11 @@ import { ImageLibrary } from "@/components/image-library"
 import { TemplateLibrary } from "@/components/template-library"
 import { ImageUploader } from "@/components/image-uploader"
 import DrawingCanvas from "@/components/drawing-canvas"
+import { AuthModal } from "@/components/auth-modal"
+import { UserMenu } from "@/components/user-menu"
+import { SavePresentationDialog } from "@/components/save-presentation-dialog"
+import { supabase } from "@/lib/supabase"
+import type { User } from "@supabase/supabase-js"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -305,12 +312,46 @@ export default function DesignEditor() {
   const [showImageUploader, setShowImageUploader] = useState(false)
   const [isDrawingMode, setIsDrawingMode] = useState(false)
 
+  // Auth states
+  const [user, setUser] = useState<User | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [currentPresentationId, setCurrentPresentationId] = useState<string | null>(null)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
   const fontInputRef = useRef<HTMLInputElement>(null)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
+
+  // Initialize auth state
+  useEffect(() => {
+    const initAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+    }
+
+    initAuth()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+
+      if (event === "SIGNED_IN") {
+        toast({
+          title: "Welcome!",
+          description: "You are now signed in and can save your presentations.",
+          variant: "default",
+        })
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -349,6 +390,12 @@ export default function DesignEditor() {
         e.preventDefault()
         duplicateElement()
       }
+
+      // Save presentation (Ctrl+S)
+      if (e.key === "s" && e.ctrlKey) {
+        e.preventDefault()
+        handleSavePresentation()
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown)
@@ -356,7 +403,15 @@ export default function DesignEditor() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [selectedElementId])
+  }, [selectedElementId, user])
+
+  const handleSavePresentation = () => {
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
+    setShowSaveDialog(true)
+  }
 
   const handleExportJson = () => {
     exportToJson(presentationTitle, slides)
@@ -386,6 +441,7 @@ export default function DesignEditor() {
       setSlides(importedData.slides)
       setCurrentSlideIndex(0)
       setSelectedElementId(null)
+      setCurrentPresentationId(null) // Reset presentation ID for imported data
 
       toast({
         title: "Import successful",
@@ -1043,12 +1099,22 @@ export default function DesignEditor() {
     setSlides(template.slides)
     setCurrentSlideIndex(0)
     setSelectedElementId(null)
+    setCurrentPresentationId(null) // Reset presentation ID for template
 
     toast({
       title: "Template applied",
       description: `"${template.title}" template has been applied to your presentation.`,
       variant: "default",
     })
+  }
+
+  const handleSaveSuccess = (presentationId: string) => {
+    setCurrentPresentationId(presentationId)
+  }
+
+  const handleSignOut = () => {
+    setUser(null)
+    setCurrentPresentationId(null)
   }
 
   if (isPresentationMode) {
@@ -1123,6 +1189,22 @@ export default function DesignEditor() {
               GitHub
             </Button>
           </a>
+
+          {/* Auth Section */}
+          {user ? (
+            <UserMenu user={user} onSignOut={handleSignOut} />
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-700/30 bg-gray-800/20 hover:bg-gray-700/30 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/5"
+              onClick={() => setShowAuthModal(true)}
+            >
+              <User className="h-4 w-4 mr-2 text-blue-400" />
+              Sign In
+            </Button>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -1136,11 +1218,15 @@ export default function DesignEditor() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10">
-              <DropdownMenuItem className="hover:bg-gray-700">
-                <Save className="h-4 w-4 mr-2 text-blue-400" />
-                Save Project
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-700" />
+              {user && (
+                <>
+                  <DropdownMenuItem className="hover:bg-gray-700" onClick={handleSavePresentation}>
+                    <Cloud className="h-4 w-4 mr-2 text-blue-400" />
+                    Save to Cloud
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-gray-700" />
+                </>
+              )}
               <DropdownMenuItem className="hover:bg-gray-700" onClick={handleExportJson}>
                 <FileJson className="h-4 w-4 mr-2 text-blue-400" />
                 Export as JSON
@@ -1854,6 +1940,19 @@ export default function DesignEditor() {
         onOpenChange={setIsGifExportDialogOpen}
         onExport={(options) => handleGifExportWithOptions(options, isSingleSlideExport)}
         isSingleSlide={isSingleSlideExport}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onAuthSuccess={() => setShowAuthModal(false)} />
+
+      {/* Save Presentation Dialog */}
+      <SavePresentationDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        title={presentationTitle}
+        slides={slides}
+        presentationId={currentPresentationId}
+        onSaveSuccess={handleSaveSuccess}
       />
 
       {/* Image Library Dialog */}

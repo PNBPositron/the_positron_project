@@ -2,197 +2,164 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { ImageUploader } from "./image-uploader"
-import { Search, Upload, ImageIcon } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Search, ImageIcon, Download } from "lucide-react"
 
 interface ImageLibraryProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSelectImage: (src: string) => void
+  onSelectImage: (imageSrc: string) => void
 }
 
-// Sample images for the library - futuristic science-themed images
-const sampleImages = [
+const SAMPLE_IMAGES = [
   {
+    id: "futuristic-science-city",
     src: "/images/futuristic-science-city.jpg",
-    name: "Futuristic Science City",
+    title: "Futuristic Science City",
     description:
-      "A high-resolution futuristic science city with radio telescopes, glowing blue waterfalls, and cosmic sky",
+      "A high-resolution, detailed futuristic science city with massive radio telescopes integrated into the architecture",
+    tags: ["science", "futuristic", "city", "space", "technology"],
   },
   {
+    id: "space-station-city",
     src: "/images/space-station-city.jpg",
-    name: "Space Station City",
+    title: "Space Station City",
     description:
-      "A vast scientific station city floating in space with interconnected modules and radio telescope arrays",
+      "A vast scientific station city floating in space, with multiple interconnected modules and habitation zones",
+    tags: ["space", "station", "city", "science", "futuristic"],
   },
   {
+    id: "science-city-sunset",
     src: "/images/science-city-sunset.jpg",
-    name: "Science City Sunset",
-    description: "A science city with radio telescopes in artistic style with warm sunset colors and cosmic atmosphere",
+    title: "Science City Sunset",
+    description: "A science city with radio telescopes in artistic pixel art style with warm sunset colors",
+    tags: ["science", "city", "sunset", "artistic", "retro"],
   },
   {
+    id: "futuristic-city-waterfalls",
     src: "/images/futuristic-city-waterfalls.jpg",
-    name: "Futuristic City with Waterfalls",
-    description: "Advanced cityscape with tall spires, waterfalls, and floating structures in a dramatic landscape",
+    title: "Futuristic City with Waterfalls",
+    description: "A futuristic cityscape with waterfalls, tall spires, and floating structures",
+    tags: ["futuristic", "city", "waterfalls", "nature", "architecture"],
   },
   {
+    id: "cyberpunk-station-ufo",
     src: "/images/cyberpunk-station-ufo.jpg",
-    name: "Cyberpunk Station with UFO",
-    description: "Futuristic science station with radio telescopes, waterfall, and a classic UFO hovering above",
+    title: "Cyberpunk Station with UFO",
+    description:
+      "A cyberpunk futuristic science station with radio telescopes, waterfalls, and a classic UFO hovering above",
+    tags: ["cyberpunk", "ufo", "science", "station", "futuristic"],
   },
 ]
 
 export function ImageLibrary({ open, onOpenChange, onSelectImage }: ImageLibraryProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-  const [userImages, setUserImages] = useState<Array<{ src: string; name?: string }>>([])
+  const [selectedTab, setSelectedTab] = useState("sample")
 
-  const filteredSampleImages = sampleImages.filter(
-    (img) =>
-      img.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      img.description.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredImages = SAMPLE_IMAGES.filter(
+    (image) =>
+      image.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      image.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      image.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
   )
 
-  const filteredUserImages = userImages.filter(
-    (img) => img.name?.toLowerCase().includes(searchQuery.toLowerCase()) || !searchQuery,
-  )
-
-  const handleImageUpload = (images: Array<{ src: string; file: File }>) => {
-    const newImages = images.map((img) => ({
-      src: img.src,
-      name: img.file.name,
-    }))
-
-    setUserImages([...userImages, ...newImages])
-
-    // If only one image was uploaded, select it automatically
-    if (images.length === 1) {
-      onSelectImage(images[0].src)
-      onOpenChange(false)
-    }
+  const handleImageSelect = (imageSrc: string) => {
+    onSelectImage(imageSrc)
+    onOpenChange(false)
   }
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-y-auto bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-yellow-300">
-              Image Library
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search images..."
-                  className="pl-8 bg-gray-800/30 border-gray-700/40 text-gray-100 focus-visible:ring-blue-500/70"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button
-                onClick={() => setUploadDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-500 to-yellow-400 text-white hover:from-blue-600 hover:to-yellow-500"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload
-              </Button>
-            </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl max-w-4xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-blue-400" />
+            Image Library
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Choose from our collection of high-quality images for your presentation
+          </DialogDescription>
+        </DialogHeader>
 
-            <Tabs defaultValue="sample" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 backdrop-blur-md">
-                <TabsTrigger value="sample" className="text-gray-300 data-[state=active]:bg-gray-700">
-                  Sample Images
-                </TabsTrigger>
-                <TabsTrigger value="uploaded" className="text-gray-300 data-[state=active]:bg-gray-700">
-                  Your Uploads
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="sample" className="mt-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {filteredSampleImages.length > 0 ? (
-                    filteredSampleImages.map((image, index) => (
-                      <div
-                        key={index}
-                        className="group relative aspect-square rounded-lg overflow-hidden border border-gray-700/40 cursor-pointer hover:border-blue-400/60 transition-all duration-300 hover:scale-105"
-                        onClick={() => {
-                          onSelectImage(image.src)
-                          onOpenChange(false)
-                        }}
-                      >
-                        <img
-                          src={image.src || "/placeholder.svg"}
-                          alt={image.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="absolute bottom-0 left-0 right-0 p-2 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                          <p className="text-xs font-medium truncate">{image.name}</p>
-                          <p className="text-xs opacity-80 truncate">{image.description}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8 text-muted-foreground">
-                      No images found matching your search.
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-              <TabsContent value="uploaded" className="mt-4">
-                {filteredUserImages.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {filteredUserImages.map((image, index) => (
-                      <div
-                        key={index}
-                        className="group relative aspect-square rounded-lg overflow-hidden border border-gray-700/40 cursor-pointer hover:border-blue-400/60 transition-all duration-300 hover:scale-105"
-                        onClick={() => {
-                          onSelectImage(image.src)
-                          onOpenChange(false)
-                        }}
-                      >
-                        <img
-                          src={image.src || "/placeholder.svg"}
-                          alt={image.name || `Uploaded ${index + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="absolute bottom-0 left-0 right-0 p-2 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                          <p className="text-xs font-medium truncate">{image.name}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 space-y-4">
-                    <div className="mx-auto w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-medium text-gray-300">No images uploaded yet</p>
-                      <p className="text-sm text-gray-400">Upload images to use in your presentation</p>
-                    </div>
-                    <Button
-                      onClick={() => setUploadDialogOpen(true)}
-                      className="bg-gradient-to-r from-blue-500 to-yellow-400 text-white hover:from-blue-600 hover:to-yellow-500"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Images
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+        <div className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search images..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-gray-800/30 border-gray-700/40 text-gray-100 focus-visible:ring-blue-500/70 backdrop-blur-xl"
+            />
           </div>
-        </DialogContent>
-      </Dialog>
 
-      <ImageUploader open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} onImagesUploaded={handleImageUpload} />
-    </>
+          {/* Tabs */}
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 backdrop-blur-md">
+              <TabsTrigger value="sample" className="text-gray-300 data-[state=active]:bg-gray-700">
+                Sample Images
+              </TabsTrigger>
+              <TabsTrigger value="uploads" className="text-gray-300 data-[state=active]:bg-gray-700">
+                Your Uploads
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sample" className="mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2">
+                {filteredImages.map((image) => (
+                  <div
+                    key={image.id}
+                    className="group relative bg-gray-800/30 rounded-lg overflow-hidden border border-gray-700/40 hover:border-blue-500/50 transition-all duration-300 cursor-pointer"
+                    onClick={() => handleImageSelect(image.src)}
+                  >
+                    <div className="aspect-video relative overflow-hidden">
+                      <img
+                        src={image.src || "/placeholder.svg"}
+                        alt={image.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Button size="sm" className="bg-blue-500/90 hover:bg-blue-600/90 text-white backdrop-blur-sm">
+                          <Download className="h-4 w-4 mr-1" />
+                          Select
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-medium text-sm text-gray-100 mb-1 line-clamp-1">{image.title}</h3>
+                      <p className="text-xs text-gray-400 line-clamp-2">{image.description}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {image.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {filteredImages.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No images found matching your search.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="uploads" className="mt-4">
+              <div className="text-center py-8 text-gray-400">
+                <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>Your uploaded images will appear here.</p>
+                <p className="text-sm mt-1">Use the Advanced Upload feature to add your own images.</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
