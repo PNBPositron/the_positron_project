@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,52 +10,49 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
-import { LogOut, Settings, Cloud, UserIcon } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import { LogOut, FolderOpen, Settings } from "lucide-react"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface UserMenuProps {
-  user: SupabaseUser | null
+  user: SupabaseUser
   onSignOut: () => void
+  onOpenPresentations?: () => void
 }
 
-export function UserMenu({ user, onSignOut }: UserMenuProps) {
-  const [isLoading, setIsLoading] = useState(false)
-
+export function UserMenu({ user, onSignOut, onOpenPresentations }: UserMenuProps) {
   const handleSignOut = async () => {
-    setIsLoading(true)
-
     try {
       const { error } = await supabase.auth.signOut()
       if (error) throw error
 
+      onSignOut()
       toast({
-        title: "Signed out successfully",
-        description: "You have been signed out of your account.",
+        title: "Signed out",
+        description: "You have been signed out successfully.",
         variant: "default",
       })
-
-      onSignOut()
     } catch (error: any) {
+      console.error("Sign out error:", error)
       toast({
         title: "Sign out failed",
         description: error.message || "An error occurred during sign out.",
         variant: "destructive",
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  if (!user) return null
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
-  const userInitials = user.user_metadata?.full_name
-    ? user.user_metadata.full_name
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-    : user.email?.charAt(0).toUpperCase() || "U"
+  const displayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User"
+  const avatarUrl = user.user_metadata?.avatar_url
 
   return (
     <DropdownMenu>
@@ -66,12 +62,9 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           className="relative h-8 w-8 rounded-full bg-gray-800/20 hover:bg-gray-700/30 border border-gray-700/30"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={user.user_metadata?.avatar_url || "/placeholder.svg"}
-              alt={user.user_metadata?.full_name || user.email}
-            />
+            <AvatarImage src={avatarUrl || "/placeholder.svg"} alt={displayName} />
             <AvatarFallback className="bg-gradient-to-r from-blue-500 to-yellow-400 text-white text-xs">
-              {userInitials}
+              {getInitials(displayName)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -82,34 +75,32 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
         forceMount
       >
         <div className="flex items-center justify-start gap-2 p-2">
-          <div className="flex flex-col space-y-1 leading-none">
-            {user.user_metadata?.full_name && (
-              <p className="font-medium text-sm text-gray-100">{user.user_metadata.full_name}</p>
-            )}
-            <p className="w-[200px] truncate text-xs text-gray-400">{user.email}</p>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={avatarUrl || "/placeholder.svg"} alt={displayName} />
+            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-yellow-400 text-white text-xs">
+              {getInitials(displayName)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{displayName}</p>
+            <p className="text-xs leading-none text-gray-400">{user.email}</p>
           </div>
         </div>
         <DropdownMenuSeparator className="bg-gray-700" />
-        <DropdownMenuItem className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer">
-          <UserIcon className="mr-2 h-4 w-4 text-blue-400" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer">
-          <Cloud className="mr-2 h-4 w-4 text-blue-400" />
-          <span>My Presentations</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer">
-          <Settings className="mr-2 h-4 w-4 text-blue-400" />
+        {onOpenPresentations && (
+          <DropdownMenuItem className="hover:bg-gray-700 cursor-pointer" onClick={onOpenPresentations}>
+            <FolderOpen className="mr-2 h-4 w-4 text-blue-400" />
+            <span>My Presentations</span>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem className="hover:bg-gray-700 cursor-pointer" disabled>
+          <Settings className="mr-2 h-4 w-4 text-gray-400" />
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-700" />
-        <DropdownMenuItem
-          className="hover:bg-gray-700 focus:bg-gray-700 cursor-pointer text-red-400 focus:text-red-400"
-          onClick={handleSignOut}
-          disabled={isLoading}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>{isLoading ? "Signing out..." : "Sign out"}</span>
+        <DropdownMenuItem className="hover:bg-gray-700 cursor-pointer" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4 text-red-400" />
+          <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

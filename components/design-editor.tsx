@@ -98,7 +98,8 @@ import { AuthModal } from "@/components/auth-modal"
 import { UserMenu } from "@/components/user-menu"
 import { SavePresentationDialog } from "@/components/save-presentation-dialog"
 import { supabase } from "@/lib/supabase"
-import type { User } from "@supabase/supabase-js"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { PresentationsManager } from "@/components/presentations-manager"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -313,10 +314,12 @@ export default function DesignEditor() {
   const [isDrawingMode, setIsDrawingMode] = useState(false)
 
   // Auth states
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   const [currentPresentationId, setCurrentPresentationId] = useState<string | null>(null)
+
+  const [showPresentationsManager, setShowPresentationsManager] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -1108,6 +1111,20 @@ export default function DesignEditor() {
     })
   }
 
+  const handleLoadPresentation = (presentation: any) => {
+    setPresentationTitle(presentation.title)
+    setSlides(presentation.slides)
+    setCurrentSlideIndex(0)
+    setSelectedElementId(null)
+    setCurrentPresentationId(presentation.id)
+
+    toast({
+      title: "Presentation loaded",
+      description: `"${presentation.title}" has been loaded successfully.`,
+      variant: "default",
+    })
+  }
+
   const handleSaveSuccess = (presentationId: string) => {
     setCurrentPresentationId(presentationId)
   }
@@ -1192,7 +1209,11 @@ export default function DesignEditor() {
 
           {/* Auth Section */}
           {user ? (
-            <UserMenu user={user} onSignOut={handleSignOut} />
+            <UserMenu
+              user={user}
+              onSignOut={handleSignOut}
+              onOpenPresentations={() => setShowPresentationsManager(true)}
+            />
           ) : (
             <Button
               variant="outline"
@@ -1603,6 +1624,9 @@ export default function DesignEditor() {
               size="sm"
               onClick={() => setIsDrawingMode(true)}
               className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
+              size="sm"
+              onClick={() => setIsDrawingMode(true)}
+              className="text-gray-300 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-300"
             >
               <Pencil className="h-4 w-4 mr-1 text-blue-400" />
               Draw
@@ -1981,6 +2005,13 @@ export default function DesignEditor() {
         onSaveDrawing={addDrawingElement}
         onClose={() => setIsDrawingMode(false)}
         zoomLevel={zoomLevel}
+      />
+
+      {/* Presentations Manager */}
+      <PresentationsManager
+        open={showPresentationsManager}
+        onOpenChange={setShowPresentationsManager}
+        onLoadPresentation={handleLoadPresentation}
       />
     </div>
   )
