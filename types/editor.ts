@@ -46,6 +46,14 @@ export interface ShapeElement {
   color: string
   animation?: ElementAnimation
   rotation?: number
+  cornerRadius?: number
+  glassmorphism?: {
+    enabled: boolean
+    blur: number
+    opacity: number
+    borderOpacity: number
+    saturation: number
+  }
 }
 
 export interface ImageElement {
@@ -121,25 +129,7 @@ export interface AudioElement {
   rotation?: number
 }
 
-export interface DrawingElement {
-  id: string
-  type: "drawing"
-  paths: Array<{
-    id: string
-    d: string // SVG path data
-    stroke: string
-    strokeWidth: number
-    fill?: string
-  }>
-  x: number
-  y: number
-  width: number
-  height: number
-  animation?: ElementAnimation
-  rotation?: number
-}
-
-export type SlideElement = TextElement | ShapeElement | ImageElement | VideoElement | AudioElement | DrawingElement
+export type SlideElement = TextElement | ShapeElement | ImageElement | VideoElement | AudioElement
 
 export interface SlideBackground {
   type: "color" | "gradient" | "image"

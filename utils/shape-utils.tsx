@@ -425,22 +425,84 @@ export function RenderShape({
   height,
   color,
   className = "",
+  glassmorphism,
+  cornerRadius = 0,
 }: {
   shape: string
   width: number
   height: number
   color: string
   className?: string
+  cornerRadius?: number
+  glassmorphism?: {
+    enabled: boolean
+    blur: number
+    opacity: number
+    borderOpacity: number
+    saturation: number
+  }
 }) {
   const size = Math.min(width, height)
 
+  // Generate glassmorphism styles
+  const getGlassmorphismStyles = () => {
+    if (!glassmorphism?.enabled) return {}
+    
+    return {
+      backdropFilter: `blur(${glassmorphism.blur}px) saturate(${glassmorphism.saturation}%)`,
+      backgroundColor: `${color}${Math.round(glassmorphism.opacity * 2.55).toString(16).padStart(2, '0')}`,
+      border: `1px solid ${color}${Math.round(glassmorphism.borderOpacity * 2.55).toString(16).padStart(2, '0')}`,
+      boxShadow: `0 8px 32px 0 rgba(31, 38, 135, 0.37)`,
+    }
+  }
+
+  const glassmorphismStyles = getGlassmorphismStyles()
+
+  // Apply corner radius to basic shapes
+  const getShapeStyles = () => {
+    const baseStyles = glassmorphism?.enabled ? 
+      { backgroundColor: 'transparent', ...glassmorphismStyles } : 
+      { backgroundColor: color }
+    
+    if (cornerRadius > 0) {
+      return {
+        ...baseStyles,
+        borderRadius: `${cornerRadius}px`
+      }
+    }
+    
+    return baseStyles
+  }
+
   switch (shape) {
     case "square":
-      return <div className={`w-full h-full ${className}`} style={{ backgroundColor: color }} />
+      return (
+        <div 
+          className={`w-full h-full ${className}`} 
+          style={getShapeStyles()}
+        />
+      )
     case "circle":
-      return <div className={`w-full h-full rounded-full ${className}`} style={{ backgroundColor: color }} />
+      return (
+        <div 
+          className={`w-full h-full rounded-full ${className}`} 
+          style={{ 
+            backgroundColor: glassmorphism?.enabled ? 'transparent' : color,
+            ...glassmorphismStyles
+          }} 
+        />
+      )
     case "rounded-rect":
-      return <div className={`w-full h-full rounded-xl ${className}`} style={{ backgroundColor: color }} />
+      return (
+        <div 
+          className={`w-full h-full ${className}`} 
+          style={{
+            backgroundColor: glassmorphism?.enabled ? 'transparent' : color,
+            borderRadius: cornerRadius > 0 ? `${cornerRadius}px` : '12px',
+            ...glassmorphismStyles
+          }} 
+        />
+      )
     case "triangle":
     case "pentagon":
     case "hexagon":
@@ -458,9 +520,35 @@ export function RenderShape({
       else if (shape === "diamond") path = generateDiamondPath(width, height)
       else if (shape === "speech-bubble") path = generateSpeechBubblePath(width, height)
 
+      if (glassmorphism?.enabled) {
+        return (
+          <div className={`w-full h-full ${className}`} style={glassmorphismStyles}>
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="none">
+              <defs>
+                <filter id={`glassmorphism-${shape}`}>
+                  <feGaussianBlur in="SourceGraphic" stdDeviation={glassmorphism.blur / 4} />
+                </filter>
+              </defs>
+              <path 
+                d={path} 
+                fill={`${color}${Math.round(glassmorphism.opacity * 2.55).toString(16).padStart(2, '0')}`}
+                stroke={`${color}${Math.round(glassmorphism.borderOpacity * 2.55).toString(16).padStart(2, '0')}`}
+                strokeWidth="1"
+                filter={`url(#glassmorphism-${shape})`}
+                rx={cornerRadius > 0 ? cornerRadius : undefined}
+              />
+            </svg>
+          </div>
+        )
+      }
+
       return (
         <svg viewBox={`0 0 ${width} ${height}`} className={`w-full h-full ${className}`} preserveAspectRatio="none">
-          <path d={path} fill={color} />
+          <path 
+            d={path} 
+            fill={color} 
+            rx={cornerRadius > 0 ? cornerRadius : undefined}
+          />
         </svg>
       )
 
@@ -480,13 +568,46 @@ export function RenderShape({
       else if (shape === "frame-ticket") framePath = generateTicketFramePath(width, height)
       else if (shape === "frame-stamp") framePath = generateStampFramePath(width, height)
 
+      if (glassmorphism?.enabled) {
+        return (
+          <div className={`w-full h-full ${className}`} style={glassmorphismStyles}>
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="none">
+              <defs>
+                <filter id={`glassmorphism-${shape}`}>
+                  <feGaussianBlur in="SourceGraphic" stdDeviation={glassmorphism.blur / 4} />
+                </filter>
+              </defs>
+              <path 
+                d={framePath} 
+                fill={`${color}${Math.round(glassmorphism.opacity * 2.55).toString(16).padStart(2, '0')}`}
+                stroke={`${color}${Math.round(glassmorphism.borderOpacity * 2.55).toString(16).padStart(2, '0')}`}
+                strokeWidth="1"
+                fillRule="evenodd" 
+                filter={`url(#glassmorphism-${shape})`}
+                rx={cornerRadius > 0 ? cornerRadius : undefined}
+              />
+            </svg>
+          </div>
+        )
+      }
+
       return (
         <svg viewBox={`0 0 ${width} ${height}`} className={`w-full h-full ${className}`} preserveAspectRatio="none">
-          <path d={framePath} fill={color} fillRule="evenodd" />
+          <path 
+            d={framePath} 
+            fill={color} 
+            fillRule="evenodd" 
+            rx={cornerRadius > 0 ? cornerRadius : undefined}
+          />
         </svg>
       )
 
     default:
-      return <div className={`w-full h-full ${className}`} style={{ backgroundColor: color }} />
+      return (
+        <div 
+          className={`w-full h-full ${className}`} 
+          style={getShapeStyles()}
+        />
+      )
   }
 }
