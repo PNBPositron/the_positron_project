@@ -3,12 +3,12 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "PowerPoint Design Editor",
-  description: "A modern presentation design editor with advanced features",
+  title: "The Positron Project",
+  description: "A modern presentation design editor with futuristic features",
   icons: {
     icon: "/favicon.ico",
   },
-    generator: 'v0.dev'
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
