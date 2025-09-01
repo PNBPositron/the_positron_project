@@ -23,8 +23,8 @@ const TEMPLATES: Template[] = [
   // Business Templates
   {
     id: "business-pitch",
-    title: "Business Pitch Deck",
-    description: "Professional presentation for startups and business proposals",
+    title: "Business Template",
+    description: "Professional and simple presentation for startups and business proposals",
     category: "business",
     tags: ["professional", "corporate", "startup"],
     preview: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
