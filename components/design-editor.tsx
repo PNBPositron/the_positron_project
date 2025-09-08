@@ -5,10 +5,40 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, Palette, Wand2, Download, LayoutGrid, Sparkles, FileJson, Upload, Keyboard, Video, Music, FileType, Film, CuboidIcon as Cube, Pencil, UploadCloud, User, Cloud } from 'lucide-react'
+import {
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Square,
+  Type,
+  ImageIcon,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Copy,
+  Save,
+  Atom,
+  ChevronDown,
+  Palette,
+  LayoutGrid,
+  Sparkles,
+  FileJson,
+  Upload,
+  Video,
+  FileType,
+  Film,
+  Cable as Cube,
+  UploadCloud,
+  User,
+  Cloud,
+  Share2,
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,17 +72,8 @@ import { exportToPdf, exportToPng, exportToJpg, exportCurrentSlide } from "@/uti
 import { exportToJson, importFromJson } from "@/utils/json-utils"
 import { ShapeSelector } from "@/components/shape-selector"
 import { loadCustomFont } from "@/utils/font-utils"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
 import { ImageLibrary } from "@/components/image-library"
@@ -64,6 +85,7 @@ import { SavePresentationDialog } from "@/components/save-presentation-dialog"
 import { supabase } from "@/lib/supabase"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { PresentationsManager } from "@/components/presentations-manager"
+import { ShareDialog } from "@/components/share-dialog"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -144,6 +166,7 @@ export default function DesignEditor() {
   const [currentPresentationId, setCurrentPresentationId] = useState<string | null>(null)
 
   const [showPresentationsManager, setShowPresentationsManager] = useState(false)
+  const [showShareDialog, setShowShareDialog] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -937,16 +960,6 @@ export default function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowKeyboardShortcuts(true)}
-            >
-              <Keyboard className="h-4 w-4 mr-2 text-gray-400" />
-              Shortcuts
-            </Button>
-            <div className="w-px h-4 bg-gray-600"></div>
-            <Button
-              variant="ghost"
-              size="sm"
               className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-8 px-3 rounded-lg"
               onClick={() => setIsPresentationMode(true)}
             >
@@ -1016,23 +1029,42 @@ export default function DesignEditor() {
             <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-800/60 shadow-2xl shadow-blue-500/20 rounded-xl p-2 min-w-[200px]">
               {user && (
                 <>
-                  <DropdownMenuItem className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200" onClick={handleSavePresentation}>
+                  <DropdownMenuItem
+                    className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
+                    onClick={handleSavePresentation}
+                  >
                     <Cloud className="h-4 w-4 mr-3 text-blue-400" />
                     <span className="font-medium">Save to Cloud</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
                 </>
               )}
-              <DropdownMenuItem className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200" onClick={handleExportJson}>
+              <DropdownMenuItem
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
+                onClick={handleExportJson}
+              >
                 <FileJson className="h-4 w-4 mr-3 text-green-400" />
                 <span className="font-medium">Export as JSON</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200" onClick={handleImportClick}>
+              <DropdownMenuItem
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
+                onClick={handleImportClick}
+              >
                 <Upload className="h-4 w-4 mr-3 text-yellow-400" />
                 <span className="font-medium">Import from JSON</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-700/40 bg-gradient-to-r from-green-500/10 to-blue-500/10 hover:from-green-500/20 hover:to-blue-500/20 text-gray-100 backdrop-blur-xl shadow-lg shadow-green-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-green-500/20"
+            onClick={() => setShowShareDialog(true)}
+            disabled={!user || !currentPresentationId}
+          >
+            <Share2 className="h-4 w-4 mr-2 text-green-400" />
+            Share
+          </Button>
         </div>
       </header>
 
@@ -1175,7 +1207,6 @@ export default function DesignEditor() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-yellow-500/20 rounded-3xl blur-xl opacity-60"></div>
               <div className="relative px-8 py-4 flex items-center gap-4 bg-gray-900/40 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/40 border border-gray-700/40 rounded-3xl shadow-2xl shadow-blue-500/20">
                 <div className="flex items-center gap-2 transition-all duration-300 ease-out">
-                  
                   <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-3"></div>
 
                   <Button
@@ -1190,13 +1221,9 @@ export default function DesignEditor() {
                   </Button>
 
                   <div className="px-4 py-2 bg-gradient-to-r from-gray-800/60 to-gray-700/60 rounded-2xl border border-gray-600/40 transition-all duration-300 ease-out hover:scale-105 shadow-inner">
-                    <span className="text-sm font-bold text-gray-200">
-                      {currentSlideIndex + 1}
-                    </span>
+                    <span className="text-sm font-bold text-gray-200">{currentSlideIndex + 1}</span>
                     <span className="text-xs text-gray-500 mx-1">/</span>
-                    <span className="text-sm font-medium text-gray-400">
-                      {slides.length}
-                    </span>
+                    <span className="text-sm font-medium text-gray-400">{slides.length}</span>
                   </div>
 
                   <Button
@@ -1293,11 +1320,17 @@ export default function DesignEditor() {
                   <ImageIcon className="h-4 w-4 mr-3 text-green-400" />
                   <span className="font-medium">Browse Library</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowImageUploader(true)} className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200">
+                <DropdownMenuItem
+                  onClick={() => setShowImageUploader(true)}
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
                   <UploadCloud className="h-4 w-4 mr-3 text-blue-400" />
                   <span className="font-medium">Advanced Upload</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200">
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
                   <label className="cursor-pointer">
                     <Upload className="h-4 w-4 mr-3 text-yellow-400" />
                     <span className="font-medium">Quick Upload</span>
@@ -1452,6 +1485,7 @@ export default function DesignEditor() {
                           >
                             <span className="flex items-center">
                               <FileType className="h-4 w-4 mr-3 text-blue-400" />
+
                               <span className="font-medium">Font Family</span>
                             </span>
                             <ChevronDown className="h-4 w-4 opacity-60" />
@@ -1464,11 +1498,16 @@ export default function DesignEditor() {
                               onClick={() => updateElement(selectedElementId!, { fontFamily: font.value })}
                               className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
                             >
-                              <span style={{ fontFamily: font.value }} className="font-medium">{font.name}</span>
+                              <span style={{ fontFamily: font.value }} className="font-medium">
+                                {font.name}
+                              </span>
                             </DropdownMenuItem>
                           ))}
                           <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
-                          <DropdownMenuItem className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200" onClick={() => fontInputRef.current?.click()}>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                            onClick={() => fontInputRef.current?.click()}
+                          >
                             <FileType className="h-4 w-4 mr-3 text-blue-400" />
                             <span className="font-medium">Upload Custom Font</span>
                           </DropdownMenuItem>
@@ -1478,7 +1517,9 @@ export default function DesignEditor() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-gray-400">Font Size</span>
-                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.fontSize}px</span>
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                            {selectedElement.fontSize}px
+                          </span>
                         </div>
                         <Slider
                           className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-blue-500 [&>span:first-child]:to-purple-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-blue-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-blue-500 [&>span:first-child_span]:to-purple-500"
@@ -1518,7 +1559,7 @@ export default function DesignEditor() {
                       <Palette className="h-4 w-4 text-purple-400" />
                       Shape Properties
                     </h4>
-                    
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -1527,7 +1568,10 @@ export default function DesignEditor() {
                           className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
                         >
                           <span className="flex items-center">
-                            <div className="w-4 h-4 rounded-full mr-3 border border-gray-600" style={{ backgroundColor: selectedElement.color }}></div>
+                            <div
+                              className="w-4 h-4 rounded-full mr-3 border border-gray-600"
+                              style={{ backgroundColor: selectedElement.color }}
+                            ></div>
                             <span className="font-medium">Color</span>
                           </span>
                           <ChevronDown className="h-4 w-4 opacity-60" />
@@ -1548,8 +1592,8 @@ export default function DesignEditor() {
                     </DropdownMenu>
 
                     {/* Enhanced Corner Radius Control */}
-                    {(selectedElement.shape === "square" || 
-                      selectedElement.shape === "rounded-rect" || 
+                    {(selectedElement.shape === "square" ||
+                      selectedElement.shape === "rounded-rect" ||
                       selectedElement.shape === "triangle" ||
                       selectedElement.shape === "pentagon" ||
                       selectedElement.shape === "hexagon" ||
@@ -1557,7 +1601,9 @@ export default function DesignEditor() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-gray-400">Corner Radius</span>
-                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.cornerRadius || 0}px</span>
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                            {selectedElement.cornerRadius || 0}px
+                          </span>
                         </div>
                         <Slider
                           className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-purple-500 [&>span:first-child]:to-pink-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-purple-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-purple-500 [&>span:first-child_span]:to-pink-500"
@@ -1597,7 +1643,9 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Blur Intensity</Label>
-                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.glassmorphism?.blur || 10}px</span>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.blur || 10}px
+                            </span>
                           </div>
                           <Slider
                             min={0}
@@ -1619,7 +1667,9 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Background Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.glassmorphism?.opacity || 20}%</span>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.opacity || 20}%
+                            </span>
                           </div>
                           <Slider
                             min={5}
@@ -1641,7 +1691,9 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Border Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.glassmorphism?.borderOpacity || 30}%</span>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.borderOpacity || 30}%
+                            </span>
                           </div>
                           <Slider
                             min={0}
@@ -1663,7 +1715,9 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Saturation</Label>
-                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">{selectedElement.glassmorphism?.saturation || 180}%</span>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.saturation || 180}%
+                            </span>
                           </div>
                           <Slider
                             min={100}
@@ -1780,6 +1834,13 @@ export default function DesignEditor() {
         open={showPresentationsManager}
         onOpenChange={setShowPresentationsManager}
         onLoadPresentation={handleLoadPresentation}
+      />
+      {/* Share Dialog */}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        presentationId={currentPresentationId}
+        presentationTitle={presentationTitle}
       />
     </div>
   )
