@@ -1305,13 +1305,13 @@ export default function DesignEditor() {
             ref={canvasContainerRef}
             className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
             style={{
-              backgroundImage: "url(/images/futuristic-abstract-wallpaper.jpg)",
+              backgroundImage: "url(/images/pixel-art-space-scene.jpeg)",
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-black/5 rounded-3xl"></div>
             <div className="relative z-10 group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
               <SlideCanvas
