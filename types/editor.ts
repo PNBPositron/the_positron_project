@@ -82,6 +82,9 @@ export interface ImageElement {
     shadowColor?: string
     shadowOffsetX?: number
     shadowOffsetY?: number
+    skewX?: number
+    skewY?: number
+    scale?: number
   }
   animation?: ElementAnimation
   rotation?: number

@@ -361,6 +361,18 @@ export default function SlideCanvas({
       if (effects.shadowBlur) {
         style.boxShadow = `${effects.shadowOffsetX || 0}px ${effects.shadowOffsetY || 0}px ${effects.shadowBlur}px ${effects.shadowColor || "#000000"}`
       }
+
+      // Add new transform effects
+      let transformString = ""
+      if (effects.skewX) transformString += `skewX(${effects.skewX}deg) `
+      if (effects.skewY) transformString += `skewY(${effects.skewY}deg) `
+      if (effects.scale && effects.scale !== 100) transformString += `scale(${effects.scale / 100}) `
+
+      if (transformString) {
+        // Combine with existing 3D transforms
+        const existing3D = style.transform || ""
+        style.transform = existing3D + " " + transformString
+      }
     }
 
     return style

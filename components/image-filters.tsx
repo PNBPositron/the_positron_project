@@ -32,6 +32,9 @@ export function ImageFilters({ element, onUpdateElement }: ImageFiltersProps) {
     shadowColor: "#000000",
     shadowOffsetX: 0,
     shadowOffsetY: 0,
+    skewX: 0,
+    skewY: 0,
+    scale: 100,
   }
 
   const updateFilter = (filterName: string, value: number) => {
@@ -77,6 +80,9 @@ export function ImageFilters({ element, onUpdateElement }: ImageFiltersProps) {
         shadowColor: "#000000",
         shadowOffsetX: 0,
         shadowOffsetY: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 100,
       },
     })
   }
@@ -236,7 +242,7 @@ export function ImageFilters({ element, onUpdateElement }: ImageFiltersProps) {
               step={1}
               value={[effects.borderRadius || 0]}
               onValueChange={([value]) => updateEffect("borderRadius", value)}
-              className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-sky-400 [&>span:first-child_span]:bg-sky-400"
+              className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-green-400 [&>span:first-child_span]:bg-green-400"
             />
             <span className="text-xs text-gray-300 text-right">{effects.borderRadius || 0}%</span>
           </div>
@@ -307,6 +313,50 @@ export function ImageFilters({ element, onUpdateElement }: ImageFiltersProps) {
               className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-sky-400 [&>span:first-child_span]:bg-sky-400"
             />
             <span className="text-xs text-gray-300 text-right">{effects.shadowOffsetY || 0}px</span>
+          </div>
+
+          {/* Advanced Image Effects */}
+          <div className="pt-3 border-t border-gray-700/50">
+            <h5 className="text-xs font-medium text-gray-400 mb-3">Advanced Effects</h5>
+
+            <div className="grid grid-cols-[100px_1fr_40px] items-center gap-2 mb-3">
+              <span className="text-xs text-gray-400">Skew X</span>
+              <Slider
+                min={-45}
+                max={45}
+                step={1}
+                value={[effects.skewX || 0]}
+                onValueChange={([value]) => updateEffect("skewX", value)}
+                className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-purple-400 [&>span:first-child_span]:bg-purple-400"
+              />
+              <span className="text-xs text-gray-300 text-right">{effects.skewX || 0}°</span>
+            </div>
+
+            <div className="grid grid-cols-[100px_1fr_40px] items-center gap-2 mb-3">
+              <span className="text-xs text-gray-400">Skew Y</span>
+              <Slider
+                min={-45}
+                max={45}
+                step={1}
+                value={[effects.skewY || 0]}
+                onValueChange={([value]) => updateEffect("skewY", value)}
+                className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-purple-400 [&>span:first-child_span]:bg-purple-400"
+              />
+              <span className="text-xs text-gray-300 text-right">{effects.skewY || 0}°</span>
+            </div>
+
+            <div className="grid grid-cols-[100px_1fr_40px] items-center gap-2">
+              <span className="text-xs text-gray-400">Scale</span>
+              <Slider
+                min={50}
+                max={200}
+                step={5}
+                value={[effects.scale || 100]}
+                onValueChange={([value]) => updateEffect("scale", value)}
+                className="[&>span:first-child]:bg-gray-700 [&_[role=slider]]:bg-yellow-400 [&>span:first-child_span]:bg-yellow-400"
+              />
+              <span className="text-xs text-gray-300 text-right">{effects.scale || 100}%</span>
+            </div>
           </div>
         </div>
       </TabsContent>

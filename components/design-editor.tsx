@@ -86,6 +86,7 @@ import { supabase } from "@/lib/supabase"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { PresentationsManager } from "@/components/presentations-manager"
 import { ShareDialog } from "@/components/share-dialog"
+import { exportToHtml } from "@/utils/html-export"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -475,6 +476,9 @@ export default function DesignEditor() {
           shadowColor: "#000000",
           shadowOffsetX: 0,
           shadowOffsetY: 0,
+          skewX: 0,
+          skewY: 0,
+          scale: 100,
         },
         animation: {
           type: "fade",
@@ -482,6 +486,17 @@ export default function DesignEditor() {
           duration: 1.2,
           trigger: "onLoad",
           easing: "ease-in-out",
+        },
+        imageEffect3d: {
+          type: "none",
+          intensity: 5,
+          angle: 15,
+          perspective: 800,
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0,
+          translateZ: 0,
+          hover: false,
         },
       }
 
@@ -734,11 +749,11 @@ export default function DesignEditor() {
     setCurrentSlideIndex(currentSlideIndex + 1)
   }
 
-  const handleExport = async (format: "pdf" | "png" | "jpg", currentOnly = false) => {
+  const handleExport = async (format: "pdf" | "png" | "jpg" | "html", currentOnly = false) => {
     try {
       setIsExporting(true)
 
-      if (currentOnly) {
+      if (currentOnly && format !== "html") {
         await exportCurrentSlide(
           slides[currentSlideIndex],
           format as "png" | "jpg",
@@ -756,6 +771,8 @@ export default function DesignEditor() {
           await exportToPng(slides, presentationTitle)
         } else if (format === "jpg") {
           await exportToJpg(slides, presentationTitle)
+        } else if (format === "html") {
+          await exportToHtml(slides, presentationTitle)
         }
 
         toast({
@@ -813,6 +830,9 @@ export default function DesignEditor() {
         shadowColor: "#000000",
         shadowOffsetX: 0,
         shadowOffsetY: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 100,
       },
       animation: {
         type: "fade",
@@ -820,6 +840,17 @@ export default function DesignEditor() {
         duration: 1.2,
         trigger: "onLoad",
         easing: "ease-in-out",
+      },
+      imageEffect3d: {
+        type: "none",
+        intensity: 5,
+        angle: 15,
+        perspective: 800,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        translateZ: 0,
+        hover: false,
       },
     }
 
@@ -861,6 +892,9 @@ export default function DesignEditor() {
         shadowColor: "#000000",
         shadowOffsetX: 0,
         shadowOffsetY: 0,
+        skewX: 0,
+        skewY: 0,
+        scale: 100,
       },
       animation: {
         type: "fade",
@@ -868,6 +902,17 @@ export default function DesignEditor() {
         duration: 1.2,
         trigger: "onLoad",
         easing: "ease-in-out",
+      },
+      imageEffect3d: {
+        type: "none",
+        intensity: 5,
+        angle: 15,
+        perspective: 800,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        translateZ: 0,
+        hover: false,
       },
     }))
 
@@ -1052,6 +1097,14 @@ export default function DesignEditor() {
               >
                 <Upload className="h-4 w-4 mr-3 text-yellow-400" />
                 <span className="font-medium">Import from JSON</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
+              <DropdownMenuItem
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
+                onClick={() => handleExport("html")}
+              >
+                <FileType className="h-4 w-4 mr-3 text-purple-400" />
+                <span className="font-medium">Export as HTML</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1250,9 +1303,16 @@ export default function DesignEditor() {
           {/* Canvas */}
           <div
             ref={canvasContainerRef}
-            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top_right,#0ea5e9_0%,#eab308_100%)] rounded-3xl font-mono"
+            className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
+            style={{
+              backgroundImage: "url(/images/futuristic-abstract-wallpaper.jpg)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
           >
-            <div className="relative group">
+            <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
+            <div className="relative z-10 group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
               <SlideCanvas
                 slide={slides[currentSlideIndex]}
@@ -1737,6 +1797,76 @@ export default function DesignEditor() {
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {selectedElement.type === "image" && (
+                <div className="space-y-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-green-500/20 hover:text-green-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImagePanel ? "bg-green-500/20 text-green-300" : ""}`}
+                    onClick={() => {
+                      setShowImagePanel(!showImagePanel)
+                      setShowBackgroundPanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                      setShowImage3dEffectsPanel(false)
+                    }}
+                  >
+                    <ImageIcon className="h-5 w-5 mr-3 text-green-400" />
+                    <span className="font-medium">Image Filters & Effects</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImage3dEffectsPanel ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                    onClick={() => {
+                      setShowImage3dEffectsPanel(!showImage3dEffectsPanel)
+                      setShowBackgroundPanel(false)
+                      setShowImagePanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                    }}
+                  >
+                    <Cube className="h-5 w-5 mr-3 text-cyan-400" />
+                    <span className="font-medium">3D Image Effects</span>
+                  </Button>
+
+                  {/* Image Corner Radius Control */}
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-green-400" />
+                      Image Properties
+                    </h4>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-400">Corner Radius</span>
+                        <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                          {selectedElement.effects?.borderRadius || 0}%
+                        </span>
+                      </div>
+                      <Slider
+                        className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-green-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-green-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-green-500 [&>span:first-child_span]:to-blue-500"
+                        min={0}
+                        max={50}
+                        step={1}
+                        value={[selectedElement.effects?.borderRadius || 0]}
+                        onValueChange={([value]) =>
+                          updateElement(selectedElementId!, {
+                            effects: {
+                              ...selectedElement.effects,
+                              borderRadius: value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               )}
