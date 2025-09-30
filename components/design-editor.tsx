@@ -978,7 +978,7 @@ export default function DesignEditor() {
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
       {/* Header */}
-      <header className="border-b border-white/10 p-4 flex items-center justify-between bg-white/5 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-white/5 shadow-2xl shadow-blue-500/20 relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:via-transparent before:to-white/10 before:rounded-lg before:border before:border-white/20">
+      <header className="border-b border-gray-800/20 p-4 flex items-center justify-between bg-gradient-to-r from-gray-900/40 via-gray-800/30 to-gray-900/40 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/20 shadow-2xl shadow-blue-500/10">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-yellow-400 rounded-xl blur-sm opacity-75"></div>
@@ -1305,13 +1305,13 @@ export default function DesignEditor() {
             ref={canvasContainerRef}
             className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
             style={{
-              backgroundImage: "url(/images/pixel-art-space-scene.jpeg)",
+              backgroundImage: "url(/images/futuristic-abstract-wallpaper.jpg)",
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute inset-0 bg-black/5 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
             <div className="relative z-10 group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
               <SlideCanvas
