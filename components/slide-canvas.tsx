@@ -40,6 +40,7 @@ export default function SlideCanvas({
   const [showGrid, setShowGrid] = useState(false)
   const [alignmentGuides, setAlignmentGuides] = useState<AlignmentGuide[]>([])
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false)
+  const [hoveredElements, setHoveredElements] = useState<Set<string>>(new Set())
 
   const canvasRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -70,7 +71,7 @@ export default function SlideCanvas({
             updates = { x: element.x - moveAmount }
             break
           case "ArrowRight":
-            updates = { x: element.x - moveAmount }
+            updates = { x: element.x + moveAmount }
             break
         }
 
@@ -119,7 +120,6 @@ export default function SlideCanvas({
     setDragging(true)
 
     // Find other elements for alignment guides
-    const otherElements = slide.elements.filter((el) => el.id !== element.id)
     setAlignmentGuides([])
   }
 
@@ -331,10 +331,22 @@ export default function SlideCanvas({
     onUpdateElement(element.id, { content: e.target.value })
   }
 
+  const handleElementHover = (elementId: string, isHovering: boolean) => {
+    setHoveredElements((prev) => {
+      const newSet = new Set(prev)
+      if (isHovering) {
+        newSet.add(elementId)
+      } else {
+        newSet.delete(elementId)
+      }
+      return newSet
+    })
+  }
+
   const getImageFilterStyle = (element: SlideElement) => {
     if (element.type !== "image" || !element.filters) return {}
 
-    const { filters, effects, imageEffect3d } = element as any
+    const { filters, effects } = element
 
     // Build CSS filter string
     let filterString = ""
@@ -350,7 +362,6 @@ export default function SlideCanvas({
     // Build effects styles
     const style: React.CSSProperties = {
       filter: filterString || undefined,
-      ...getImage3DEffectStyle(imageEffect3d),
     }
 
     if (effects) {
@@ -369,9 +380,7 @@ export default function SlideCanvas({
       if (effects.scale && effects.scale !== 100) transformString += `scale(${effects.scale / 100}) `
 
       if (transformString) {
-        // Combine with existing 3D transforms
-        const existing3D = style.transform || ""
-        style.transform = existing3D + " " + transformString
+        style.transform = transformString
       }
     }
 
@@ -657,6 +666,10 @@ export default function SlideCanvas({
 
           if (element.type === "image") {
             const imageStyle = getImageFilterStyle(element)
+            const isHovering = hoveredElements.has(element.id)
+            const image3DEffectStyle = element.imageEffect3d
+              ? getImage3DEffectStyle(element.imageEffect3d, element.imageEffect3d.hover && isHovering)
+              : {}
 
             return (
               <div
@@ -669,15 +682,26 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  perspective: element.imageEffect3d?.perspective || 800,
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
+                onMouseEnter={() => handleElementHover(element.id, true)}
+                onMouseLeave={() => handleElementHover(element.id, false)}
               >
-                <img
-                  src={element.src || "/placeholder.svg"}
-                  alt="Slide element"
-                  className="w-full h-full object-cover"
-                  style={imageStyle}
-                />
+                <div
+                  className="w-full h-full"
+                  style={{
+                    ...image3DEffectStyle,
+                    transition: "all 0.5s ease",
+                  }}
+                >
+                  <img
+                    src={element.src || "/placeholder.svg"}
+                    alt="Slide element"
+                    className="w-full h-full object-cover"
+                    style={imageStyle}
+                  />
+                </div>
 
                 {isSelected && (
                   <>

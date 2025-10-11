@@ -8,6 +8,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import { RenderShape } from "@/utils/shape-utils"
 import { getTextEffectStyle } from "./text-effects"
 import { getImage3DEffectStyle } from "./image-3d-effects"
+import { getGlassmorphismStyles } from "@/utils/style-utils"
 
 interface PresentationModeProps {
   slides: Slide[]
@@ -489,12 +490,6 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
         @keyframes foldLeft {
           from { transform: perspective(1000px) rotateY(0); transform-origin: left center; }
           to { transform: perspective(1000px) rotateY(90deg); transform-origin: left center; }
-        }
-        @keyframes foldRight {
-          from { transform: perspective(1000px) rotateY(0); transform-origin: right center; }
-          to { transform: perspective(1000px) rotateY(-90deg); transform-origin: right center; }
-        }
-        @keyframes foldTop {
           from { transform: perspective(1000px) rotateX(0); transform-origin: center top; }
           to { transform: perspective(1000px) rotateX(-90deg); transform-origin: center top; }
         }
@@ -618,6 +613,7 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
               }
 
               if (element.type === "shape") {
+                const shapeStyle = getGlassmorphismStyles((element as any).glassmorphism, (element as any).color)
                 return (
                   <div
                     key={element.id}
@@ -634,10 +630,12 @@ export default function PresentationMode({ slides, initialSlide, onExit }: Prese
                     onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
                   >
                     <RenderShape
-                      shape={element.shape}
-                      width={element.width}
-                      height={element.height}
-                      color={element.color}
+                      shape={(element as any).shape}
+                      width={(element as any).width}
+                      height={(element as any).height}
+                      color={(element as any).color}
+                      glassmorphism={(element as any).glassmorphism}
+                      cornerRadius={(element as any).cornerRadius}
                     />
                   </div>
                 )
