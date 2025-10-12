@@ -21,6 +21,8 @@ interface SlideCanvasProps {
   onSelectElement: (id: string | null) => void
   onUpdateElement: (id: string, updates: Record<string, any>) => void
   zoomLevel: number
+  isPreviewMode?: boolean
+  showGrid?: boolean
 }
 
 export default function SlideCanvas({
@@ -29,6 +31,8 @@ export default function SlideCanvas({
   onSelectElement,
   onUpdateElement,
   zoomLevel,
+  isPreviewMode = false,
+  showGrid = false,
 }: SlideCanvasProps) {
   const [dragging, setDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -37,7 +41,7 @@ export default function SlideCanvas({
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 })
   const [rotating, setRotating] = useState(false)
   const [rotateStart, setRotateStart] = useState({ angle: 0, startAngle: 0 })
-  const [showGrid, setShowGrid] = useState(false)
+  const [localShowGrid, setLocalShowGrid] = useState(showGrid) // Use local state for grid visibility
   const [alignmentGuides, setAlignmentGuides] = useState<AlignmentGuide[]>([])
   const [shiftKeyPressed, setShiftKeyPressed] = useState(false)
   const [hoveredElements, setHoveredElements] = useState<Set<string>>(new Set())
@@ -45,7 +49,7 @@ export default function SlideCanvas({
   const canvasRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Handle keyboard events for modifier keys
+  // Handle keyboard events for modifier keys and shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Shift") {
@@ -83,7 +87,7 @@ export default function SlideCanvas({
 
       // Toggle grid with G key
       if (e.key === "g" || e.key === "G") {
-        setShowGrid((prev) => !prev)
+        setLocalShowGrid((prev) => !prev)
       }
     }
 
@@ -100,7 +104,12 @@ export default function SlideCanvas({
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [selectedElementId, slide.elements, onUpdateElement, dragging, resizing, rotating])
+  }, [selectedElementId, slide.elements, onUpdateElement, dragging, resizing, rotating, isPreviewMode])
+
+  useEffect(() => {
+    // Update local state if prop changes
+    setLocalShowGrid(showGrid)
+  }, [showGrid])
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (e.target === canvasRef.current) {
@@ -109,6 +118,7 @@ export default function SlideCanvas({
   }
 
   const handleElementMouseDown = (e: React.MouseEvent, element: SlideElement) => {
+    if (isPreviewMode) return
     e.stopPropagation()
     onSelectElement(element.id)
 
@@ -119,11 +129,12 @@ export default function SlideCanvas({
     })
     setDragging(true)
 
-    // Find other elements for alignment guides
+    // Clear alignment guides when starting a drag
     setAlignmentGuides([])
   }
 
   const handleResizeMouseDown = (e: React.MouseEvent, element: SlideElement, direction: string) => {
+    if (isPreviewMode) return
     e.stopPropagation()
     onSelectElement(element.id)
 
@@ -138,6 +149,7 @@ export default function SlideCanvas({
   }
 
   const handleRotateMouseDown = (e: React.MouseEvent, element: SlideElement) => {
+    if (isPreviewMode) return
     e.stopPropagation()
     onSelectElement(element.id)
 
@@ -162,6 +174,7 @@ export default function SlideCanvas({
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPreviewMode) return
     if (!selectedElementId) return
 
     const selectedElement = slide.elements.find((el) => el.id === selectedElementId)
@@ -239,18 +252,18 @@ export default function SlideCanvas({
 
       // Handle different resize directions
       if (resizeDirection.includes("e")) {
-        newWidth = Math.max(50, resizeStart.width + dx)
+        newWidth = Math.max(20, resizeStart.width + dx) // Minimum width of 20
       }
       if (resizeDirection.includes("w")) {
-        const widthChange = Math.min(resizeStart.width - 50, dx)
+        const widthChange = Math.min(resizeStart.width - 20, dx) // Ensure width doesn't go below 20
         newWidth = resizeStart.width - widthChange
         newX = selectedElement.x + widthChange
       }
       if (resizeDirection.includes("s")) {
-        newHeight = Math.max(20, resizeStart.height + dy)
+        newHeight = Math.max(20, resizeStart.height + dy) // Minimum height of 20
       }
       if (resizeDirection.includes("n")) {
-        const heightChange = Math.min(resizeStart.height - 20, dy)
+        const heightChange = Math.min(resizeStart.height - 20, dy) // Ensure height doesn't go below 20
         newHeight = resizeStart.height - heightChange
         newY = selectedElement.y + heightChange
       }
@@ -259,22 +272,14 @@ export default function SlideCanvas({
       if (shiftKeyPressed) {
         const aspectRatio = resizeStart.width / resizeStart.height
 
-        if (resizeDirection === "se" || resizeDirection === "nw") {
-          if (Math.abs(dx) > Math.abs(dy)) {
-            newHeight = newWidth / aspectRatio
-          } else {
-            newWidth = newHeight * aspectRatio
-          }
-        } else if (resizeDirection === "sw" || resizeDirection === "ne") {
-          if (Math.abs(dx) > Math.abs(dy)) {
-            newHeight = newWidth / aspectRatio
-          } else {
-            newWidth = newHeight * aspectRatio
-          }
+        if (resizeDirection.includes("e") || resizeDirection.includes("w")) {
+          newHeight = newWidth / aspectRatio
+        } else if (resizeDirection.includes("n") || resizeDirection.includes("s")) {
+          newWidth = newHeight * aspectRatio
         }
       }
 
-      // Snap to grid if enabled
+      // Snap to grid if shift key is pressed
       if (shiftKeyPressed) {
         newWidth = snapToGrid(newWidth)
         newHeight = snapToGrid(newHeight)
@@ -316,7 +321,7 @@ export default function SlideCanvas({
 
   const handleMouseUp = () => {
     if (dragging || resizing || rotating) {
-      // Clear alignment guides when done dragging
+      // Clear alignment guides when done dragging/resizing/rotating
       setAlignmentGuides([])
     }
 
@@ -327,11 +332,12 @@ export default function SlideCanvas({
   }
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, element: SlideElement) => {
-    if (element.type !== "text") return
+    if (element.type !== "text" || isPreviewMode) return
     onUpdateElement(element.id, { content: e.target.value })
   }
 
   const handleElementHover = (elementId: string, isHovering: boolean) => {
+    if (isPreviewMode) return
     setHoveredElements((prev) => {
       const newSet = new Set(prev)
       if (isHovering) {
@@ -346,7 +352,7 @@ export default function SlideCanvas({
   const getImageFilterStyle = (element: SlideElement) => {
     if (element.type !== "image" || !element.filters) return {}
 
-    const { filters, effects } = element
+    const { filters } = element
 
     // Build CSS filter string
     let filterString = ""
@@ -364,23 +370,25 @@ export default function SlideCanvas({
       filter: filterString || undefined,
     }
 
-    if (effects) {
-      if (effects.borderRadius) style.borderRadius = `${effects.borderRadius}%`
-      if (effects.borderWidth) {
-        style.border = `${effects.borderWidth}px solid ${effects.borderColor || "#ffffff"}`
+    // Existing effects
+    if (element.effects) {
+      if (element.effects.borderRadius) style.borderRadius = `${element.effects.borderRadius}%`
+      if (element.effects.borderWidth) {
+        style.border = `${element.effects.borderWidth}px solid ${element.effects.borderColor || "#ffffff"}`
       }
-      if (effects.shadowBlur) {
-        style.boxShadow = `${effects.shadowOffsetX || 0}px ${effects.shadowOffsetY || 0}px ${effects.shadowBlur}px ${effects.shadowColor || "#000000"}`
+      if (element.effects.shadowBlur) {
+        style.boxShadow = `${element.effects.shadowOffsetX || 0}px ${element.effects.shadowOffsetY || 0}px ${element.effects.shadowBlur}px ${element.effects.shadowColor || "#000000"}`
       }
 
-      // Add new transform effects
+      // Transform effects
       let transformString = ""
-      if (effects.skewX) transformString += `skewX(${effects.skewX}deg) `
-      if (effects.skewY) transformString += `skewY(${effects.skewY}deg) `
-      if (effects.scale && effects.scale !== 100) transformString += `scale(${effects.scale / 100}) `
+      if (element.effects.skewX) transformString += `skewX(${element.effects.skewX}deg) `
+      if (element.effects.skewY) transformString += `skewY(${element.effects.skewY}deg) `
+      if (element.effects.scale && element.effects.scale !== 100)
+        transformString += `scale(${element.effects.scale / 100}) `
 
       if (transformString) {
-        style.transform = transformString
+        style.transform = (style.transform ? style.transform + " " : "") + transformString
       }
     }
 
@@ -445,10 +453,10 @@ export default function SlideCanvas({
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={handleMouseUp} // Ensure mouseup is called if mouse leaves canvas
       >
         {/* Grid overlay */}
-        {showGrid && (
+        {localShowGrid && (
           <div className="absolute inset-0 pointer-events-none">
             <div
               className="w-full h-full"
@@ -513,7 +521,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""} ${isPreviewMode ? "pointer-events-none" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -523,6 +531,8 @@ export default function SlideCanvas({
                   transformOrigin: "center center",
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
+                onMouseEnter={() => handleElementHover(element.id, true)}
+                onMouseLeave={() => handleElementHover(element.id, false)}
               >
                 <textarea
                   className="w-full h-full resize-none border-none bg-transparent p-0 focus:outline-none focus:ring-0 text-white"
@@ -534,14 +544,16 @@ export default function SlideCanvas({
                     fontStyle: element.fontStyle || "normal",
                     textDecoration: element.textDecoration || "none",
                     overflow: "hidden",
+                    color: element.color || "white", // Default to white if not specified
                     ...getTextEffectStyle(element.textEffect),
                   }}
                   value={element.content}
                   onChange={(e) => handleTextChange(e, element)}
                   onClick={(e) => e.stopPropagation()}
+                  readOnly={isPreviewMode}
                 />
 
-                {isSelected && (
+                {isSelected && !isPreviewMode && (
                   <>
                     {/* Resize handles */}
                     <div
@@ -594,7 +606,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""} ${isPreviewMode ? "pointer-events-none" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -604,6 +616,8 @@ export default function SlideCanvas({
                   transformOrigin: "center center",
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
+                onMouseEnter={() => handleElementHover(element.id, true)}
+                onMouseLeave={() => handleElementHover(element.id, false)}
               >
                 <RenderShape
                   shape={element.shape}
@@ -615,7 +629,7 @@ export default function SlideCanvas({
                   cornerRadius={element.cornerRadius}
                 />
 
-                {isSelected && (
+                {isSelected && !isPreviewMode && (
                   <>
                     {/* Resize handles */}
                     <div
@@ -674,7 +688,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""} ${isPreviewMode ? "pointer-events-none" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -682,7 +696,7 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
-                  perspective: element.imageEffect3d?.perspective || 800,
+                  perspective: element.imageEffect3d?.perspective || 800, // Ensure perspective is set for 3D effects
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
                 onMouseEnter={() => handleElementHover(element.id, true)}
@@ -692,7 +706,7 @@ export default function SlideCanvas({
                   className="w-full h-full"
                   style={{
                     ...image3DEffectStyle,
-                    transition: "all 0.5s ease",
+                    transition: "transform 0.3s ease", // Ensure transition for hover effects
                   }}
                 >
                   <img
@@ -703,7 +717,7 @@ export default function SlideCanvas({
                   />
                 </div>
 
-                {isSelected && (
+                {isSelected && !isPreviewMode && (
                   <>
                     {/* Resize handles */}
                     <div
@@ -756,7 +770,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""} ${isPreviewMode ? "pointer-events-none" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -766,6 +780,8 @@ export default function SlideCanvas({
                   transformOrigin: "center center",
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
+                onMouseEnter={() => handleElementHover(element.id, true)}
+                onMouseLeave={() => handleElementHover(element.id, false)}
               >
                 <video
                   src={element.src}
@@ -776,7 +792,7 @@ export default function SlideCanvas({
                   muted={element.muted}
                 />
 
-                {isSelected && (
+                {isSelected && !isPreviewMode && (
                   <>
                     {/* Resize handles */}
                     <div
@@ -829,7 +845,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""} ${isPreviewMode ? "pointer-events-none" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -839,6 +855,8 @@ export default function SlideCanvas({
                   transformOrigin: "center center",
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
+                onMouseEnter={() => handleElementHover(element.id, true)}
+                onMouseLeave={() => handleElementHover(element.id, false)}
               >
                 <audio
                   src={element.src}
@@ -848,7 +866,7 @@ export default function SlideCanvas({
                   loop={element.loop}
                 />
 
-                {isSelected && (
+                {isSelected && !isPreviewMode && (
                   <>
                     {/* Resize handles */}
                     <div

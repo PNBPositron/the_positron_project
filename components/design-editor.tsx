@@ -38,6 +38,8 @@ import {
   User,
   Cloud,
   Share2,
+  CloudOff,
+  Check,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -108,6 +110,8 @@ const COLOR_PRESETS = [
   "#000000", // Black
 ]
 
+const AUTO_SAVE_DELAY = 3000 // 3 seconds
+
 export default function DesignEditor() {
   const [presentationTitle, setPresentationTitle] = useState("Untitled Positron")
   const [slides, setSlides] = useState<Slide[]>([
@@ -169,6 +173,11 @@ export default function DesignEditor() {
   const [showPresentationsManager, setShowPresentationsManager] = useState(false)
   const [showShareDialog, setShowShareDialog] = useState(false)
 
+  // Auto-save states
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
@@ -203,6 +212,63 @@ export default function DesignEditor() {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // Auto-save functionality
+  useEffect(() => {
+    // Only auto-save if user is signed in and presentation has been saved before
+    if (!user || !currentPresentationId) {
+      return
+    }
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
+    // Set up new auto-save timeout
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      try {
+        setAutoSaveStatus("saving")
+
+        const presentationData = {
+          title: presentationTitle,
+          slides: slides,
+          updated_at: new Date().toISOString(),
+        }
+
+        const { error } = await supabase
+          .from("presentations")
+          .update(presentationData)
+          .eq("id", currentPresentationId)
+          .eq("user_id", user.id)
+
+        if (error) throw error
+
+        setAutoSaveStatus("saved")
+        setLastSavedTime(new Date())
+
+        // Reset to idle after 2 seconds
+        setTimeout(() => {
+          setAutoSaveStatus("idle")
+        }, 2000)
+      } catch (error: any) {
+        console.error("Auto-save error:", error)
+        setAutoSaveStatus("error")
+
+        // Reset to idle after 3 seconds
+        setTimeout(() => {
+          setAutoSaveStatus("idle")
+        }, 3000)
+      }
+    }, AUTO_SAVE_DELAY)
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [slides, presentationTitle, user, currentPresentationId])
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -975,6 +1041,33 @@ export default function DesignEditor() {
   // Combine built-in and custom fonts
   const allFonts = [...FONT_OPTIONS, ...customFonts]
 
+  // Auto-save status indicator
+  const getAutoSaveIcon = () => {
+    switch (autoSaveStatus) {
+      case "saving":
+        return <Cloud className="h-4 w-4 text-blue-400 animate-pulse" />
+      case "saved":
+        return <Check className="h-4 w-4 text-green-400" />
+      case "error":
+        return <CloudOff className="h-4 w-4 text-red-400" />
+      default:
+        return null
+    }
+  }
+
+  const getAutoSaveText = () => {
+    switch (autoSaveStatus) {
+      case "saving":
+        return "Saving..."
+      case "saved":
+        return lastSavedTime ? `Saved at ${lastSavedTime.toLocaleTimeString()}` : "Saved"
+      case "error":
+        return "Save failed"
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
       {/* Header */}
@@ -999,6 +1092,16 @@ export default function DesignEditor() {
             value={presentationTitle}
             onChange={(e) => setPresentationTitle(e.target.value)}
           />
+          {/* Auto-save indicator */}
+          {user && currentPresentationId && autoSaveStatus !== "idle" && (
+            <>
+              <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent"></div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/30">
+                {getAutoSaveIcon()}
+                <span className="text-xs text-gray-400">{getAutoSaveText()}</span>
+              </div>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/30">
