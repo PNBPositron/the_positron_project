@@ -110,7 +110,7 @@ const COLOR_PRESETS = [
   "#000000", // Black
 ]
 
-const AUTO_SAVE_DELAY = 5000 // 5 seconds (increased from 3)
+const AUTO_SAVE_DELAY = 3000 // 3 seconds
 const MAX_RETRY_ATTEMPTS = 3
 
 export default function DesignEditor() {
@@ -178,9 +178,8 @@ export default function DesignEditor() {
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const lastSavedDataRef = useRef<string>("")
-  const retryCountRef = useRef(0)
   const isSavingRef = useRef(false)
+  const retryCountRef = useRef(0)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -217,23 +216,10 @@ export default function DesignEditor() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Optimized auto-save functionality
+  // Improved auto-save functionality
   useEffect(() => {
     // Only auto-save if user is signed in and presentation has been saved before
     if (!user || !currentPresentationId) {
-      return
-    }
-
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current)
-    }
-
-    // Create a hash of current data to check if it has changed
-    const currentData = JSON.stringify({ title: presentationTitle, slides })
-
-    // Don't save if data hasn't changed
-    if (currentData === lastSavedDataRef.current) {
       return
     }
 
@@ -242,40 +228,41 @@ export default function DesignEditor() {
       return
     }
 
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
     // Set up new auto-save timeout
     autoSaveTimeoutRef.current = setTimeout(async () => {
       try {
         isSavingRef.current = true
         setAutoSaveStatus("saving")
 
-        // Only save essential data - remove metadata that might be large
+        console.log("Auto-saving presentation...", currentPresentationId)
+
+        // Prepare presentation data
         const presentationData = {
           title: presentationTitle,
-          slides: slides.map((slide) => ({
-            ...slide,
-            // Keep only necessary element data
-            elements: slide.elements.map((el) => ({
-              ...el,
-              // Compress image data if it's a data URL
-              ...(el.type === "image" && el.src?.startsWith("data:")
-                ? { src: el.src.substring(0, 100000) } // Limit image size
-                : {}),
-            })),
-          })),
+          slides: slides,
           updated_at: new Date().toISOString(),
         }
 
+        // Save to Supabase
         const { error } = await supabase
           .from("presentations")
           .update(presentationData)
           .eq("id", currentPresentationId)
           .eq("user_id", user.id)
 
-        if (error) throw error
+        if (error) {
+          console.error("Auto-save error:", error)
+          throw error
+        }
 
+        console.log("Auto-save successful!")
         setAutoSaveStatus("saved")
         setLastSavedTime(new Date())
-        lastSavedDataRef.current = currentData
         retryCountRef.current = 0
 
         // Reset to idle after 2 seconds
@@ -283,20 +270,22 @@ export default function DesignEditor() {
           setAutoSaveStatus("idle")
         }, 2000)
       } catch (error: any) {
-        console.error("Auto-save error:", error)
+        console.error("Auto-save failed:", error)
 
         // Retry logic
         if (retryCountRef.current < MAX_RETRY_ATTEMPTS) {
           retryCountRef.current++
           setAutoSaveStatus("saving")
+          console.log(`Retrying auto-save (attempt ${retryCountRef.current})...`)
 
           // Retry after a delay
           setTimeout(() => {
             isSavingRef.current = false
-            // Trigger another save attempt
-            setSlides([...slides])
+            // Trigger another save attempt by updating slides
+            setSlides((prev) => [...prev])
           }, 2000 * retryCountRef.current)
         } else {
+          console.error("Auto-save failed after max retries")
           setAutoSaveStatus("error")
           retryCountRef.current = 0
 
@@ -321,7 +310,7 @@ export default function DesignEditor() {
       }
     }, AUTO_SAVE_DELAY)
 
-    // Cleanup timeout on unmount
+    // Cleanup timeout on unmount or when dependencies change
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current)
@@ -1084,15 +1073,18 @@ export default function DesignEditor() {
 
   const handleSaveSuccess = (presentationId: string) => {
     setCurrentPresentationId(presentationId)
-    // Reset the saved data reference to force an initial auto-save
-    lastSavedDataRef.current = ""
+
+    toast({
+      title: "Auto-save enabled",
+      description: "Your presentation will now auto-save every few seconds.",
+      variant: "default",
+    })
   }
 
   const handleSignOut = () => {
     setUser(null)
     setCurrentPresentationId(null)
     setAutoSaveStatus("idle")
-    lastSavedDataRef.current = ""
   }
 
   if (isPresentationMode) {
@@ -1123,9 +1115,9 @@ export default function DesignEditor() {
       case "saving":
         return "Saving..."
       case "saved":
-        return lastSavedTime ? `Saved at ${lastSavedTime.toLocaleTimeString()}` : "Saved"
+        return lastSavedTime ? `Saved ${lastSavedTime.toLocaleTimeString()}` : "Saved"
       case "error":
-        return "Save failed - click Save"
+        return "Save failed"
       default:
         return null
     }
@@ -1160,12 +1152,16 @@ export default function DesignEditor() {
             <>
               <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent"></div>
               <div
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${
-                  autoSaveStatus === "error" ? "bg-red-500/20 border-red-500/30" : "bg-gray-800/30 border-gray-700/30"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 ${
+                  autoSaveStatus === "error"
+                    ? "bg-red-500/20 border-red-500/30"
+                    : autoSaveStatus === "saved"
+                      ? "bg-green-500/20 border-green-500/30"
+                      : "bg-blue-500/20 border-blue-500/30"
                 }`}
               >
                 {getAutoSaveIcon()}
-                <span className="text-xs text-gray-400">{getAutoSaveText()}</span>
+                <span className="text-xs text-gray-300 font-medium">{getAutoSaveText()}</span>
               </div>
             </>
           )}
