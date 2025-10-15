@@ -2,696 +2,503 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
-import type { Slide, SlideElement } from "@/types/editor"
+import { useState, useEffect, useCallback } from "react"
+import { Button } from "@/components/ui/button"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
-import { RenderShape } from "@/utils/shape-utils"
-import { getTextEffectStyle } from "./text-effects"
-import { getImage3DEffectStyle } from "./image-3d-effects"
+import type { Slide, SlideElement, SlideBackground } from "@/types/editor"
+import { renderShape } from "@/utils/shape-utils"
+import { getGlassmorphismStyles } from "@/utils/style-utils"
 
 interface PresentationModeProps {
   slides: Slide[]
-  initialSlide: number
+  initialSlide?: number
   onExit: () => void
 }
 
-export default function PresentationMode({ slides, initialSlide, onExit }: PresentationModeProps) {
+export default function PresentationMode({ slides, initialSlide = 0, onExit }: PresentationModeProps) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(initialSlide)
-  const [previousSlideIndex, setPreviousSlideIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [clickedElements, setClickedElements] = useState<Set<string>>(new Set())
-  const [hoveredElements, setHoveredElements] = useState<Set<string>>(new Set())
+  const [direction, setDirection] = useState<"forward" | "backward">("forward")
+  const [elementsVisible, setElementsVisible] = useState<Record<string, boolean>>({})
 
-  const slideContainerRef = useRef<HTMLDivElement>(null)
-  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const currentSlide = slides[currentSlideIndex]
+  const transition = currentSlide.transition || { type: "fade", duration: 0.5, easing: "ease" }
 
+  // Initialize element visibility
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") {
+    const initialVisibility: Record<string, boolean> = {}
+    currentSlide.elements.forEach((element) => {
+      initialVisibility[element.id] = false
+    })
+    setElementsVisible(initialVisibility)
+
+    // Trigger animations for onLoad elements
+    const timer = setTimeout(() => {
+      const updatedVisibility: Record<string, boolean> = {}
+      currentSlide.elements.forEach((element) => {
+        if (element.animation?.trigger === "onLoad") {
+          updatedVisibility[element.id] = true
+        }
+      })
+      setElementsVisible(updatedVisibility)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [currentSlideIndex, currentSlide.elements])
+
+  const goToNextSlide = useCallback(() => {
+    if (currentSlideIndex < slides.length - 1 && !isTransitioning) {
+      setDirection("forward")
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentSlideIndex(currentSlideIndex + 1)
+        setIsTransitioning(false)
+      }, transition.duration * 1000)
+    }
+  }, [currentSlideIndex, slides.length, isTransitioning, transition.duration])
+
+  const goToPreviousSlide = useCallback(() => {
+    if (currentSlideIndex > 0 && !isTransitioning) {
+      setDirection("backward")
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentSlideIndex(currentSlideIndex - 1)
+        setIsTransitioning(false)
+      }, transition.duration * 1000)
+    }
+  }, [currentSlideIndex, isTransitioning, transition.duration])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault()
         goToNextSlide()
-      } else if (event.key === "ArrowLeft") {
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault()
         goToPreviousSlide()
-      } else if (event.key === "Escape") {
+      } else if (e.key === "Escape") {
         onExit()
       }
     }
 
     window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [goToNextSlide, goToPreviousSlide, onExit])
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      if (transitionTimeoutRef.current) {
-        clearTimeout(transitionTimeoutRef.current)
-      }
-    }
-  }, [currentSlideIndex, slides, onExit])
-
-  const goToNextSlide = () => {
-    if (currentSlideIndex < slides.length - 1 && !isTransitioning) {
-      setPreviousSlideIndex(currentSlideIndex)
-      setIsTransitioning(true)
-      setClickedElements(new Set())
-
-      // Wait for transition to complete
-      transitionTimeoutRef.current = setTimeout(
-        () => {
-          setCurrentSlideIndex(currentSlideIndex + 1)
-          setIsTransitioning(false)
-        },
-        (slides[currentSlideIndex].transition?.duration || 0.5) * 1000,
-      )
+  const handleElementClick = (element: SlideElement) => {
+    if (element.animation?.trigger === "onClick") {
+      setElementsVisible((prev) => ({
+        ...prev,
+        [element.id]: !prev[element.id],
+      }))
     }
   }
 
-  const goToPreviousSlide = () => {
-    if (currentSlideIndex > 0 && !isTransitioning) {
-      setPreviousSlideIndex(currentSlideIndex)
-      setIsTransitioning(true)
-      setClickedElements(new Set())
-
-      // Wait for transition to complete
-      transitionTimeoutRef.current = setTimeout(
-        () => {
-          setCurrentSlideIndex(currentSlideIndex - 1)
-          setIsTransitioning(false)
-        },
-        (slides[currentSlideIndex].transition?.duration || 0.5) * 1000,
-      )
-    }
-  }
-
-  const handleElementClick = (elementId: string) => {
-    setClickedElements((prev) => {
-      const newSet = new Set(prev)
-      newSet.add(elementId)
-      return newSet
-    })
-  }
-
-  const handleElementHover = (elementId: string, isHovering: boolean) => {
-    setHoveredElements((prev) => {
-      const newSet = new Set(prev)
-      if (isHovering) {
-        newSet.add(elementId)
-      } else {
-        newSet.delete(elementId)
-      }
-      return newSet
-    })
-  }
-
-  const getImageFilterStyle = (element: SlideElement) => {
-    if (element.type !== "image" || !element.filters) return {}
-
-    const { filters, effects } = element
-
-    // Build CSS filter string
-    let filterString = ""
-    if (filters.grayscale) filterString += `grayscale(${filters.grayscale}%) `
-    if (filters.sepia) filterString += `sepia(${filters.sepia}%) `
-    if (filters.blur) filterString += `blur(${filters.blur}px) `
-    if (filters.brightness) filterString += `brightness(${filters.brightness}%) `
-    if (filters.contrast) filterString += `contrast(${filters.contrast}%) `
-    if (filters.hueRotate) filterString += `hue-rotate(${filters.hueRotate}deg) `
-    if (filters.saturate) filterString += `saturate(${filters.saturate}%) `
-    if (filters.opacity) filterString += `opacity(${filters.opacity}%) `
-
-    // Build effects styles
-    const style: React.CSSProperties = {
-      filter: filterString || undefined,
-    }
-
-    if (effects) {
-      if (effects.borderRadius) style.borderRadius = `${effects.borderRadius}%`
-      if (effects.borderWidth) {
-        style.border = `${effects.borderWidth}px solid ${effects.borderColor || "#ffffff"}`
-      }
-      if (effects.shadowBlur) {
-        style.boxShadow = `${effects.shadowOffsetX || 0}px ${effects.shadowOffsetY || 0}px ${effects.shadowBlur}px ${effects.shadowColor || "#000000"}`
-      }
-    }
-
-    return style
-  }
-
-  const getBackgroundStyles = (slide: Slide) => {
-    const bg = slide.background
-
-    if (typeof bg === "string") {
-      return { background: bg }
-    }
-
-    if (bg.type === "color") {
-      return { backgroundColor: bg.value }
-    }
-
-    if (bg.type === "gradient") {
-      return { background: bg.value }
-    }
-
-    if (bg.type === "image") {
+  const getBackgroundStyle = (background: string | SlideBackground): React.CSSProperties => {
+    if (typeof background === "string") {
       return {
-        position: "relative" as const,
+        background,
+      }
+    }
+
+    if (background.type === "color") {
+      return {
+        backgroundColor: background.value,
+      }
+    }
+
+    if (background.type === "gradient") {
+      return {
+        background: background.value,
+      }
+    }
+
+    if (background.type === "image") {
+      return {
+        backgroundImage: `url(${background.value})`,
+        backgroundSize: background.imagePosition || "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }
     }
 
     return {}
   }
 
-  const getElementAnimationStyle = (element: SlideElement) => {
-    if (!element.animation || element.animation.type === "none") {
-      return {}
+  const getTransitionClass = () => {
+    if (!isTransitioning) return ""
+
+    const baseClass = "transition-all"
+    const durationClass = `duration-[${transition.duration * 1000}ms]`
+    const easingMap = {
+      linear: "ease-linear",
+      ease: "ease",
+      "ease-in": "ease-in",
+      "ease-out": "ease-out",
+      "ease-in-out": "ease-in-out",
     }
-
-    const { animation } = element
-    const shouldAnimate =
-      animation.trigger === "onLoad" || (animation.trigger === "onClick" && clickedElements.has(element.id))
-
-    if (!shouldAnimate) {
-      // Hide element until animation is triggered
-      if (animation.trigger === "onClick") {
-        return {
-          opacity: 0,
-          transform: "scale(0.95)",
-          transition: "none",
-        }
-      }
-      return {}
-    }
-
-    const baseStyle: React.CSSProperties = {
-      animationDuration: `${animation.duration}s`,
-      animationDelay: `${animation.delay}s`,
-      animationFillMode: "both",
-      animationTimingFunction: animation.easing,
-    }
-
-    switch (animation.type) {
-      case "fade":
-        return {
-          ...baseStyle,
-          animationName: "fadeIn",
-        }
-      case "slide":
-        let slideAnimation = "slideInLeft"
-        if (animation.direction === "right") slideAnimation = "slideInRight"
-        if (animation.direction === "top") slideAnimation = "slideInTop"
-        if (animation.direction === "bottom") slideAnimation = "slideInBottom"
-        return {
-          ...baseStyle,
-          animationName: slideAnimation,
-        }
-      case "zoom":
-        return {
-          ...baseStyle,
-          animationName: "zoomIn",
-        }
-      case "bounce":
-        return {
-          ...baseStyle,
-          animationName: "bounce",
-        }
-      case "flip":
-        let flipAnimation = "flipInX"
-        if (animation.direction === "top" || animation.direction === "bottom") {
-          flipAnimation = "flipInY"
-        }
-        return {
-          ...baseStyle,
-          animationName: flipAnimation,
-        }
-      case "rotate":
-        return {
-          ...baseStyle,
-          animationName: "rotateIn",
-        }
-      default:
-        return {}
-    }
-  }
-
-  const getSlideTransitionStyle = () => {
-    if (!isTransitioning || previousSlideIndex === null) return {}
-
-    const currentSlide = slides[currentSlideIndex]
-    const prevSlide = slides[previousSlideIndex]
-    const transition = prevSlide.transition || { type: "fade", duration: 0.5, easing: "ease" }
-
-    if (transition.type === "none") {
-      return {}
-    }
-
-    const isForward = previousSlideIndex < currentSlideIndex
-    const direction = transition.direction || "left"
-    const perspective = transition.perspective || 1000
-    const depth = transition.depth || 100
-    const rotate = transition.rotate || 90
-
-    const baseStyle: React.CSSProperties = {
-      transition: `transform ${transition.duration}s ${transition.easing}, opacity ${transition.duration}s ${transition.easing}`,
-    }
+    const easingClass = easingMap[transition.easing] || "ease"
 
     switch (transition.type) {
       case "fade":
-        return {
-          ...baseStyle,
-          opacity: isForward ? 0 : 1,
-        }
+        return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? "opacity-0" : "opacity-100"}`
       case "slide":
-        let transform = ""
-        if (direction === "left") transform = isForward ? "translateX(-100%)" : "translateX(100%)"
-        if (direction === "right") transform = isForward ? "translateX(100%)" : "translateX(-100%)"
-        if (direction === "top") transform = isForward ? "translateY(-100%)" : "translateY(100%)"
-        if (direction === "bottom") transform = isForward ? "translateY(100%)" : "translateY(-100%)"
-        return {
-          ...baseStyle,
-          transform,
+        const slideDirection = transition.direction || "left"
+        const offset = direction === "forward" ? "100%" : "-100%"
+        if (slideDirection === "left") {
+          return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? `translate-x-[-${offset}]` : "translate-x-0"}`
+        } else if (slideDirection === "right") {
+          return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? `translate-x-[${offset}]` : "translate-x-0"}`
+        } else if (slideDirection === "top") {
+          return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? `translate-y-[-${offset}]` : "translate-y-0"}`
+        } else if (slideDirection === "bottom") {
+          return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? `translate-y-[${offset}]` : "translate-y-0"}`
         }
+        return ""
       case "zoom":
-        return {
-          ...baseStyle,
-          transform: isForward ? "scale(0.5)" : "scale(1.5)",
-          opacity: 0,
-        }
+        return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? "scale-0" : "scale-100"}`
       case "flip":
-        let flipTransform = ""
-        if (direction === "left" || direction === "right") {
-          flipTransform = `perspective(${perspective}px) rotateY(${isForward ? "-90deg" : "90deg"})`
-        } else {
-          flipTransform = `perspective(${perspective}px) rotateX(${isForward ? "90deg" : "-90deg"})`
-        }
-        return {
-          ...baseStyle,
-          transform: flipTransform,
-          transformStyle: "preserve-3d" as const,
-          backfaceVisibility: "hidden" as const,
-        }
-      case "cube":
-        let cubeTransform = ""
-        if (direction === "left")
-          cubeTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateY(${isForward ? "-90deg" : "90deg"}) translateZ(${depth}px)`
-        if (direction === "right")
-          cubeTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateY(${isForward ? "90deg" : "-90deg"}) translateZ(${depth}px)`
-        if (direction === "top")
-          cubeTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateX(${isForward ? "90deg" : "-90deg"}) translateZ(${depth}px)`
-        if (direction === "bottom")
-          cubeTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateX(${isForward ? "-90deg" : "90deg"}) translateZ(${depth}px)`
-        return {
-          ...baseStyle,
-          transform: cubeTransform,
-          transformStyle: "preserve-3d" as const,
-        }
-      case "carousel":
-        let carouselTransform = ""
-        if (direction === "left" || direction === "right") {
-          const rotateY = isForward
-            ? direction === "left"
-              ? -rotate
-              : rotate
-            : direction === "left"
-              ? rotate
-              : -rotate
-          carouselTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateY(${rotateY}deg)`
-        } else {
-          const rotateX = isForward ? (direction === "top" ? rotate : -rotate) : direction === "top" ? -rotate : rotate
-          carouselTransform = `perspective(${perspective}px) translateZ(-${depth}px) rotateX(${rotateX}deg)`
-        }
-        return {
-          ...baseStyle,
-          transform: carouselTransform,
-          transformStyle: "preserve-3d" as const,
-        }
-      case "fold":
-        let foldTransform = ""
-        if (direction === "left")
-          foldTransform = `perspective(${perspective}px) translateX(${isForward ? "-50%" : "0"}) rotateY(${isForward ? "90deg" : "0deg"})`
-        if (direction === "right")
-          foldTransform = `perspective(${perspective}px) translateX(${isForward ? "50%" : "0"}) rotateY(${isForward ? "-90deg" : "0deg"})`
-        if (direction === "top")
-          foldTransform = `perspective(${perspective}px) translateY(${isForward ? "-50%" : "0"}) rotateX(${isForward ? "-90deg" : "0deg"})`
-        if (direction === "bottom")
-          foldTransform = `perspective(${perspective}px) translateY(${isForward ? "50%" : "0"}) rotateX(${isForward ? "90deg" : "0deg"})`
-        return {
-          ...baseStyle,
-          transform: foldTransform,
-          transformStyle: "preserve-3d" as const,
-          transformOrigin:
-            direction === "left"
-              ? "left center"
-              : direction === "right"
-                ? "right center"
-                : direction === "top"
-                  ? "center top"
-                  : "center bottom",
-        }
-      case "reveal":
-        let revealTransform = ""
-        let revealOrigin = ""
-        if (direction === "left") {
-          revealTransform = `perspective(${perspective}px) rotateY(${isForward ? "30deg" : "0deg"})`
-          revealOrigin = "left center"
-        }
-        if (direction === "right") {
-          revealTransform = `perspective(${perspective}px) rotateY(${isForward ? "-30deg" : "0deg"})`
-          revealOrigin = "right center"
-        }
-        if (direction === "top") {
-          revealTransform = `perspective(${perspective}px) rotateX(${isForward ? "-30deg" : "0deg"})`
-          revealOrigin = "center top"
-        }
-        if (direction === "bottom") {
-          revealTransform = `perspective(${perspective}px) rotateX(${isForward ? "30deg" : "0deg"})`
-          revealOrigin = "center bottom"
-        }
-        return {
-          ...baseStyle,
-          transform: revealTransform,
-          transformStyle: "preserve-3d" as const,
-          transformOrigin: revealOrigin,
-          opacity: isForward ? 0.5 : 1,
-        }
-      case "room":
-        let roomTransform = ""
-        if (direction === "left")
-          roomTransform = `perspective(${perspective}px) translateZ(-${depth}px) translateX(${isForward ? "-100%" : "0"}) rotateY(${isForward ? rotate : 0}deg)`
-        if (direction === "right")
-          roomTransform = `perspective(${perspective}px) translateZ(-${depth}px) translateX(${isForward ? "100%" : "0"}) rotateY(${isForward ? -rotate : 0}deg)`
-        if (direction === "top")
-          roomTransform = `perspective(${perspective}px) translateZ(-${depth}px) translateY(${isForward ? "-100%" : "0"}) rotateX(${isForward ? -rotate : 0}deg)`
-        if (direction === "bottom")
-          roomTransform = `perspective(${perspective}px) translateZ(-${depth}px) translateY(${isForward ? "100%" : "0"}) rotateX(${isForward ? rotate : 0}deg)`
-        return {
-          ...baseStyle,
-          transform: roomTransform,
-          transformStyle: "preserve-3d" as const,
-          transformOrigin:
-            direction === "left"
-              ? "left center"
-              : direction === "right"
-                ? "right center"
-                : direction === "top"
-                  ? "center top"
-                  : "center bottom",
-        }
+        return `${baseClass} ${durationClass} ${easingClass} ${isTransitioning ? "rotate-y-180" : "rotate-y-0"}`
+      default:
+        return ""
+    }
+  }
+
+  const getElementAnimationClass = (element: SlideElement) => {
+    if (!element.animation || !elementsVisible[element.id]) return "opacity-0"
+
+    const animation = element.animation
+    const baseClass = "transition-all"
+    const delayClass = `delay-[${animation.delay * 1000}ms]`
+    const durationClass = `duration-[${animation.duration * 1000}ms]`
+    const easingMap = {
+      linear: "ease-linear",
+      ease: "ease",
+      "ease-in": "ease-in",
+      "ease-out": "ease-out",
+      "ease-in-out": "ease-in-out",
+    }
+    const easingClass = easingMap[animation.easing] || "ease"
+
+    const classes = [baseClass, delayClass, durationClass, easingClass]
+
+    switch (animation.type) {
+      case "fade":
+        classes.push("opacity-100")
+        break
+      case "slide":
+        classes.push("opacity-100")
+        if (animation.direction === "left") classes.push("translate-x-0")
+        else if (animation.direction === "right") classes.push("translate-x-0")
+        else if (animation.direction === "top") classes.push("translate-y-0")
+        else if (animation.direction === "bottom") classes.push("translate-y-0")
+        break
+      case "zoom":
+        classes.push("opacity-100", "scale-100")
+        break
+      case "bounce":
+        classes.push("opacity-100", "animate-bounce")
+        break
+      case "flip":
+        classes.push("opacity-100")
+        break
+      case "rotate":
+        classes.push("opacity-100", "rotate-0")
+        break
+      default:
+        classes.push("opacity-100")
+    }
+
+    return classes.join(" ")
+  }
+
+  const getElementInitialStyle = (element: SlideElement): React.CSSProperties => {
+    if (!element.animation || elementsVisible[element.id]) return {}
+
+    switch (element.animation.type) {
+      case "slide":
+        if (element.animation.direction === "left") return { transform: "translateX(100%)" }
+        if (element.animation.direction === "right") return { transform: "translateX(-100%)" }
+        if (element.animation.direction === "top") return { transform: "translateY(100%)" }
+        if (element.animation.direction === "bottom") return { transform: "translateY(-100%)" }
+        return {}
+      case "zoom":
+        return { transform: "scale(0)" }
+      case "flip":
+        return { transform: "rotateY(180deg)" }
+      case "rotate":
+        return { transform: "rotate(180deg)" }
       default:
         return {}
     }
   }
 
-  const getElementTransform = (element: SlideElement) => {
-    let transform = ""
-
-    if (element.rotation) {
-      transform += `rotate(${element.rotation}deg)`
+  const renderElement = (element: SlideElement) => {
+    const commonProps = {
+      key: element.id,
+      className: getElementAnimationClass(element),
+      style: {
+        position: "absolute" as const,
+        left: element.x,
+        top: element.y,
+        width: element.width,
+        height: element.height,
+        transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
+        cursor: element.animation?.trigger === "onClick" ? "pointer" : "default",
+        ...getElementInitialStyle(element),
+      },
+      onClick: () => handleElementClick(element),
     }
 
-    return transform || "none"
+    if (element.type === "text") {
+      const textEffect = element.textEffect || { type: "none" }
+      let textStyle: React.CSSProperties = {}
+
+      switch (textEffect.type) {
+        case "shadow":
+          textStyle = {
+            textShadow: `${textEffect.depth || 5}px ${textEffect.depth || 5}px 0px ${textEffect.color || "#000000"}`,
+          }
+          break
+        case "extrude":
+          const extrudeDepth = textEffect.depth || 5
+          const shadows = Array.from(
+            { length: extrudeDepth },
+            (_, i) => `${i}px ${i}px 0px ${textEffect.color || "#000000"}`,
+          ).join(", ")
+          textStyle = {
+            textShadow: shadows,
+          }
+          break
+        case "neon":
+          textStyle = {
+            textShadow: `0 0 ${textEffect.intensity || 5}px ${textEffect.color || "#00ff00"}, 0 0 ${(textEffect.intensity || 5) * 2}px ${textEffect.color || "#00ff00"}`,
+            color: textEffect.color || "#00ff00",
+          }
+          break
+        case "3d-rotate":
+          textStyle = {
+            transform: `perspective(${textEffect.perspective || 500}px) rotateX(${textEffect.angle || 45}deg)`,
+            textShadow: `0 ${textEffect.depth || 5}px ${textEffect.depth || 5}px rgba(0,0,0,0.3)`,
+          }
+          break
+        case "perspective":
+          textStyle = {
+            transform: `perspective(${textEffect.perspective || 500}px) rotateY(${textEffect.angle || 15}deg)`,
+          }
+          break
+      }
+
+      return (
+        <div
+          {...commonProps}
+          style={{
+            ...commonProps.style,
+            fontSize: element.fontSize,
+            fontWeight: element.fontWeight,
+            textAlign: element.textAlign as any,
+            fontFamily: element.fontFamily,
+            fontStyle: element.fontStyle,
+            textDecoration: element.textDecoration,
+            display: "flex",
+            alignItems: "center",
+            justifyContent:
+              element.textAlign === "center" ? "center" : element.textAlign === "right" ? "flex-end" : "flex-start",
+            ...textStyle,
+          }}
+        >
+          {element.content}
+        </div>
+      )
+    }
+
+    if (element.type === "shape") {
+      const glassmorphismStyles = getGlassmorphismStyles(element)
+
+      return (
+        <div
+          {...commonProps}
+          style={{
+            ...commonProps.style,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            ...glassmorphismStyles,
+          }}
+        >
+          {renderShape(element.shape, element.width, element.height, element.color, element.cornerRadius)}
+        </div>
+      )
+    }
+
+    if (element.type === "image") {
+      const filters = element.filters || {}
+      const effects = element.effects || {}
+      const imageEffect3d = element.imageEffect3d || { type: "none" }
+
+      let filterString = ""
+      if (filters.grayscale) filterString += `grayscale(${filters.grayscale}%) `
+      if (filters.sepia) filterString += `sepia(${filters.sepia}%) `
+      if (filters.blur) filterString += `blur(${filters.blur}px) `
+      if (filters.brightness) filterString += `brightness(${filters.brightness}%) `
+      if (filters.contrast) filterString += `contrast(${filters.contrast}%) `
+      if (filters.hueRotate) filterString += `hue-rotate(${filters.hueRotate}deg) `
+      if (filters.saturate) filterString += `saturate(${filters.saturate}%) `
+      if (filters.opacity !== undefined) filterString += `opacity(${filters.opacity}%) `
+
+      let transform3d = ""
+      if (imageEffect3d.type !== "none") {
+        const {
+          intensity = 5,
+          angle = 15,
+          perspective = 800,
+          rotateX = 0,
+          rotateY = 0,
+          rotateZ = 0,
+          translateZ = 0,
+        } = imageEffect3d
+
+        switch (imageEffect3d.type) {
+          case "tilt":
+            transform3d = `perspective(${perspective}px) rotateX(${angle}deg) rotateY(${angle}deg)`
+            break
+          case "flip":
+            transform3d = `perspective(${perspective}px) rotateY(${angle * 10}deg)`
+            break
+          case "rotate":
+            transform3d = `perspective(${perspective}px) rotateZ(${angle * 2}deg)`
+            break
+          case "float":
+            transform3d = `perspective(${perspective}px) translateZ(${intensity * 5}px)`
+            break
+          case "perspective":
+            transform3d = `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) translateZ(${translateZ}px)`
+            break
+          case "fold":
+            transform3d = `perspective(${perspective}px) rotateY(${angle * 5}deg)`
+            break
+        }
+      }
+
+      const imageTransform = [
+        element.rotation ? `rotate(${element.rotation}deg)` : "",
+        transform3d,
+        effects.skewX ? `skewX(${effects.skewX}deg)` : "",
+        effects.skewY ? `skewY(${effects.skewY}deg)` : "",
+        effects.scale ? `scale(${effects.scale / 100})` : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
+
+      return (
+        <img
+          {...commonProps}
+          src={element.src || "/placeholder.svg"}
+          alt="Presentation element"
+          style={{
+            ...commonProps.style,
+            filter: filterString.trim(),
+            borderRadius: effects.borderRadius ? `${effects.borderRadius}%` : undefined,
+            border: effects.borderWidth ? `${effects.borderWidth}px solid ${effects.borderColor}` : undefined,
+            boxShadow: effects.shadowBlur
+              ? `${effects.shadowOffsetX || 0}px ${effects.shadowOffsetY || 0}px ${effects.shadowBlur}px ${effects.shadowColor || "#000000"}`
+              : undefined,
+            transform: imageTransform || (element.rotation ? `rotate(${element.rotation}deg)` : undefined),
+            objectFit: "cover",
+            transition: imageEffect3d.hover ? "transform 0.3s ease" : undefined,
+          }}
+          onMouseEnter={(e) => {
+            if (imageEffect3d.hover && transform3d) {
+              e.currentTarget.style.transform = `${imageTransform} scale(1.05)`
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (imageEffect3d.hover) {
+              e.currentTarget.style.transform = imageTransform
+            }
+          }}
+        />
+      )
+    }
+
+    if (element.type === "video") {
+      return (
+        <video
+          {...commonProps}
+          src={element.src}
+          autoPlay={element.autoplay}
+          controls={element.controls}
+          loop={element.loop}
+          muted={element.muted}
+          style={{
+            ...commonProps.style,
+            objectFit: "cover",
+          }}
+        />
+      )
+    }
+
+    if (element.type === "audio") {
+      return (
+        <audio
+          {...commonProps}
+          src={element.src}
+          autoPlay={element.autoplay}
+          controls={element.controls}
+          loop={element.loop}
+          style={commonProps.style}
+        />
+      )
+    }
+
+    return null
   }
 
-  useEffect(() => {
-    // Pause all videos and audio when changing slides
-    if (isTransitioning) {
-      const videos = document.querySelectorAll("video")
-      const audios = document.querySelectorAll("audio")
-
-      videos.forEach((video) => {
-        if (!video.paused) video.pause()
-      })
-
-      audios.forEach((audio) => {
-        if (!audio.paused) audio.pause()
-      })
-    }
-  }, [isTransitioning])
-
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black z-50 flex flex-col">
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideInLeft {
-          from { transform: translateX(-50px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideInRight {
-          from { transform: translateX(50px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideInTop {
-          from { transform: translateY(-50px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes slideInBottom {
-          from { transform: translateY(50px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes zoomIn {
-          from { transform: scale(0.5); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-30px); }
-          60% { transform: translateY(-15px); }
-        }
-        @keyframes flipInX {
-          from { transform: rotateX(90deg); opacity: 0; }
-          to { transform: rotateX(0deg); opacity: 1; }
-        }
-        @keyframes flipInY {
-          from { transform: rotateY(90deg); opacity: 0; }
-          to { transform: rotateY(0deg); opacity: 1; }
-        }
-        @keyframes rotateIn {
-          from { transform: rotate(-200deg) scale(0.5); opacity: 0; }
-          to { transform: rotate(0deg) scale(1); opacity: 1; }
-        }
-      `}</style>
-
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button
-          className="text-gray-300 hover:text-gray-100 bg-gray-900/50 p-2 rounded-full backdrop-blur-sm"
-          onClick={goToPreviousSlide}
-          disabled={currentSlideIndex === 0}
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button
-          className="text-gray-300 hover:text-gray-100 bg-gray-900/50 p-2 rounded-full backdrop-blur-sm"
-          onClick={goToNextSlide}
-          disabled={currentSlideIndex === slides.length - 1}
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
-        <button
-          className="text-gray-300 hover:text-gray-100 bg-gray-900/50 p-2 rounded-full backdrop-blur-sm"
+    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+      {/* Top Controls */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <div className="px-4 py-2 bg-gray-900/80 backdrop-blur-xl rounded-lg text-white text-sm">
+          {currentSlideIndex + 1} / {slides.length}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onExit}
+          className="bg-gray-900/80 backdrop-blur-xl hover:bg-gray-800 text-white"
         >
           <X className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center perspective-1000">
-        <div
-          ref={slideContainerRef}
-          className="relative w-[1000px] h-[562.5px] transform-style-preserve-3d"
-          style={getSlideTransitionStyle()}
-        >
-          <div
-            className="w-[1000px] h-[562.5px] shadow-xl relative rounded-lg overflow-hidden"
-            style={getBackgroundStyles(slides[currentSlideIndex])}
-          >
-            {typeof slides[currentSlideIndex].background !== "string" &&
-              slides[currentSlideIndex].background.type === "image" && (
-                <>
-                  <div
-                    className="absolute inset-0 w-full h-full"
-                    style={{
-                      backgroundImage: `url(${slides[currentSlideIndex].background.value})`,
-                      backgroundSize: slides[currentSlideIndex].background.imagePosition || "cover",
-                      backgroundPosition: "center",
-                      opacity: (slides[currentSlideIndex].background.imageOpacity || 100) / 100,
-                    }}
-                  />
-                  {slides[currentSlideIndex].background.overlay && (
-                    <div
-                      className="absolute inset-0 w-full h-full"
-                      style={{ backgroundColor: slides[currentSlideIndex].background.overlay }}
-                    />
-                  )}
-                </>
-              )}
-
-            {slides[currentSlideIndex].elements.map((element) => {
-              if (element.type === "text") {
-                return (
-                  <div
-                    key={element.id}
-                    className="absolute text-white"
-                    style={{
-                      left: `${element.x}px`,
-                      top: `${element.y}px`,
-                      width: `${element.width}px`,
-                      height: `${element.height}px`,
-                      fontSize: `${element.fontSize}px`,
-                      fontWeight: element.fontWeight,
-                      textAlign: element.textAlign as any,
-                      fontFamily: element.fontFamily,
-                      fontStyle: element.fontStyle || "normal",
-                      textDecoration: element.textDecoration || "none",
-                      whiteSpace: "pre-line",
-                      wordBreak: "break-word",
-                      transform: getElementTransform(element),
-                      transformOrigin: "center center",
-                      ...getTextEffectStyle(element.textEffect),
-                      ...getElementAnimationStyle(element),
-                    }}
-                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
-                  >
-                    {element.content}
-                  </div>
-                )
-              }
-
-              if (element.type === "shape") {
-                return (
-                  <div
-                    key={element.id}
-                    className="absolute"
-                    style={{
-                      left: `${element.x}px`,
-                      top: `${element.y}px`,
-                      width: `${element.width}px`,
-                      height: `${element.height}px`,
-                      transform: getElementTransform(element),
-                      transformOrigin: "center center",
-                      ...getElementAnimationStyle(element),
-                    }}
-                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
-                  >
-                    <RenderShape
-                      shape={element.shape}
-                      width={element.width}
-                      height={element.height}
-                      color={element.color}
-                      glassmorphism={element.glassmorphism}
-                      cornerRadius={element.cornerRadius}
-                    />
-                  </div>
-                )
-              }
-
-              if (element.type === "image") {
-                const imageStyle = getImageFilterStyle(element)
-                const isHovering = hoveredElements.has(element.id)
-                const image3DEffectStyle = element.imageEffect3d
-                  ? getImage3DEffectStyle(element.imageEffect3d, element.imageEffect3d.hover && isHovering)
-                  : {}
-
-                return (
-                  <div
-                    key={element.id}
-                    className="absolute"
-                    style={{
-                      left: `${element.x}px`,
-                      top: `${element.y}px`,
-                      width: `${element.width}px`,
-                      height: `${element.height}px`,
-                      transform: getElementTransform(element),
-                      transformOrigin: "center center",
-                      perspective: element.imageEffect3d?.perspective || 800,
-                      ...getElementAnimationStyle(element),
-                    }}
-                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
-                    onMouseEnter={() => handleElementHover(element.id, true)}
-                    onMouseLeave={() => handleElementHover(element.id, false)}
-                  >
-                    <div
-                      className="w-full h-full"
-                      style={{
-                        ...image3DEffectStyle,
-                        transition: "all 0.5s ease",
-                      }}
-                    >
-                      <img
-                        src={element.src || "/placeholder.svg"}
-                        alt="Slide element"
-                        className="w-full h-full object-cover"
-                        style={imageStyle}
-                      />
-                    </div>
-                  </div>
-                )
-              }
-
-              if (element.type === "video") {
-                return (
-                  <div
-                    key={element.id}
-                    className="absolute"
-                    style={{
-                      left: `${element.x}px`,
-                      top: `${element.y}px`,
-                      width: `${element.width}px`,
-                      height: `${element.height}px`,
-                      transform: getElementTransform(element),
-                      transformOrigin: "center center",
-                      ...getElementAnimationStyle(element),
-                    }}
-                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
-                  >
-                    <video
-                      src={element.src}
-                      className="w-full h-full object-cover"
-                      autoPlay={element.autoplay}
-                      controls={element.controls}
-                      loop={element.loop}
-                      muted={element.muted}
-                      playsInline
-                    />
-                  </div>
-                )
-              }
-
-              if (element.type === "audio") {
-                return (
-                  <div
-                    key={element.id}
-                    className="absolute"
-                    style={{
-                      left: `${element.x}px`,
-                      top: `${element.y}px`,
-                      width: `${element.width}px`,
-                      height: `${element.height}px`,
-                      transform: getElementTransform(element),
-                      transformOrigin: "center center",
-                      ...getElementAnimationStyle(element),
-                    }}
-                    onClick={() => element.animation?.trigger === "onClick" && handleElementClick(element.id)}
-                  >
-                    <div className="w-full h-full flex items-center justify-center bg-gray-800/50 rounded-lg p-2">
-                      <audio
-                        src={element.src}
-                        className="w-full"
-                        autoPlay={element.autoplay}
-                        controls={element.controls}
-                        loop={element.loop}
-                      />
-                    </div>
-                  </div>
-                )
-              }
-
-              return null
-            })}
-          </div>
+      {/* Slide Content */}
+      <div className="flex-1 relative overflow-hidden">
+        <div className={`absolute inset-0 ${getTransitionClass()}`} style={getBackgroundStyle(currentSlide.background)}>
+          <div className="relative w-full h-full">{currentSlide.elements.map((element) => renderElement(element))}</div>
         </div>
       </div>
 
-      <div className="text-center text-gray-400 mb-4">
-        Slide {currentSlideIndex + 1} of {slides.length}
+      {/* Navigation Buttons */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 z-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={goToPreviousSlide}
+          disabled={currentSlideIndex === 0 || isTransitioning}
+          className="bg-gray-900/80 backdrop-blur-xl hover:bg-gray-800 text-white disabled:opacity-30 h-12 w-12 rounded-full"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={goToNextSlide}
+          disabled={currentSlideIndex === slides.length - 1 || isTransitioning}
+          className="bg-gray-900/80 backdrop-blur-xl hover:bg-gray-800 text-white disabled:opacity-30 h-12 w-12 rounded-full"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </Button>
       </div>
     </div>
   )

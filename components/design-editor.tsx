@@ -38,8 +38,6 @@ import {
   User,
   Cloud,
   Share2,
-  Check,
-  AlertCircle,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -48,7 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/toast"
 import { ToastAction } from "@/components/ui/toast"
 import {
   AlertDialog,
@@ -109,9 +107,6 @@ const COLOR_PRESETS = [
   "#ffffff", // White
   "#000000", // Black
 ]
-
-const AUTO_SAVE_DELAY = 3000 // 3 seconds
-const MAX_RETRY_ATTEMPTS = 3
 
 export default function DesignEditor() {
   const [presentationTitle, setPresentationTitle] = useState("Untitled Positron")
@@ -174,13 +169,6 @@ export default function DesignEditor() {
   const [showPresentationsManager, setShowPresentationsManager] = useState(false)
   const [showShareDialog, setShowShareDialog] = useState(false)
 
-  // Auto-save states
-  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
-  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null)
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isSavingRef = useRef(false)
-  const retryCountRef = useRef(0)
-
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
@@ -215,108 +203,6 @@ export default function DesignEditor() {
 
     return () => subscription.unsubscribe()
   }, [])
-
-  // Improved auto-save functionality
-  useEffect(() => {
-    // Only auto-save if user is signed in and presentation has been saved before
-    if (!user || !currentPresentationId) {
-      return
-    }
-
-    // Don't queue a new save if one is already in progress
-    if (isSavingRef.current) {
-      return
-    }
-
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current)
-    }
-
-    // Set up new auto-save timeout
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      try {
-        isSavingRef.current = true
-        setAutoSaveStatus("saving")
-
-        console.log("Auto-saving presentation...", currentPresentationId)
-
-        // Prepare presentation data
-        const presentationData = {
-          title: presentationTitle,
-          slides: slides,
-          updated_at: new Date().toISOString(),
-        }
-
-        // Save to Supabase
-        const { error } = await supabase
-          .from("presentations")
-          .update(presentationData)
-          .eq("id", currentPresentationId)
-          .eq("user_id", user.id)
-
-        if (error) {
-          console.error("Auto-save error:", error)
-          throw error
-        }
-
-        console.log("Auto-save successful!")
-        setAutoSaveStatus("saved")
-        setLastSavedTime(new Date())
-        retryCountRef.current = 0
-
-        // Reset to idle after 2 seconds
-        setTimeout(() => {
-          setAutoSaveStatus("idle")
-        }, 2000)
-      } catch (error: any) {
-        console.error("Auto-save failed:", error)
-
-        // Retry logic
-        if (retryCountRef.current < MAX_RETRY_ATTEMPTS) {
-          retryCountRef.current++
-          setAutoSaveStatus("saving")
-          console.log(`Retrying auto-save (attempt ${retryCountRef.current})...`)
-
-          // Retry after a delay
-          setTimeout(() => {
-            isSavingRef.current = false
-            // Trigger another save attempt by updating slides
-            setSlides((prev) => [...prev])
-          }, 2000 * retryCountRef.current)
-        } else {
-          console.error("Auto-save failed after max retries")
-          setAutoSaveStatus("error")
-          retryCountRef.current = 0
-
-          toast({
-            title: "Auto-save failed",
-            description: "Your changes couldn't be saved automatically. Please save manually.",
-            variant: "destructive",
-            action: (
-              <ToastAction altText="Save now" onClick={handleSavePresentation}>
-                Save now
-              </ToastAction>
-            ),
-          })
-
-          // Reset to idle after 5 seconds
-          setTimeout(() => {
-            setAutoSaveStatus("idle")
-          }, 5000)
-        }
-      } finally {
-        isSavingRef.current = false
-      }
-    }, AUTO_SAVE_DELAY)
-
-    // Cleanup timeout on unmount or when dependencies change
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current)
-      }
-    }
-  }, [slides, presentationTitle, user, currentPresentationId])
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -1071,12 +957,14 @@ export default function DesignEditor() {
     })
   }
 
-  const handleSaveSuccess = (presentationId: string) => {
+  // 1. Update the handleSaveSuccess function to also update the presentation title
+  const handleSaveSuccess = (presentationId: string, savedTitle: string) => {
     setCurrentPresentationId(presentationId)
+    setPresentationTitle(savedTitle)
 
     toast({
-      title: "Auto-save enabled",
-      description: "Your presentation will now auto-save every few seconds.",
+      title: "Success",
+      description: `Your presentation is now saved and will be automatically updated.`,
       variant: "default",
     })
   }
@@ -1084,7 +972,6 @@ export default function DesignEditor() {
   const handleSignOut = () => {
     setUser(null)
     setCurrentPresentationId(null)
-    setAutoSaveStatus("idle")
   }
 
   if (isPresentationMode) {
@@ -1095,33 +982,6 @@ export default function DesignEditor() {
 
   // Combine built-in and custom fonts
   const allFonts = [...FONT_OPTIONS, ...customFonts]
-
-  // Auto-save status indicator
-  const getAutoSaveIcon = () => {
-    switch (autoSaveStatus) {
-      case "saving":
-        return <Cloud className="h-4 w-4 text-blue-400 animate-pulse" />
-      case "saved":
-        return <Check className="h-4 w-4 text-green-400" />
-      case "error":
-        return <AlertCircle className="h-4 w-4 text-red-400" />
-      default:
-        return null
-    }
-  }
-
-  const getAutoSaveText = () => {
-    switch (autoSaveStatus) {
-      case "saving":
-        return "Saving..."
-      case "saved":
-        return lastSavedTime ? `Saved ${lastSavedTime.toLocaleTimeString()}` : "Saved"
-      case "error":
-        return "Save failed"
-      default:
-        return null
-    }
-  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
@@ -1141,30 +1001,21 @@ export default function DesignEditor() {
             <span className="text-xs text-gray-400 font-medium">Design Studio</span>
           </div>
           <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-2"></div>
-          <Input
-            className="w-72 h-10 bg-gray-800/40 border-gray-700/50 text-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 backdrop-blur-xl rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-gray-800/60"
-            placeholder="Enter presentation title..."
-            value={presentationTitle}
-            onChange={(e) => setPresentationTitle(e.target.value)}
-          />
-          {/* Auto-save indicator */}
-          {user && currentPresentationId && autoSaveStatus !== "idle" && (
-            <>
-              <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent"></div>
-              <div
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 ${
-                  autoSaveStatus === "error"
-                    ? "bg-red-500/20 border-red-500/30"
-                    : autoSaveStatus === "saved"
-                      ? "bg-green-500/20 border-green-500/30"
-                      : "bg-blue-500/20 border-blue-500/30"
-                }`}
-              >
-                {getAutoSaveIcon()}
-                <span className="text-xs text-gray-300 font-medium">{getAutoSaveText()}</span>
+          {/* 2. Update the Input component for presentationTitle */}
+          <div className="relative">
+            <Input
+              className="w-72 h-10 bg-gray-800/40 border-gray-700/50 text-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 backdrop-blur-xl rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-gray-800/60"
+              placeholder="Enter presentation title..."
+              value={presentationTitle}
+              onChange={(e) => setPresentationTitle(e.target.value)}
+            />
+            {currentPresentationId && (
+              <div className="absolute -bottom-5 left-0 text-xs text-green-400 flex items-center gap-1">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                Saved to cloud
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/30">
@@ -1217,7 +1068,7 @@ export default function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-700/40 bg-gradient-to-r from-gray-800/40 to-gray-700/40 hover:from-gray-700/60 hover:to-gray-600/60 text-gray-100 backdrop-blur-xl rounded-xl shadow-lg shadow-blue-500/10 h-9 px-4 transition-all duration-300 hover:shadow-blue-500/20"
+              className="border-gray-700/40 bg-gradient-to-r from-gray-800/40 to-gray-700/40 hover:from-gray-700/60 hover:to-gray-600/60 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-blue-500/20"
               onClick={() => setShowAuthModal(true)}
             >
               <User className="h-4 w-4 mr-2 text-blue-400" />
@@ -1230,14 +1081,14 @@ export default function DesignEditor() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-gray-700/40 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-gray-100 backdrop-blur-xl rounded-xl shadow-lg shadow-blue-500/10 h-9 px-4 transition-all duration-300 hover:shadow-blue-500/20"
+                className="border-gray-700/40 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-blue-500/20"
               >
                 <Save className="h-4 w-4 mr-2 text-blue-400" />
                 Save
                 <ChevronDown className="h-3 w-3 ml-2 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-800/60 rounded-xl p-2 min-w-[200px] shadow-2xl shadow-blue-500/20">
+            <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-800/60 shadow-2xl shadow-blue-500/20 rounded-xl p-2 min-w-[200px]">
               {user && (
                 <>
                   <DropdownMenuItem
@@ -1277,7 +1128,7 @@ export default function DesignEditor() {
           <Button
             variant="outline"
             size="sm"
-            className="border-gray-700/40 bg-gradient-to-r from-green-500/10 to-blue-500/10 hover:from-green-500/20 hover:to-blue-500/20 text-gray-100 backdrop-blur-xl rounded-xl shadow-lg shadow-green-500/10 h-9 px-4 transition-all duration-300 hover:shadow-green-500/20"
+            className="border-gray-700/40 bg-gradient-to-r from-green-500/10 to-blue-500/10 hover:from-green-500/20 hover:to-blue-500/20 text-gray-100 backdrop-blur-xl shadow-lg shadow-green-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-green-500/20"
             onClick={() => setShowShareDialog(true)}
             disabled={!user || !currentPresentationId}
           >
@@ -1484,432 +1335,278 @@ export default function DesignEditor() {
           </div>
         </div>
 
-        {/* Right Toolbar Panel - Enhanced Premium Design */}
-        <div className="w-80 absolute right-6 top-28 rounded-3xl bg-gradient-to-b from-gray-900/40 via-gray-800/30 to-gray-900/40 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/30 p-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-purple-500/10 border border-gray-700/30 z-10">
-          {/* Header Section */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-lg"></div>
-            <div className="relative flex items-center gap-3 p-3 bg-gray-800/40 rounded-2xl border border-gray-700/40">
-              <div className="flex items-center gap-2 flex-1">
-                <div className="relative">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                  <div className="absolute inset-0 w-2 h-2 bg-purple-400 rounded-full animate-ping"></div>
-                </div>
-                <h3 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                  Design Tools
-                </h3>
-              </div>
-              <div className="px-2 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30">
-                <Sparkles className="h-3 w-3 text-purple-400" />
-              </div>
-            </div>
+        {/* Right Toolbar Panel - Enhanced */}
+        <div className="w-80 absolute right-6 top-28 rounded-3xl bg-gradient-to-b from-gray-900/30 via-gray-800/20 to-gray-900/30 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/20 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-black/20 border border-gray-700/30 z-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+            <h3 className="text-base font-semibold text-gray-200">Design Tools</h3>
           </div>
 
-          {/* Element Creation Tools */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/20">
-              <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Add Elements</span>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={addTextElement}
+              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
+            >
+              <Type className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Text</span>
+            </Button>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Text Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={addTextElement}
-                className="relative group text-gray-300 hover:text-blue-300 transition-all duration-300 h-20 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-blue-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-blue-500/10 hover:to-blue-600/10"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-                <div className="relative flex flex-col items-center justify-center gap-2">
-                  <div className="p-2 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 transition-all duration-300 group-hover:scale-110">
-                    <Type className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <span className="text-xs font-semibold">Text</span>
-                </div>
-              </Button>
-
-              {/* Shapes Button */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="relative group text-gray-300 hover:text-purple-300 transition-all duration-300 h-20 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-purple-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-purple-500/10 hover:to-purple-600/10"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 transition-all duration-300"></div>
-                    <div className="relative flex flex-col items-center justify-center gap-2">
-                      <div className="p-2 bg-purple-500/10 rounded-xl group-hover:bg-purple-500/20 transition-all duration-300 group-hover:scale-110">
-                        <Square className="h-5 w-5 text-purple-400" />
-                      </div>
-                      <span className="text-xs font-semibold">Shapes</span>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-[400px] rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
-                  <ShapeSelector onSelectShape={addShapeElement} />
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Image Button */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="relative group text-gray-300 hover:text-green-300 transition-all duration-300 h-20 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-green-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-green-500/10 hover:to-green-600/10"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/0 group-hover:from-green-500/10 group-hover:to-emerald-500/10 transition-all duration-300"></div>
-                    <div className="relative flex flex-col items-center justify-center gap-2">
-                      <div className="p-2 bg-green-500/10 rounded-xl group-hover:bg-green-500/20 transition-all duration-300 group-hover:scale-110">
-                        <ImageIcon className="h-5 w-5 text-green-400" />
-                      </div>
-                      <span className="text-xs font-semibold">Image</span>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-2 shadow-2xl shadow-green-500/20 min-w-[240px]">
-                  <DropdownMenuItem
-                    onClick={() => setShowImageLibrary(true)}
-                    className="hover:bg-gray-700/60 focus:bg-gray-700/60 cursor-pointer rounded-xl px-4 py-3 transition-colors duration-200"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-500/10 rounded-lg">
-                        <ImageIcon className="h-4 w-4 text-green-400" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-sm">Browse Library</span>
-                        <span className="text-xs text-gray-400">Stock images</span>
-                      </div>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setShowImageUploader(true)}
-                    className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <UploadCloud className="h-4 w-4 text-blue-400" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-sm">Batch Upload</span>
-                        <span className="text-xs text-gray-400">Multiple images</span>
-                      </div>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    asChild
-                    className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
-                  >
-                    <label className="cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-500/10 rounded-lg">
-                          <Upload className="h-4 w-4 text-yellow-400" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm">Quick Upload</span>
-                          <span className="text-xs text-gray-400">Single image</span>
-                        </div>
-                      </div>
-                      <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
-                    </label>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Video Button */}
-              <label className="cursor-pointer">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative group text-gray-300 hover:text-red-300 transition-all duration-300 h-20 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-red-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-red-500/10 hover:to-red-600/10 w-full"
-                  asChild
+                  className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
                 >
-                  <div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/0 group-hover:from-red-500/10 group-hover:to-orange-500/10 transition-all duration-300"></div>
-                    <div className="relative flex flex-col items-center justify-center gap-2">
-                      <div className="p-2 bg-red-500/10 rounded-xl group-hover:bg-red-500/20 transition-all duration-300 group-hover:scale-110">
-                        <Video className="h-5 w-5 text-red-400" />
-                      </div>
-                      <span className="text-xs font-semibold">Video</span>
-                    </div>
-                  </div>
+                  <Square className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Shapes</span>
                 </Button>
-                <input type="file" accept="video/*" className="hidden" onChange={addVideoElement} ref={videoInputRef} />
-              </label>
-            </div>
-          </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-[400px] rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
+                <ShapeSelector onSelectShape={addShapeElement} />
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {/* Slide Tools */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/20">
-              <div className="w-1 h-1 bg-cyan-400 rounded-full"></div>
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Slide Settings</span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:bg-green-500/20 hover:text-green-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
+                >
+                  <ImageIcon className="h-5 w-5 text-green-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Image</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-2 shadow-2xl shadow-green-500/20">
+                <DropdownMenuItem
+                  onClick={() => setShowImageLibrary(true)}
+                  className="hover:bg-gray-700/60 focus:bg-gray-700/60 cursor-pointer rounded-xl px-4 py-3 transition-colors duration-200"
+                  role="button"
+                  onKeyDown={(e) => e.key === "Enter" && setShowImageLibrary(true)}
+                >
+                  <ImageIcon className="h-4 w-4 mr-3 text-green-400" />
+                  <span className="font-medium">Browse Library</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowImageUploader(true)}
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
+                  <UploadCloud className="h-4 w-4 mr-3 text-blue-400" />
+                  <span className="font-medium">Advanced Upload</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
+                  <label className="cursor-pointer">
+                    <Upload className="h-4 w-4 mr-3 text-yellow-400" />
+                    <span className="font-medium">Quick Upload</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
+                  </label>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Background Button */}
+            <label>
               <Button
                 variant="ghost"
                 size="sm"
-                className={`relative group text-gray-300 transition-all duration-300 h-16 rounded-2xl overflow-hidden border ${
-                  showBackgroundPanel
-                    ? "border-blue-500/60 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 text-blue-300"
-                    : "border-gray-700/30 hover:border-blue-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-blue-500/10 hover:to-cyan-500/10 hover:text-blue-300"
-                }`}
-                onClick={() => {
-                  setShowBackgroundPanel(!showBackgroundPanel)
-                  setShowImagePanel(false)
-                  setShowAnimationPanel(false)
-                  setShowMediaPanel(false)
-                  setShowTextEffectsPanel(false)
-                  setShowImage3dEffectsPanel(false)
-                }}
+                className="text-gray-300 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group cursor-pointer"
+                asChild
               >
-                <div className="relative flex flex-col items-center justify-center gap-1.5">
-                  <div
-                    className={`p-1.5 rounded-lg transition-all duration-300 ${
-                      showBackgroundPanel ? "bg-blue-500/20" : "bg-blue-500/10 group-hover:bg-blue-500/20"
-                    }`}
-                  >
-                    <LayoutGrid className="h-4 w-4 text-blue-400" />
-                  </div>
-                  <span className="text-xs font-semibold">Background</span>
-                </div>
+                <span>
+                  <Video className="h-5 w-5 text-red-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Video</span>
+                </span>
               </Button>
-
-              {/* Animations Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`relative group text-gray-300 transition-all duration-300 h-16 rounded-2xl overflow-hidden border ${
-                  showAnimationPanel
-                    ? "border-purple-500/60 bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-300"
-                    : "border-gray-700/30 hover:border-purple-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-purple-500/10 hover:to-pink-500/10 hover:text-purple-300"
-                }`}
-                onClick={() => {
-                  setShowAnimationPanel(!showAnimationPanel)
-                  setShowBackgroundPanel(false)
-                  setShowImagePanel(false)
-                  setShowMediaPanel(false)
-                  setShowTextEffectsPanel(false)
-                  setShowImage3dEffectsPanel(false)
-                }}
-              >
-                <div className="relative flex flex-col items-center justify-center gap-1.5">
-                  <div
-                    className={`p-1.5 rounded-lg transition-all duration-300 ${
-                      showAnimationPanel ? "bg-purple-500/20" : "bg-purple-500/10 group-hover:bg-purple-500/20"
-                    }`}
-                  >
-                    <Sparkles className="h-4 w-4 text-purple-400" />
-                  </div>
-                  <span className="text-xs font-semibold">Animations</span>
-                </div>
-              </Button>
-            </div>
+              <input type="file" accept="video/*" className="hidden" onChange={addVideoElement} ref={videoInputRef} />
+            </label>
           </div>
 
-          {/* Element Properties Section */}
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-2"></div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showBackgroundPanel ? "bg-blue-500/20 text-blue-300" : ""}`}
+              onClick={() => {
+                setShowBackgroundPanel(!showBackgroundPanel)
+                setShowImagePanel(false)
+                setShowAnimationPanel(false)
+                setShowMediaPanel(false)
+                setShowTextEffectsPanel(false)
+                setShowImage3dEffectsPanel(false)
+              }}
+            >
+              <LayoutGrid className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Background</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showAnimationPanel ? "bg-purple-500/20 text-purple-300" : ""}`}
+              onClick={() => {
+                setShowAnimationPanel(!showAnimationPanel)
+                setShowBackgroundPanel(false)
+                setShowImagePanel(false)
+                setShowMediaPanel(false)
+                setShowTextEffectsPanel(false)
+                setShowImage3dEffectsPanel(false)
+              }}
+            >
+              <Sparkles className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Animations</span>
+            </Button>
+          </div>
+
           {selectedElement && (
             <>
-              <div className="h-px bg-gradient-to-r from-transparent via-gray-600/50 to-transparent my-2"></div>
-
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl blur-lg"></div>
-                <div className="relative flex items-center gap-3 p-3 bg-gray-800/40 rounded-2xl border border-gray-700/40">
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="relative">
-                      <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                      <div className="absolute inset-0 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-                    </div>
-                    <h3 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-orange-400">
-                      Element Properties
-                    </h3>
-                  </div>
-                  <div className="px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg border border-yellow-500/30">
-                    <span className="text-xs font-bold text-yellow-400">{selectedElement.type.toUpperCase()}</span>
-                  </div>
-                </div>
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-4"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                <h3 className="text-base font-semibold text-gray-200">Element Properties</h3>
               </div>
 
-              {/* Text Element Properties */}
               {selectedElement.type === "text" && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  {/* Text Formatting Card */}
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                    <div className="relative p-4 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-2xl border border-gray-700/40 backdrop-blur-xl">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="p-1.5 bg-blue-500/10 rounded-lg">
-                          <Type className="h-4 w-4 text-blue-400" />
-                        </div>
-                        <h4 className="text-sm font-semibold text-gray-300">Text Formatting</h4>
-                      </div>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <Type className="h-4 w-4 text-blue-400" />
+                      Text Formatting
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontWeight === "bold" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <Bold className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontStyle === "italic" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <Italic className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textDecoration === "underline" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <Underline className="h-4 w-4" />
+                      </Button>
+                    </div>
 
-                      {/* Style Buttons */}
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            updateElement(selectedElementId!, {
-                              fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
-                            })
-                          }
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.fontWeight === "bold"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <Bold className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            updateElement(selectedElementId!, {
-                              fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
-                            })
-                          }
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.fontStyle === "italic"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <Italic className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            updateElement(selectedElementId!, {
-                              textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
-                            })
-                          }
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.textDecoration === "underline"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <Underline className="h-4 w-4" />
-                        </Button>
-                      </div>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "left" })}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "left" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <AlignLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "center" })}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "center" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <AlignCenter className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "right" })}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "right" ? "bg-blue-500/20 text-blue-300" : ""}`}
+                      >
+                        <AlignRight className="h-4 w-4" />
+                      </Button>
+                    </div>
 
-                      {/* Alignment Buttons */}
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => updateElement(selectedElementId!, { textAlign: "left" })}
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.textAlign === "left"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <AlignLeft className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => updateElement(selectedElementId!, { textAlign: "center" })}
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.textAlign === "center"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <AlignCenter className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => updateElement(selectedElementId!, { textAlign: "right" })}
-                          className={`h-10 rounded-xl transition-all duration-300 ${
-                            selectedElement.textAlign === "right"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                              : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-100"
-                          }`}
-                        >
-                          <AlignRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-
-                      {/* Font Family */}
-                      <div className="space-y-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl border border-gray-700/40 bg-gray-800/40"
-                            >
-                              <span className="flex items-center gap-2">
-                                <FileType className="h-4 w-4 text-blue-400" />
-                                <span className="font-medium text-sm">Font Family</span>
-                              </span>
-                              <ChevronDown className="h-4 w-4 opacity-60" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="bg-gray-800/95 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-64 rounded-2xl p-2 shadow-2xl shadow-blue-500/20">
-                            {allFonts.map((font) => (
-                              <DropdownMenuItem
-                                key={font.value}
-                                onClick={() => updateElement(selectedElementId!, { fontFamily: font.value })}
-                                className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
-                              >
-                                <span style={{ fontFamily: font.value }} className="font-medium">
-                                  {font.name}
-                                </span>
-                              </DropdownMenuItem>
-                            ))}
-                            <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
-                            <DropdownMenuItem
-                              className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
-                              onClick={() => fontInputRef.current?.click()}
-                            >
+                    <div className="space-y-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl"
+                          >
+                            <span className="flex items-center">
                               <FileType className="h-4 w-4 mr-3 text-blue-400" />
-                              <span className="font-medium">Upload Font</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
 
-                        {/* Font Size Slider */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between px-1">
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                              Font Size
+                              <span className="font-medium">Font Family</span>
                             </span>
-                            <div className="px-2 py-0.5 bg-blue-500/20 rounded-lg border border-blue-500/30">
-                              <span className="text-xs font-bold text-blue-300">{selectedElement.fontSize}px</span>
-                            </div>
-                          </div>
-                          <Slider
-                            className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-blue-400 [&_[role=slider]]:to-purple-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-blue-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-blue-500 [&>span:first-child_span]:to-purple-500 [&>span:first-child_span]:rounded-full"
-                            min={12}
-                            max={72}
-                            step={1}
-                            value={[selectedElement.fontSize]}
-                            onValueChange={([value]) => updateElement(selectedElementId!, { fontSize: value })}
-                          />
+                            <ChevronDown className="h-4 w-4 opacity-60" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-64 rounded-2xl p-2 shadow-2xl shadow-blue-500/20">
+                          {allFonts.map((font) => (
+                            <DropdownMenuItem
+                              key={font.value}
+                              onClick={() => updateElement(selectedElementId!, { fontFamily: font.value })}
+                              className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                            >
+                              <span style={{ fontFamily: font.value }} className="font-medium">
+                                {font.name}
+                              </span>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
+                          <DropdownMenuItem
+                            className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
+                            onClick={() => fontInputRef.current?.click()}
+                          >
+                            <FileType className="h-4 w-4 mr-3 text-blue-400" />
+                            <span className="font-medium">Upload Custom Font</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-400">Font Size</span>
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                            {selectedElement.fontSize}px
+                          </span>
                         </div>
+                        <Slider
+                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-blue-500 [&>span:first-child]:to-purple-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-blue-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-blue-500 [&>span:first-child_span]:to-purple-500"
+                          min={12}
+                          max={72}
+                          step={1}
+                          value={[selectedElement.fontSize]}
+                          onValueChange={([value]) => updateElement(selectedElementId!, { fontSize: value })}
+                        />
                       </div>
                     </div>
                   </div>
 
-                  {/* 3D Text Effects Button */}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`relative group text-gray-300 transition-all duration-300 h-14 rounded-2xl overflow-hidden border ${
-                      showTextEffectsPanel
-                        ? "border-purple-500/60 bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-300"
-                        : "border-gray-700/30 hover:border-purple-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-purple-500/10 hover:to-pink-500/10 hover:text-purple-300"
-                    }`}
+                    className={`text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showTextEffectsPanel ? "bg-purple-500/20 text-purple-300" : ""}`}
                     onClick={() => {
                       setShowTextEffectsPanel(!showTextEffectsPanel)
                       setShowBackgroundPanel(false)
@@ -1919,387 +1616,290 @@ export default function DesignEditor() {
                       setShowImage3dEffectsPanel(false)
                     }}
                   >
-                    <div className="flex items-center gap-3 px-2">
-                      <div
-                        className={`p-2 rounded-xl transition-all duration-300 ${
-                          showTextEffectsPanel ? "bg-purple-500/20" : "bg-purple-500/10 group-hover:bg-purple-500/20"
-                        }`}
-                      >
-                        <Cube className="h-5 w-5 text-purple-400" />
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-semibold">3D Text Effects</span>
-                        <span className="text-xs text-gray-400">Depth & styling</span>
-                      </div>
-                    </div>
+                    <Cube className="h-5 w-5 mr-3 text-purple-400" />
+                    <span className="font-medium">3D Text Effects</span>
                   </Button>
                 </div>
               )}
 
-              {/* Shape Element Properties */}
               {selectedElement.type === "shape" && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  {/* Shape Properties Card */}
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                    <div className="relative p-4 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-2xl border border-gray-700/40 backdrop-blur-xl">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="p-1.5 bg-purple-500/10 rounded-lg">
-                          <Palette className="h-4 w-4 text-purple-400" />
-                        </div>
-                        <h4 className="text-sm font-semibold text-gray-300">Shape Properties</h4>
-                      </div>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-purple-400" />
+                      Shape Properties
+                    </h4>
 
-                      {/* Color Picker */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-12 rounded-xl mb-4 border border-gray-700/40 bg-gray-800/40"
-                          >
-                            <span className="flex items-center gap-3">
-                              <div
-                                className="w-6 h-6 rounded-lg border-2 border-gray-600 shadow-inner"
-                                style={{ backgroundColor: selectedElement.color }}
-                              ></div>
-                              <span className="font-medium text-sm">Shape Color</span>
-                            </span>
-                            <ChevronDown className="h-4 w-4 opacity-60" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-gray-800/95 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
-                          <div className="grid grid-cols-3 gap-3">
-                            {COLOR_PRESETS.map((color) => (
-                              <button
-                                key={color}
-                                className="w-12 h-12 rounded-2xl cursor-pointer border-2 border-gray-600 hover:border-gray-400 hover:scale-110 transition-all duration-200 shadow-lg hover:shadow-xl"
-                                style={{ backgroundColor: color }}
-                                onClick={() => updateElement(selectedElementId!, { color })}
-                              />
-                            ))}
-                          </div>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {/* Corner Radius (if applicable) */}
-                      {(selectedElement.shape === "square" ||
-                        selectedElement.shape === "rounded-rect" ||
-                        selectedElement.shape === "triangle" ||
-                        selectedElement.shape === "pentagon" ||
-                        selectedElement.shape === "hexagon" ||
-                        selectedElement.shape === "diamond") && (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between px-1">
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                              Corner Radius
-                            </span>
-                            <div className="px-2 py-0.5 bg-purple-500/20 rounded-lg border border-purple-500/30">
-                              <span className="text-xs font-bold text-purple-300">
-                                {selectedElement.cornerRadius || 0}px
-                              </span>
-                            </div>
-                          </div>
-                          <Slider
-                            className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-purple-400 [&_[role=slider]]:to-pink-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-purple-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-purple-500 [&>span:first-child_span]:to-pink-500 [&>span:first-child_span]:rounded-full"
-                            min={0}
-                            max={Math.min(selectedElement.width, selectedElement.height) / 2}
-                            step={1}
-                            value={[selectedElement.cornerRadius || 0]}
-                            onValueChange={([value]) => updateElement(selectedElementId!, { cornerRadius: value })}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Glassmorphism Card */}
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                    <div className="relative p-4 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-2xl border border-gray-700/40 backdrop-blur-xl">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-cyan-500/10 rounded-lg">
-                            <Sparkles className="h-4 w-4 text-cyan-400" />
-                          </div>
-                          <Label className="text-sm font-semibold text-gray-300">Glassmorphism</Label>
-                        </div>
-                        <Switch
-                          checked={selectedElement.glassmorphism?.enabled || false}
-                          onCheckedChange={(enabled) =>
-                            updateElement(selectedElementId!, {
-                              glassmorphism: {
-                                ...selectedElement.glassmorphism,
-                                enabled,
-                              },
-                            })
-                          }
-                          className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-500"
-                        />
-                      </div>
-
-                      {selectedElement.glassmorphism?.enabled && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                          {/* Blur Intensity */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between px-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Blur</span>
-                              <div className="px-2 py-0.5 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
-                                <span className="text-xs font-bold text-cyan-300">
-                                  {selectedElement.glassmorphism?.blur || 10}px
-                                </span>
-                              </div>
-                            </div>
-                            <Slider
-                              min={0}
-                              max={30}
-                              step={1}
-                              value={[selectedElement.glassmorphism?.blur || 10]}
-                              onValueChange={([blur]) =>
-                                updateElement(selectedElementId!, {
-                                  glassmorphism: {
-                                    ...selectedElement.glassmorphism,
-                                    blur,
-                                  },
-                                })
-                              }
-                              className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-cyan-400 [&_[role=slider]]:to-blue-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-cyan-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500 [&>span:first-child_span]:rounded-full"
-                            />
-                          </div>
-
-                          {/* Background Opacity */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between px-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                Opacity
-                              </span>
-                              <div className="px-2 py-0.5 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
-                                <span className="text-xs font-bold text-cyan-300">
-                                  {selectedElement.glassmorphism?.opacity || 20}%
-                                </span>
-                              </div>
-                            </div>
-                            <Slider
-                              min={5}
-                              max={50}
-                              step={1}
-                              value={[selectedElement.glassmorphism?.opacity || 20]}
-                              onValueChange={([opacity]) =>
-                                updateElement(selectedElementId!, {
-                                  glassmorphism: {
-                                    ...selectedElement.glassmorphism,
-                                    opacity,
-                                  },
-                                })
-                              }
-                              className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-cyan-400 [&_[role=slider]]:to-blue-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-cyan-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500 [&>span:first-child_span]:rounded-full"
-                            />
-                          </div>
-
-                          {/* Border Opacity */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between px-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                Border
-                              </span>
-                              <div className="px-2 py-0.5 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
-                                <span className="text-xs font-bold text-cyan-300">
-                                  {selectedElement.glassmorphism?.borderOpacity || 30}%
-                                </span>
-                              </div>
-                            </div>
-                            <Slider
-                              min={0}
-                              max={100}
-                              step={1}
-                              value={[selectedElement.glassmorphism?.borderOpacity || 30]}
-                              onValueChange={([borderOpacity]) =>
-                                updateElement(selectedElementId!, {
-                                  glassmorphism: {
-                                    ...selectedElement.glassmorphism,
-                                    borderOpacity,
-                                  },
-                                })
-                              }
-                              className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-cyan-400 [&_[role=slider]]:to-blue-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-cyan-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500 [&>span:first-child_span]:rounded-full"
-                            />
-                          </div>
-
-                          {/* Saturation */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between px-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                Saturation
-                              </span>
-                              <div className="px-2 py-0.5 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
-                                <span className="text-xs font-bold text-cyan-300">
-                                  {selectedElement.glassmorphism?.saturation || 180}%
-                                </span>
-                              </div>
-                            </div>
-                            <Slider
-                              min={100}
-                              max={300}
-                              step={10}
-                              value={[selectedElement.glassmorphism?.saturation || 180]}
-                              onValueChange={([saturation]) =>
-                                updateElement(selectedElementId!, {
-                                  glassmorphism: {
-                                    ...selectedElement.glassmorphism,
-                                    saturation,
-                                  },
-                                })
-                              }
-                              className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-cyan-400 [&_[role=slider]]:to-blue-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-cyan-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500 [&>span:first-child_span]:rounded-full"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Image Element Properties */}
-              {selectedElement.type === "image" && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  {/* Image Tools Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`relative group text-gray-300 transition-all duration-300 h-16 rounded-2xl overflow-hidden border ${
-                        showImagePanel
-                          ? "border-green-500/60 bg-gradient-to-br from-green-500/20 to-emerald-500/20 text-green-300"
-                          : "border-gray-700/30 hover:border-green-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-green-500/10 hover:to-emerald-500/10 hover:text-green-300"
-                      }`}
-                      onClick={() => {
-                        setShowImagePanel(!showImagePanel)
-                        setShowBackgroundPanel(false)
-                        setShowAnimationPanel(false)
-                        setShowMediaPanel(false)
-                        setShowTextEffectsPanel(false)
-                        setShowImage3dEffectsPanel(false)
-                      }}
-                    >
-                      <div className="relative flex flex-col items-center justify-center gap-1.5">
-                        <div
-                          className={`p-1.5 rounded-lg transition-all duration-300 ${
-                            showImagePanel ? "bg-green-500/20" : "bg-green-500/10 group-hover:bg-green-500/20"
-                          }`}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
                         >
-                          <ImageIcon className="h-4 w-4 text-green-400" />
-                        </div>
-                        <span className="text-xs font-semibold">Filters</span>
-                      </div>
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`relative group text-gray-300 transition-all duration-300 h-16 rounded-2xl overflow-hidden border ${
-                        showImage3dEffectsPanel
-                          ? "border-cyan-500/60 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 text-cyan-300"
-                          : "border-gray-700/30 hover:border-cyan-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-cyan-500/10 hover:to-blue-500/10 hover:text-cyan-300"
-                      }`}
-                      onClick={() => {
-                        setShowImage3dEffectsPanel(!showImage3dEffectsPanel)
-                        setShowBackgroundPanel(false)
-                        setShowImagePanel(false)
-                        setShowAnimationPanel(false)
-                        setShowMediaPanel(false)
-                        setShowTextEffectsPanel(false)
-                      }}
-                    >
-                      <div className="relative flex flex-col items-center justify-center gap-1.5">
-                        <div
-                          className={`p-1.5 rounded-lg transition-all duration-300 ${
-                            showImage3dEffectsPanel ? "bg-cyan-500/20" : "bg-cyan-500/10 group-hover:bg-cyan-500/20"
-                          }`}
-                        >
-                          <Cube className="h-4 w-4 text-cyan-400" />
-                        </div>
-                        <span className="text-xs font-semibold">3D Effects</span>
-                      </div>
-                    </Button>
-                  </div>
-
-                  {/* Corner Radius Control */}
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                    <div className="relative p-4 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-2xl border border-gray-700/40 backdrop-blur-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="p-1.5 bg-green-500/10 rounded-lg">
-                          <ImageIcon className="h-4 w-4 text-green-400" />
-                        </div>
-                        <h4 className="text-sm font-semibold text-gray-300">Image Properties</h4>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between px-1">
-                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Corner Radius
+                          <span className="flex items-center">
+                            <div
+                              className="w-4 h-4 rounded-full mr-3 border border-gray-600"
+                              style={{ backgroundColor: selectedElement.color }}
+                            ></div>
+                            <span className="font-medium">Color</span>
                           </span>
-                          <div className="px-2 py-0.5 bg-green-500/20 rounded-lg border border-green-500/30">
-                            <span className="text-xs font-bold text-green-300">
-                              {selectedElement.effects?.borderRadius || 0}%
-                            </span>
-                          </div>
+                          <ChevronDown className="h-4 w-4 opacity-60" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
+                        <div className="grid grid-cols-3 gap-3">
+                          {COLOR_PRESETS.map((color) => (
+                            <div
+                              key={color}
+                              className="w-10 h-10 rounded-2xl cursor-pointer border-2 border-gray-600 hover:border-gray-400 hover:scale-110 transition-all duration-200 shadow-lg"
+                              style={{ backgroundColor: color }}
+                              onClick={() => updateElement(selectedElementId!, { color })}
+                            />
+                          ))}
+                        </div>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Enhanced Corner Radius Control */}
+                    {(selectedElement.shape === "square" ||
+                      selectedElement.shape === "rounded-rect" ||
+                      selectedElement.shape === "triangle" ||
+                      selectedElement.shape === "pentagon" ||
+                      selectedElement.shape === "hexagon" ||
+                      selectedElement.shape === "diamond") && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-400">Corner Radius</span>
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                            {selectedElement.cornerRadius || 0}px
+                          </span>
                         </div>
                         <Slider
-                          className="[&>span:first-child]:bg-gray-700 [&>span:first-child]:h-2 [&>span:first-child]:rounded-full [&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-green-400 [&_[role=slider]]:to-blue-400 [&_[role=slider]]:border-2 [&_[role=slider]]:border-gray-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-green-500/50 [&_[role=slider]]:w-5 [&_[role=slider]]:h-5 [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-green-500 [&>span:first-child_span]:to-blue-500 [&>span:first-child_span]:rounded-full"
+                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-purple-500 [&>span:first-child]:to-pink-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-purple-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-purple-500 [&>span:first-child_span]:to-pink-500"
                           min={0}
-                          max={50}
+                          max={Math.min(selectedElement.width, selectedElement.height) / 2}
                           step={1}
-                          value={[selectedElement.effects?.borderRadius || 0]}
-                          onValueChange={([value]) =>
-                            updateElement(selectedElementId!, {
-                              effects: {
-                                ...selectedElement.effects,
-                                borderRadius: value,
-                              },
-                            })
-                          }
+                          value={[selectedElement.cornerRadius || 0]}
+                          onValueChange={([value]) => updateElement(selectedElementId!, { cornerRadius: value })}
                         />
                       </div>
+                    )}
+                  </div>
+
+                  {/* Enhanced Glassmorphism Controls */}
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-cyan-400" />
+                        <Label className="text-sm font-medium text-gray-300">Glassmorphism Effect</Label>
+                      </div>
+                      <Switch
+                        checked={selectedElement.glassmorphism?.enabled || false}
+                        onCheckedChange={(enabled) =>
+                          updateElement(selectedElementId!, {
+                            glassmorphism: {
+                              ...selectedElement.glassmorphism,
+                              enabled,
+                            },
+                          })
+                        }
+                        className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-500"
+                      />
+                    </div>
+
+                    {selectedElement.glassmorphism?.enabled && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Blur Intensity</Label>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.blur || 10}px
+                            </span>
+                          </div>
+                          <Slider
+                            min={0}
+                            max={30}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.blur || 10]}
+                            onValueChange={([blur]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  blur,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Background Opacity</Label>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.opacity || 20}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={5}
+                            max={50}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.opacity || 20]}
+                            onValueChange={([opacity]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  opacity,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Border Opacity</Label>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.borderOpacity || 30}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.borderOpacity || 30]}
+                            onValueChange={([borderOpacity]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  borderOpacity,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Saturation</Label>
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.saturation || 180}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={100}
+                            max={300}
+                            step={10}
+                            value={[selectedElement.glassmorphism?.saturation || 180]}
+                            onValueChange={([saturation]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  saturation,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {selectedElement.type === "image" && (
+                <div className="space-y-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-green-500/20 hover:text-green-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImagePanel ? "bg-green-500/20 text-green-300" : ""}`}
+                    onClick={() => {
+                      setShowImagePanel(!showImagePanel)
+                      setShowBackgroundPanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                      setShowImage3dEffectsPanel(false)
+                    }}
+                  >
+                    <ImageIcon className="h-5 w-5 mr-3 text-green-400" />
+                    <span className="font-medium">Image Filters & Effects</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImage3dEffectsPanel ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                    onClick={() => {
+                      setShowImage3dEffectsPanel(!showImage3dEffectsPanel)
+                      setShowBackgroundPanel(false)
+                      setShowImagePanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                    }}
+                  >
+                    <Cube className="h-5 w-5 mr-3 text-cyan-400" />
+                    <span className="font-medium">3D Image Effects</span>
+                  </Button>
+
+                  {/* Image Corner Radius Control */}
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-green-400" />
+                      Image Properties
+                    </h4>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-400">Corner Radius</span>
+                        <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
+                          {selectedElement.effects?.borderRadius || 0}%
+                        </span>
+                      </div>
+                      <Slider
+                        className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-green-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-green-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-green-500 [&>span:first-child_span]:to-blue-500"
+                        min={0}
+                        max={50}
+                        step={1}
+                        value={[selectedElement.effects?.borderRadius || 0]}
+                        onValueChange={([value]) =>
+                          updateElement(selectedElementId!, {
+                            effects: {
+                              ...selectedElement.effects,
+                              borderRadius: value,
+                            },
+                          })
+                        }
+                      />
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Element Actions */}
-              <div className="space-y-3 pt-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/20">
-                  <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</span>
-                </div>
-
+              <div className="flex flex-col gap-3 mt-6">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={duplicateElement}
-                  className="relative group text-gray-300 hover:text-blue-300 transition-all duration-300 h-12 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-blue-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-blue-500/10 hover:to-blue-600/10 w-full"
+                  className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
                 >
-                  <div className="flex items-center gap-3 px-2">
-                    <div className="p-1.5 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-all duration-300">
-                      <Copy className="h-4 w-4 text-blue-400" />
-                    </div>
-                    <span className="text-sm font-semibold">Duplicate Element</span>
-                  </div>
+                  <Copy className="h-5 w-5 mr-3 text-blue-400" />
+                  <span className="font-medium">Duplicate Element</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={deleteElement}
-                  className="relative group text-gray-300 hover:text-red-300 transition-all duration-300 h-12 rounded-2xl overflow-hidden border border-gray-700/30 hover:border-red-500/40 bg-gradient-to-br from-gray-800/40 to-gray-900/40 hover:from-red-500/10 hover:to-red-600/10 w-full"
+                  className="text-gray-300 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
                 >
-                  <div className="flex items-center gap-3 px-2">
-                    <div className="p-1.5 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-all duration-300">
-                      <Trash2 className="h-4 w-4 text-red-400" />
-                    </div>
-                    <span className="text-sm font-semibold">Delete Element</span>
-                  </div>
+                  <Trash2 className="h-5 w-5 mr-3 text-red-400" />
+                  <span className="font-medium">Delete Element</span>
                 </Button>
               </div>
             </>
@@ -2318,7 +1918,7 @@ export default function DesignEditor() {
 
       {/* Import error dialog */}
       <AlertDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <AlertDialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 rounded-2xl shadow-xl shadow-blue-500/10">
+        <AlertDialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Import Error</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
@@ -2339,7 +1939,7 @@ export default function DesignEditor() {
       {/* Auth Modal */}
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onAuthSuccess={() => setShowAuthModal(false)} />
 
-      {/* Save Presentation Dialog */}
+      {/* 3. Update the SavePresentationDialog component call */}
       <SavePresentationDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
