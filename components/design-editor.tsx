@@ -46,7 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/toast"
+import { toast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import {
   AlertDialog,
@@ -957,16 +957,8 @@ export default function DesignEditor() {
     })
   }
 
-  // 1. Update the handleSaveSuccess function to also update the presentation title
-  const handleSaveSuccess = (presentationId: string, savedTitle: string) => {
+  const handleSaveSuccess = (presentationId: string) => {
     setCurrentPresentationId(presentationId)
-    setPresentationTitle(savedTitle)
-
-    toast({
-      title: "Success",
-      description: `Your presentation is now saved and will be automatically updated.`,
-      variant: "default",
-    })
   }
 
   const handleSignOut = () => {
@@ -1001,21 +993,12 @@ export default function DesignEditor() {
             <span className="text-xs text-gray-400 font-medium">Design Studio</span>
           </div>
           <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-2"></div>
-          {/* 2. Update the Input component for presentationTitle */}
-          <div className="relative">
-            <Input
-              className="w-72 h-10 bg-gray-800/40 border-gray-700/50 text-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 backdrop-blur-xl rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-gray-800/60"
-              placeholder="Enter presentation title..."
-              value={presentationTitle}
-              onChange={(e) => setPresentationTitle(e.target.value)}
-            />
-            {currentPresentationId && (
-              <div className="absolute -bottom-5 left-0 text-xs text-green-400 flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                Saved to cloud
-              </div>
-            )}
-          </div>
+          <Input
+            className="w-72 h-10 bg-gray-800/40 border-gray-700/50 text-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 backdrop-blur-xl rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-gray-800/60"
+            placeholder="Enter presentation title..."
+            value={presentationTitle}
+            onChange={(e) => setPresentationTitle(e.target.value)}
+          />
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/30">
@@ -1939,7 +1922,7 @@ export default function DesignEditor() {
       {/* Auth Modal */}
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onAuthSuccess={() => setShowAuthModal(false)} />
 
-      {/* 3. Update the SavePresentationDialog component call */}
+      {/* Save Presentation Dialog */}
       <SavePresentationDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}

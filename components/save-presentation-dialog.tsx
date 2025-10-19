@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast"
 import { supabase } from "@/lib/supabase"
-import { Save, Cloud, Loader2 } from "lucide-react"
+import { Save, Cloud } from "lucide-react"
 import type { Slide } from "@/types/editor"
 
 interface SavePresentationDialogProps {
@@ -22,8 +22,8 @@ interface SavePresentationDialogProps {
   onOpenChange: (open: boolean) => void
   title: string
   slides: Slide[]
-  presentationId?: string | null
-  onSaveSuccess?: (id: string, title: string) => void
+  presentationId?: string
+  onSaveSuccess?: (id: string) => void
 }
 
 export function SavePresentationDialog({
@@ -36,11 +36,6 @@ export function SavePresentationDialog({
 }: SavePresentationDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [presentationTitle, setPresentationTitle] = useState(title)
-
-  // Update the title when prop changes
-  useEffect(() => {
-    setPresentationTitle(title)
-  }, [title])
 
   const handleSave = async () => {
     if (!presentationTitle.trim()) {
@@ -55,7 +50,6 @@ export function SavePresentationDialog({
     setIsLoading(true)
 
     try {
-      // Check authentication
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -66,12 +60,11 @@ export function SavePresentationDialog({
           description: "Please sign in to save your presentation.",
           variant: "destructive",
         })
-        setIsLoading(false)
         return
       }
 
       const presentationData = {
-        title: presentationTitle.trim(),
+        title: presentationTitle,
         slides: slides,
         user_id: user.id,
       }
@@ -80,36 +73,19 @@ export function SavePresentationDialog({
 
       if (presentationId) {
         // Update existing presentation
-        console.log("Updating presentation:", presentationId)
         result = await supabase
           .from("presentations")
-          .update({
-            title: presentationData.title,
-            slides: presentationData.slides,
-          })
+          .update(presentationData)
           .eq("id", presentationId)
           .eq("user_id", user.id)
           .select()
           .single()
-
-        if (result.error) {
-          console.error("Update error:", result.error)
-          throw result.error
-        }
-
-        console.log("Update successful:", result.data)
       } else {
         // Create new presentation
-        console.log("Creating new presentation")
         result = await supabase.from("presentations").insert(presentationData).select().single()
-
-        if (result.error) {
-          console.error("Insert error:", result.error)
-          throw result.error
-        }
-
-        console.log("Insert successful:", result.data)
       }
+
+      if (result.error) throw result.error
 
       toast({
         title: presentationId ? "Presentation updated" : "Presentation saved",
@@ -117,7 +93,7 @@ export function SavePresentationDialog({
         variant: "default",
       })
 
-      onSaveSuccess?.(result.data.id, presentationTitle)
+      onSaveSuccess?.(result.data.id)
       onOpenChange(false)
     } catch (error: any) {
       console.error("Save error:", error)
@@ -157,29 +133,13 @@ export function SavePresentationDialog({
               onChange={(e) => setPresentationTitle(e.target.value)}
               placeholder="Enter presentation title"
               className="bg-gray-800/30 border-gray-700/40 text-gray-100 focus-visible:ring-blue-500/70 backdrop-blur-xl"
-              disabled={isLoading}
             />
           </div>
 
-          <div className="p-3 bg-gray-800/30 rounded-lg border border-gray-700/40">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Slides:</span>
-              <span className="text-gray-200 font-medium">{slides.length}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm mt-2">
-              <span className="text-gray-400">Elements:</span>
-              <span className="text-gray-200 font-medium">
-                {slides.reduce((total, slide) => total + slide.elements.length, 0)}
-              </span>
-            </div>
+          <div className="text-sm text-gray-400">
+            <p>Slides: {slides.length}</p>
+            <p>Elements: {slides.reduce((total, slide) => total + slide.elements.length, 0)}</p>
           </div>
-
-          {presentationId && (
-            <div className="text-xs text-gray-500 flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              This will update your existing presentation
-            </div>
-          )}
         </div>
 
         <DialogFooter>
@@ -187,7 +147,6 @@ export function SavePresentationDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             className="bg-gray-700 hover:bg-gray-600 text-gray-100 border-gray-600"
-            disabled={isLoading}
           >
             Cancel
           </Button>
@@ -196,17 +155,8 @@ export function SavePresentationDialog({
             disabled={isLoading}
             className="bg-gradient-to-r from-blue-500 to-yellow-400 text-white hover:from-blue-600 hover:to-yellow-500"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                {presentationId ? "Update" : "Save"}
-              </>
-            )}
+            <Save className="h-4 w-4 mr-2" />
+            {isLoading ? "Saving..." : presentationId ? "Update" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
