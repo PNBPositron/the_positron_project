@@ -63,11 +63,11 @@ const config: Config = {
         },
         // Cyberpunk theme colors
         cyber: {
-          pink: "#ff2e97",
-          cyan: "#00f0ff",
-          purple: "#b066ff",
+          pink: "#ec4899",
+          cyan: "#06b6d4",
+          purple: "#a855f7",
         },
-        // Updated color names (Tailwind CSS v3.0+)
+        // Modern Tailwind v3.0+ color names (replacing deprecated ones)
         sky: {
           50: "#f0f9ff",
           100: "#e0f2fe",
@@ -157,30 +157,61 @@ const config: Config = {
           },
         },
         shimmer: {
-          "0%": { backgroundPosition: "-100% 0" },
+          "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
-        pulse: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
+        glow: {
+          "0%, 100%": {
+            boxShadow: "0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(236, 72, 153, 0.2)",
+          },
+          "50%": {
+            boxShadow: "0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.3)",
+          },
+        },
+        "pulse-glow": {
+          "0%, 100%": {
+            opacity: "1",
+            boxShadow: "0 0 20px rgba(236, 72, 153, 0.5)",
+          },
+          "50%": {
+            opacity: "0.9",
+            boxShadow: "0 0 30px rgba(59, 130, 246, 0.7)",
+          },
         },
         "cyber-pulse": {
           "0%, 100%": {
-            boxShadow: "0 0 5px #ff2e97, 0 0 10px #ff2e97",
+            boxShadow: "0 0 5px #ec4899, 0 0 10px #ec4899",
             opacity: "1",
           },
           "50%": {
-            boxShadow: "0 0 10px #ff2e97, 0 0 20px #ff2e97, 0 0 30px #00f0ff",
+            boxShadow: "0 0 15px #06b6d4, 0 0 30px #06b6d4",
             opacity: "0.8",
           },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        scanline: {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+        holographic: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        shimmer: "shimmer 2s linear infinite",
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        shimmer: "shimmer 3s linear infinite",
+        glow: "glow 2s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "cyber-pulse": "cyber-pulse 2s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+        scanline: "scanline 8s linear infinite",
+        holographic: "holographic 3s ease infinite",
       },
     },
   },
