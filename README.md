@@ -212,6 +212,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [jsPDF](https://github.com/parallax/jsPDF) - PDF generation
 - [html2canvas](https://html2canvas.hertzen.com/) - HTML to canvas conversion
 
+## 🐛 Known Issues
+
+- Large presentations (50+ slides) may experience performance issues
+- Video export is not yet supported
+- Mobile touch gestures need improvement
+
+## 🗺️ Roadmap
+
+- [ ] Real-time multiplayer editing
+- [ ] AI-powered design suggestions
+- [ ] Video recording/export
+- [ ] Mobile app (React Native)
+- [ ] Desktop app (Electron)
+- [ ] Plugin system
+- [ ] Advanced animation timeline
+- [ ] Presentation analytics
+- [ ] Team collaboration features
+- [ ] Version history
 
 ## 📧 Contact
 
@@ -223,4 +241,4 @@ If you find this project useful, please consider giving it a star on GitHub!
 
 ---
 
-Made by v0 and imaginated by Pierre Nguyen
+Made with ❤️ and ⚛️ by the Positron Team
