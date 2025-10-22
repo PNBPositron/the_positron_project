@@ -978,11 +978,15 @@ export default function DesignEditor() {
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
       {/* Header - Enhanced Frosted Glass */}
-      <header className="relative border-b border-white/10 p-4 flex items-center justify-between backdrop-blur-xl bg-gray-950/40 shadow-2xl shadow-pink-500/5 z-50">
-        {/* Subtle animated border effect */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-pink-500/30 to-transparent opacity-50"></div>
+      <header className="relative border-b border-white/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-white/5 shadow-2xl shadow-pink-500/10 z-50">
+        {/* Enhanced glass effect overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
 
-        <div className="flex items-center gap-3">
+        {/* Subtle animated border effect - make it more prominent */}
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-pink-500/50 to-transparent"></div>
+
+        {/* Content wrapper with relative positioning */}
+        <div className="relative z-10 flex items-center gap-3">
           <div className="relative group">
             {/* Outer glow ring */}
             <div className="absolute inset-0 bg-gradient-to-r from-pink-500/30 via-cyan-500/30 to-purple-500/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -1007,7 +1011,7 @@ export default function DesignEditor() {
             onChange={(e) => setPresentationTitle(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="relative z-10 flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
             <Button
               variant="ghost"
