@@ -977,49 +977,38 @@ export default function DesignEditor() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
-      {/* Header - Enhanced Frosted Glass */}
-      <header className="relative border-b border-white/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-white/5 shadow-2xl shadow-pink-500/10 z-50">
-        {/* Enhanced glass effect overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
-
-        {/* Subtle animated border effect - make it more prominent */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-pink-500/50 to-transparent"></div>
-
-        {/* Content wrapper with relative positioning */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="relative group">
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/30 via-cyan-500/30 to-purple-500/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-            {/* Main logo container - Frosted glass */}
-            <div className="relative backdrop-blur-md bg-white/5 p-2 rounded-xl shadow-lg border border-white/10">
-              <Atom className="h-6 w-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+      {/* Header */}
+      <header className="border-b border-gray-800/20 p-4 flex items-center justify-between bg-gradient-to-r from-gray-900/40 via-gray-800/30 to-gray-900/40 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/20 shadow-2xl shadow-blue-500/10">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-yellow-400 rounded-xl blur-sm opacity-75"></div>
+            <div className="relative bg-gradient-to-r from-blue-500 to-yellow-400 p-2 rounded-xl shadow-lg">
+              <Atom className="h-6 w-6 text-white drop-shadow-sm" />
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-cyan-400 to-purple-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">
-              POSITRON
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-yellow-300">
+              Positron
             </span>
-            <span className="text-xs text-cyan-400/80 font-medium tracking-wider uppercase drop-shadow-[0_0_4px_rgba(34,211,238,0.3)]">
-              Open-source presentation editor
-            </span>
+            <span className="text-xs text-gray-400 font-medium">Design Studio</span>
           </div>
-          <div className="h-8 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent mx-2"></div>
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-2"></div>
           <Input
-            className="w-72 h-10 backdrop-blur-md bg-white/5 border-white/10 text-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/30 rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-white/10 hover:border-white/20"
+            className="w-72 h-10 bg-gray-800/40 border-gray-700/50 text-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 backdrop-blur-xl rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-gray-800/60"
             placeholder="Enter presentation title..."
             value={presentationTitle}
             onChange={(e) => setPresentationTitle(e.target.value)}
           />
         </div>
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/30 rounded-xl border border-gray-700/30">
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-8 px-3 rounded-lg"
               onClick={() => setIsPresentationMode(true)}
             >
-              <Film className="h-4 w-4 mr-2 text-cyan-400" />
+              <Film className="h-4 w-4 mr-2 text-blue-400" />
               Present
             </Button>
             <Button
@@ -1037,10 +1026,10 @@ export default function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-9 px-4 rounded-xl backdrop-blur-md"
+              className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-9 px-4 rounded-xl"
             >
               <svg
-                className="h-4 w-4 mr-2 text-pink-400"
+                className="h-4 w-4 mr-2 text-gray-400"
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"
@@ -1062,10 +1051,10 @@ export default function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/10 backdrop-blur-md bg-pink-500/10 hover:bg-pink-500/20 text-gray-100 shadow-lg shadow-pink-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+              className="border-gray-700/40 bg-gradient-to-r from-gray-800/40 to-gray-700/40 hover:from-gray-700/60 hover:to-gray-600/60 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-blue-500/20"
               onClick={() => setShowAuthModal(true)}
             >
-              <User className="h-4 w-4 mr-2 text-pink-400" />
+              <User className="h-4 w-4 mr-2 text-blue-400" />
               Sign In
             </Button>
           )}
@@ -1075,43 +1064,43 @@ export default function DesignEditor() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/10 backdrop-blur-md bg-white/5 hover:bg-white/10 text-gray-100 shadow-lg shadow-cyan-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+                className="border-gray-700/40 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 text-gray-100 backdrop-blur-xl shadow-lg shadow-blue-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-blue-500/20"
               >
-                <Save className="h-4 w-4 mr-2 text-cyan-400" />
+                <Save className="h-4 w-4 mr-2 text-blue-400" />
                 Save
                 <ChevronDown className="h-3 w-3 ml-2 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-2 min-w-[200px]">
+            <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-800/60 shadow-2xl shadow-blue-500/20 rounded-xl p-2 min-w-[200px]">
               {user && (
                 <>
                   <DropdownMenuItem
-                    className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                    className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
                     onClick={handleSavePresentation}
                   >
-                    <Cloud className="h-4 w-4 mr-3 text-pink-400" />
+                    <Cloud className="h-4 w-4 mr-3 text-blue-400" />
                     <span className="font-medium">Save to Cloud</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/10 my-2" />
+                  <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
                 </>
               )}
               <DropdownMenuItem
-                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
                 onClick={handleExportJson}
               >
                 <FileJson className="h-4 w-4 mr-3 text-green-400" />
                 <span className="font-medium">Export as JSON</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
                 onClick={handleImportClick}
               >
                 <Upload className="h-4 w-4 mr-3 text-yellow-400" />
                 <span className="font-medium">Import from JSON</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10 my-2" />
+              <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
               <DropdownMenuItem
-                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                className="hover:bg-gray-700/60 rounded-lg px-3 py-2 transition-colors duration-200"
                 onClick={() => handleExport("html")}
               >
                 <FileType className="h-4 w-4 mr-3 text-purple-400" />
@@ -1122,7 +1111,7 @@ export default function DesignEditor() {
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 backdrop-blur-md bg-white/5 hover:bg-white/10 text-gray-100 shadow-lg shadow-green-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+            className="border-gray-700/40 bg-gradient-to-r from-green-500/10 to-blue-500/10 hover:from-green-500/20 hover:to-blue-500/20 text-gray-100 backdrop-blur-xl shadow-lg shadow-green-500/10 h-9 px-4 rounded-xl transition-all duration-300 hover:shadow-green-500/20"
             onClick={() => setShowShareDialog(true)}
             disabled={!user || !currentPresentationId}
           >
@@ -1134,32 +1123,26 @@ export default function DesignEditor() {
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Slides Sidebar - Enhanced Frosted Glass Panel */}
-        <div className="absolute left-6 top-28 w-72 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-pink-500/10 z-10">
-          {/* Subtle corner accents */}
-          <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-white/10 rounded-tl-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-white/10 rounded-br-3xl pointer-events-none"></div>
-
+        {/* Slides Sidebar - Enhanced Floating Panel */}
+        <div className="absolute left-6 top-28 w-72 rounded-3xl bg-gradient-to-b from-gray-900/30 via-gray-800/20 to-gray-900/30 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/20 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-black/20 border border-gray-700/30 z-10">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
-              <h3 className="text-base font-semibold text-cyan-400">Slides</h3>
-              <span className="text-xs text-gray-400 backdrop-blur-md bg-white/5 px-2 py-1 rounded-full border border-white/10">
-                {slides.length}
-              </span>
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <h3 className="text-base font-semibold text-gray-200">Slides</h3>
+              <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-full">{slides.length}</span>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={addNewSlide}
-              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-8 w-8 rounded-xl shadow-lg"
+              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-8 w-8 rounded-xl shadow-lg hover:shadow-blue-500/20"
             >
-              <Plus className="h-4 w-4 text-cyan-400" />
+              <Plus className="h-4 w-4 text-blue-400" />
             </Button>
           </div>
 
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-cyan-500/5 rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
             <SlidesThumbnails
               slides={slides}
               currentSlideIndex={currentSlideIndex}
@@ -1171,7 +1154,7 @@ export default function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-white/10 backdrop-blur-md bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 transition-all duration-300 rounded-xl"
+              className="flex-1 border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 transition-all duration-300 rounded-xl"
               onClick={deleteSlide}
               disabled={slides.length <= 1}
             >
@@ -1181,7 +1164,7 @@ export default function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-white/10 backdrop-blur-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 transition-all duration-300 rounded-xl"
+              className="flex-1 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 transition-all duration-300 rounded-xl"
               onClick={duplicateSlide}
             >
               <Copy className="h-3 w-3 mr-2" />
@@ -1191,7 +1174,7 @@ export default function DesignEditor() {
 
           {/* Background Panel */}
           {showBackgroundPanel && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <h4 className="text-sm font-medium text-gray-300 mb-3">Background Settings</h4>
               <BackgroundEditor
                 background={slides[currentSlideIndex].background}
@@ -1202,20 +1185,17 @@ export default function DesignEditor() {
 
           {/* Animation Panel */}
           {showAnimationPanel && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <Tabs defaultValue={selectedElement ? "element" : "slide"}>
-                <TabsList className="grid grid-cols-2 backdrop-blur-md bg-white/5">
+                <TabsList className="grid grid-cols-2 bg-gray-800/50 backdrop-blur-md">
                   <TabsTrigger
                     value="element"
-                    className="text-gray-300 data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-300"
+                    className="text-gray-300 data-[state=active]:bg-gray-700"
                     disabled={!selectedElement}
                   >
                     Element
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="slide"
-                    className="text-gray-300 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300"
-                  >
+                  <TabsTrigger value="slide" className="text-gray-300 data-[state=active]:bg-gray-700">
                     Slide
                   </TabsTrigger>
                 </TabsList>
@@ -1243,7 +1223,7 @@ export default function DesignEditor() {
 
           {/* Image Filters Panel */}
           {showImagePanel && selectedElement?.type === "image" && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <h4 className="text-sm font-medium text-gray-300 mb-3">Image Filters & Effects</h4>
               <ImageFilters element={selectedElement} onUpdateElement={updateElement} />
             </div>
@@ -1251,7 +1231,7 @@ export default function DesignEditor() {
 
           {/* Media Controls Panel */}
           {showMediaPanel && (selectedElement?.type === "video" || selectedElement?.type === "audio") && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <h4 className="text-sm font-medium text-gray-300 mb-3">Media Controls</h4>
               <MediaControls element={selectedElement} onUpdateElement={updateElement} />
             </div>
@@ -1259,14 +1239,14 @@ export default function DesignEditor() {
 
           {/* Text Effects Panel */}
           {showTextEffectsPanel && selectedElement?.type === "text" && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <TextEffects element={selectedElement} onUpdateElement={updateElement} />
             </div>
           )}
 
           {/* Image 3D Effects Panel */}
           {showImage3dEffectsPanel && selectedElement?.type === "image" && (
-            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+            <div className="mt-4 border border-gray-800/60 rounded-md p-3 bg-gray-800/30 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/30">
               <Image3DEffects element={selectedElement} onUpdateElement={updateElement} />
             </div>
           )}
@@ -1274,29 +1254,26 @@ export default function DesignEditor() {
 
         {/* Canvas Area */}
         <div className="flex-1 bg-gray-950 flex flex-col">
-          {/* Canvas Controls - Enhanced Frosted Glass Dock */}
+          {/* Canvas Controls - Enhanced macOS Dock Style */}
           <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20">
-            <div className="relative group">
-              {/* Subtle outer glow */}
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-cyan-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-              {/* Main container - Frosted Glass */}
-              <div className="relative px-8 py-4 flex items-center gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-yellow-500/20 rounded-3xl blur-xl opacity-60"></div>
+              <div className="relative px-8 py-4 flex items-center gap-4 bg-gray-900/40 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/40 border border-gray-700/40 rounded-3xl shadow-2xl shadow-blue-500/20">
                 <div className="flex items-center gap-2 transition-all duration-300 ease-out">
-                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-3"></div>
+                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-3"></div>
 
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
                     disabled={currentSlideIndex === 0}
-                    className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
+                    className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
                     title="Previous Slide"
                   >
-                    <ChevronLeft className="h-6 w-6 group-hover:text-pink-400 transition-colors duration-200" />
+                    <ChevronLeft className="h-6 w-6 group-hover:text-blue-400 transition-colors duration-200" />
                   </Button>
 
-                  <div className="px-4 py-2 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 transition-all duration-300 ease-out hover:scale-105 shadow-inner">
+                  <div className="px-4 py-2 bg-gradient-to-r from-gray-800/60 to-gray-700/60 rounded-2xl border border-gray-600/40 transition-all duration-300 ease-out hover:scale-105 shadow-inner">
                     <span className="text-sm font-bold text-gray-200">{currentSlideIndex + 1}</span>
                     <span className="text-xs text-gray-500 mx-1">/</span>
                     <span className="text-sm font-medium text-gray-400">{slides.length}</span>
@@ -1307,13 +1284,13 @@ export default function DesignEditor() {
                     size="sm"
                     onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
                     disabled={currentSlideIndex === slides.length - 1}
-                    className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
+                    className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
                     title="Next Slide"
                   >
-                    <ChevronRight className="h-6 w-6 group-hover:text-cyan-400 transition-colors duration-200" />
+                    <ChevronRight className="h-6 w-6 group-hover:text-blue-400 transition-colors duration-200" />
                   </Button>
 
-                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-3"></div>
+                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-gray-600 to-transparent mx-3"></div>
 
                   <div className="transition-all duration-300 ease-out hover:scale-105">
                     <ZoomControls zoomLevel={zoomLevel} onZoomChange={handleZoomChange} />
@@ -1323,20 +1300,12 @@ export default function DesignEditor() {
             </div>
           </div>
 
-          {/* Canvas - Now with 3D Abstract Wallpaper */}
+          {/* Canvas */}
           <div
             ref={canvasContainerRef}
-            className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
-            style={{
-              backgroundImage: "url('/images/abstract-3d-wallpaper.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
+            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top_right,#0ea5e9_0%,#eab308_100%)] rounded-3xl font-mono"
           >
-            {/* Optional overlay for better canvas visibility */}
-            <div className="absolute inset-0 bg-black/30 rounded-3xl"></div>
-            <div className="relative group z-10">
+            <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
               <SlideCanvas
                 slide={slides[currentSlideIndex]}
@@ -1349,17 +1318,11 @@ export default function DesignEditor() {
           </div>
         </div>
 
-        {/* Right Toolbar Panel - Enhanced Frosted Glass */}
-        <div className="w-80 absolute right-6 top-28 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-cyan-500/10 z-10">
-          {/* Subtle corner accents */}
-          <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-white/10 rounded-tr-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-white/10 rounded-bl-3xl pointer-events-none"></div>
-
+        {/* Right Toolbar Panel - Enhanced */}
+        <div className="w-80 absolute right-6 top-28 rounded-3xl bg-gradient-to-b from-gray-900/30 via-gray-800/20 to-gray-900/30 backdrop-blur-3xl backdrop-saturate-200 supports-[backdrop-filter]:bg-gray-900/20 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-black/20 border border-gray-700/30 z-10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
-            <h3 className="text-base font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
-              Design Tools
-            </h3>
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+            <h3 className="text-base font-semibold text-gray-200">Design Tools</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -1367,9 +1330,9 @@ export default function DesignEditor() {
               variant="ghost"
               size="sm"
               onClick={addTextElement}
-              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
+              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
             >
-              <Type className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
+              <Type className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-xs font-medium">Text</span>
             </Button>
 
@@ -1384,7 +1347,7 @@ export default function DesignEditor() {
                   <span className="text-xs font-medium">Shapes</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-[400px] rounded-2xl p-4 shadow-2xl">
+              <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-[400px] rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
                 <ShapeSelector onSelectShape={addShapeElement} />
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1400,10 +1363,10 @@ export default function DesignEditor() {
                   <span className="text-xs font-medium">Image</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-2 shadow-2xl">
+              <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-2 shadow-2xl shadow-green-500/20">
                 <DropdownMenuItem
                   onClick={() => setShowImageLibrary(true)}
-                  className="hover:bg-white/10 focus:bg-white/10 cursor-pointer rounded-xl px-4 py-3 transition-colors duration-200"
+                  className="hover:bg-gray-700/60 focus:bg-gray-700/60 cursor-pointer rounded-xl px-4 py-3 transition-colors duration-200"
                   role="button"
                   onKeyDown={(e) => e.key === "Enter" && setShowImageLibrary(true)}
                 >
@@ -1412,14 +1375,14 @@ export default function DesignEditor() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setShowImageUploader(true)}
-                  className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
                 >
                   <UploadCloud className="h-4 w-4 mr-3 text-blue-400" />
                   <span className="font-medium">Advanced Upload</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
-                  className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                  className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
                 >
                   <label className="cursor-pointer">
                     <Upload className="h-4 w-4 mr-3 text-yellow-400" />
@@ -1446,13 +1409,13 @@ export default function DesignEditor() {
             </label>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-2"></div>
 
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="ghost"
               size="sm"
-              className={`text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showBackgroundPanel ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+              className={`text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showBackgroundPanel ? "bg-blue-500/20 text-blue-300" : ""}`}
               onClick={() => {
                 setShowBackgroundPanel(!showBackgroundPanel)
                 setShowImagePanel(false)
@@ -1462,7 +1425,7 @@ export default function DesignEditor() {
                 setShowImage3dEffectsPanel(false)
               }}
             >
-              <LayoutGrid className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
+              <LayoutGrid className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-xs font-medium">Background</span>
             </Button>
 
@@ -1486,19 +1449,17 @@ export default function DesignEditor() {
 
           {selectedElement && (
             <>
-              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-4"></div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                <h3 className="text-base font-semibold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-400">
-                  Element Properties
-                </h3>
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                <h3 className="text-base font-semibold text-gray-200">Element Properties</h3>
               </div>
 
               {selectedElement.type === "text" && (
                 <div className="space-y-4">
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
                     <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-                      <Type className="h-4 w-4 text-cyan-400" />
+                      <Type className="h-4 w-4 text-blue-400" />
                       Text Formatting
                     </h4>
                     <div className="grid grid-cols-3 gap-2 mb-4">
@@ -1510,7 +1471,7 @@ export default function DesignEditor() {
                             fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
                           })
                         }
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontWeight === "bold" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontWeight === "bold" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <Bold className="h-4 w-4" />
                       </Button>
@@ -1522,7 +1483,7 @@ export default function DesignEditor() {
                             fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
                           })
                         }
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontStyle === "italic" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontStyle === "italic" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <Italic className="h-4 w-4" />
                       </Button>
@@ -1534,7 +1495,7 @@ export default function DesignEditor() {
                             textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
                           })
                         }
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textDecoration === "underline" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textDecoration === "underline" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <Underline className="h-4 w-4" />
                       </Button>
@@ -1545,7 +1506,7 @@ export default function DesignEditor() {
                         variant="ghost"
                         size="icon"
                         onClick={() => updateElement(selectedElementId!, { textAlign: "left" })}
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "left" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "left" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <AlignLeft className="h-4 w-4" />
                       </Button>
@@ -1553,7 +1514,7 @@ export default function DesignEditor() {
                         variant="ghost"
                         size="icon"
                         onClick={() => updateElement(selectedElementId!, { textAlign: "center" })}
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "center" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "center" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <AlignCenter className="h-4 w-4" />
                       </Button>
@@ -1561,7 +1522,7 @@ export default function DesignEditor() {
                         variant="ghost"
                         size="icon"
                         onClick={() => updateElement(selectedElementId!, { textAlign: "right" })}
-                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "right" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                        className={`text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "right" ? "bg-blue-500/20 text-blue-300" : ""}`}
                       >
                         <AlignRight className="h-4 w-4" />
                       </Button>
@@ -1573,33 +1534,34 @@ export default function DesignEditor() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl"
+                            className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl"
                           >
                             <span className="flex items-center">
-                              <FileType className="h-4 w-4 mr-3 text-cyan-400" />
+                              <FileType className="h-4 w-4 mr-3 text-blue-400" />
+
                               <span className="font-medium">Font Family</span>
                             </span>
                             <ChevronDown className="h-4 w-4 opacity-60" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-64 rounded-2xl p-2 shadow-2xl">
+                        <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 w-64 rounded-2xl p-2 shadow-2xl shadow-blue-500/20">
                           {allFonts.map((font) => (
                             <DropdownMenuItem
                               key={font.value}
                               onClick={() => updateElement(selectedElementId!, { fontFamily: font.value })}
-                              className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                              className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
                             >
                               <span style={{ fontFamily: font.value }} className="font-medium">
                                 {font.name}
                               </span>
                             </DropdownMenuItem>
                           ))}
-                          <DropdownMenuSeparator className="bg-white/10 my-2" />
+                          <DropdownMenuSeparator className="bg-gray-700/50 my-2" />
                           <DropdownMenuItem
-                            className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                            className="hover:bg-gray-700/60 rounded-xl px-4 py-3 transition-colors duration-200"
                             onClick={() => fontInputRef.current?.click()}
                           >
-                            <FileType className="h-4 w-4 mr-3 text-cyan-400" />
+                            <FileType className="h-4 w-4 mr-3 text-blue-400" />
                             <span className="font-medium">Upload Custom Font</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -1608,12 +1570,12 @@ export default function DesignEditor() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-gray-400">Font Size</span>
-                          <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                             {selectedElement.fontSize}px
                           </span>
                         </div>
                         <Slider
-                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-purple-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-purple-500"
+                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-blue-500 [&>span:first-child]:to-purple-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-blue-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-blue-500 [&>span:first-child_span]:to-purple-500"
                           min={12}
                           max={72}
                           step={1}
@@ -1645,7 +1607,7 @@ export default function DesignEditor() {
 
               {selectedElement.type === "shape" && (
                 <div className="space-y-4">
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
                     <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                       <Palette className="h-4 w-4 text-purple-400" />
                       Shape Properties
@@ -1656,7 +1618,7 @@ export default function DesignEditor() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
+                          className="text-gray-300 hover:bg-gray-700/50 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
                         >
                           <span className="flex items-center">
                             <div
@@ -1668,7 +1630,7 @@ export default function DesignEditor() {
                           <ChevronDown className="h-4 w-4 opacity-60" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-4 shadow-2xl">
+                      <DropdownMenuContent className="bg-gray-800/60 border-gray-700/40 text-gray-100 backdrop-blur-3xl backdrop-saturate-200 rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
                         <div className="grid grid-cols-3 gap-3">
                           {COLOR_PRESETS.map((color) => (
                             <div
@@ -1692,7 +1654,7 @@ export default function DesignEditor() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-gray-400">Corner Radius</span>
-                          <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                          <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                             {selectedElement.cornerRadius || 0}px
                           </span>
                         </div>
@@ -1709,7 +1671,7 @@ export default function DesignEditor() {
                   </div>
 
                   {/* Enhanced Glassmorphism Controls */}
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-cyan-400" />
@@ -1734,7 +1696,7 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Blur Intensity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                               {selectedElement.glassmorphism?.blur || 10}px
                             </span>
                           </div>
@@ -1758,7 +1720,7 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Background Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                               {selectedElement.glassmorphism?.opacity || 20}%
                             </span>
                           </div>
@@ -1782,7 +1744,7 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Border Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                               {selectedElement.glassmorphism?.borderOpacity || 30}%
                             </span>
                           </div>
@@ -1806,7 +1768,7 @@ export default function DesignEditor() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-medium text-gray-400">Saturation</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            <span className="text-xs font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                               {selectedElement.glassmorphism?.saturation || 180}%
                             </span>
                           </div>
@@ -1869,7 +1831,7 @@ export default function DesignEditor() {
                   </Button>
 
                   {/* Image Corner Radius Control */}
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-2xl border border-gray-700/40">
                     <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                       <ImageIcon className="h-4 w-4 text-green-400" />
                       Image Properties
@@ -1878,7 +1840,7 @@ export default function DesignEditor() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-400">Corner Radius</span>
-                        <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                        <span className="text-sm font-bold text-gray-300 bg-gray-800/50 px-2 py-1 rounded-lg">
                           {selectedElement.effects?.borderRadius || 0}%
                         </span>
                       </div>
@@ -1907,9 +1869,9 @@ export default function DesignEditor() {
                   variant="ghost"
                   size="sm"
                   onClick={duplicateElement}
-                  className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
+                  className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
                 >
-                  <Copy className="h-5 w-5 mr-3 text-cyan-400" />
+                  <Copy className="h-5 w-5 mr-3 text-blue-400" />
                   <span className="font-medium">Duplicate Element</span>
                 </Button>
 
@@ -1939,7 +1901,7 @@ export default function DesignEditor() {
 
       {/* Import error dialog */}
       <AlertDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <AlertDialogContent className="backdrop-blur-2xl bg-gray-950/80 border-white/10 text-gray-100 shadow-xl rounded-2xl">
+        <AlertDialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Import Error</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
@@ -1947,7 +1909,7 @@ export default function DesignEditor() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="backdrop-blur-md bg-white/10 hover:bg-white/20 text-gray-100 border-white/10">
+            <AlertDialogCancel className="bg-gray-700 hover:bg-gray-600 text-gray-100 border-gray-600">
               Close
             </AlertDialogCancel>
           </AlertDialogFooter>
