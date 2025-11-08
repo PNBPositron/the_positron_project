@@ -46,7 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import {
   AlertDialog,
@@ -1011,15 +1011,6 @@ export default function DesignEditor() {
               <Film className="h-4 w-4 mr-2 text-blue-400" />
               Present
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowTemplateLibrary(true)}
-            >
-              <LayoutGrid className="h-4 w-4 mr-2 text-purple-400" />
-              Templates
-            </Button>
           </div>
 
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
@@ -1942,7 +1933,7 @@ export default function DesignEditor() {
         onSelectTemplate={handleSelectTemplate}
       />
 
-      {/* Enhanced Image Uploader Dialog */}
+      {/* Image Uploader Dialog */}
       <ImageUploader
         open={showImageUploader}
         onOpenChange={setShowImageUploader}

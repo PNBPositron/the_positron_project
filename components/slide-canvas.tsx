@@ -432,15 +432,17 @@ export default function SlideCanvas({
     >
       <div
         ref={canvasRef}
-        className="w-[1000px] h-[562.5px] shadow-2xl shadow-blue-500/10 relative overflow-hidden origin-top-left"
+        className="w-[1000px] h-[562.5px] shadow-2xl relative overflow-hidden origin-top-left"
         style={{
           ...getBackgroundStyles(),
           transform: `scale(${zoomLevel / 100})`,
           transformOrigin: "top left",
           marginLeft: "20px",
           marginTop: "20px",
-          borderRadius: "32px",
-          boxShadow: "0 0 30px rgba(14, 165, 233, 0.2), 0 0 10px rgba(234, 179, 8, 0.1)",
+          borderRadius: "12px",
+          border: "2px solid rgba(0, 255, 255, 0.4)",
+          boxShadow:
+            "0 0 30px rgba(0, 255, 255, 0.4), 0 0 60px rgba(128, 0, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05), 0 0 20px rgba(234, 179, 8, 0.1)",
         }}
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
@@ -454,7 +456,7 @@ export default function SlideCanvas({
               className="w-full h-full"
               style={{
                 backgroundImage:
-                  "linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px)",
+                  "linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px)",
                 backgroundSize: "10px 10px",
               }}
             />
@@ -483,21 +485,21 @@ export default function SlideCanvas({
         {alignmentGuides.map((guide, index) => (
           <div
             key={`guide-${index}`}
-            className="absolute pointer-events-none"
+            className="absolute pointer-events-none animate-pulse-glow"
             style={{
-              backgroundColor: "rgba(14, 165, 233, 0.7)",
-              boxShadow: "0 0 5px rgba(14, 165, 233, 0.5)",
-              opacity: 0.7,
+              backgroundColor: "rgba(0, 255, 255, 0.8)",
+              boxShadow: "0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.4)",
+              opacity: 0.8,
               ...(guide.type === "vertical"
                 ? {
-                    width: "1px",
+                    width: "2px",
                     height: "100%",
                     left: `${guide.position}px`,
                     top: 0,
                   }
                 : {
                     width: "100%",
-                    height: "1px",
+                    height: "2px",
                     top: `${guide.position}px`,
                     left: 0,
                   }),
@@ -513,7 +515,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-400 ring-opacity-80" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -521,6 +523,9 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  ...(isSelected && {
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(128, 0, 255, 0.3)",
+                  }),
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
               >
@@ -545,44 +550,56 @@ export default function SlideCanvas({
                   <>
                     {/* Resize handles */}
                     <div
-                      className="absolute -top-1 -left-1 w-3 h-3 bg-sky-500 cursor-nw-resize rounded-sm"
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-cyan-400 cursor-nw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
                     />
                     <div
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-n-resize rounded-sm"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-n-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
                     />
                     <div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-sky-500 cursor-ne-resize rounded-sm"
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 cursor-ne-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-sky-500 cursor-w-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-cyan-400 cursor-w-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-sky-500 cursor-e-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-cyan-400 cursor-e-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
                     />
                     <div
-                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-sky-500 cursor-sw-resize rounded-sm"
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-cyan-400 cursor-sw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
                     />
                     <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-s-resize rounded-sm"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-s-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
                     />
                     <div
-                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-sky-500 cursor-se-resize rounded-sm"
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 cursor-se-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
                     />
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-sky-500 cursor-grab rounded-full"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 cursor-grab rounded-full shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.9)" }}
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-sky-500"></div>
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-cyan-400"
+                        style={{ boxShadow: "0 0 5px rgba(0, 255, 255, 0.8)" }}
+                      ></div>
                     </div>
                   </>
                 )}
@@ -594,7 +611,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-400 ring-opacity-80" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -602,6 +619,9 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  ...(isSelected && {
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(128, 0, 255, 0.3)",
+                  }),
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
               >
@@ -619,44 +639,56 @@ export default function SlideCanvas({
                   <>
                     {/* Resize handles */}
                     <div
-                      className="absolute -top-1 -left-1 w-3 h-3 bg-sky-500 cursor-nw-resize rounded-sm"
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-cyan-400 cursor-nw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
                     />
                     <div
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-n-resize rounded-sm"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-n-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
                     />
                     <div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-sky-500 cursor-ne-resize rounded-sm"
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 cursor-ne-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-sky-500 cursor-w-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-cyan-400 cursor-w-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-sky-500 cursor-e-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-cyan-400 cursor-e-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
                     />
                     <div
-                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-sky-500 cursor-sw-resize rounded-sm"
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-cyan-400 cursor-sw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
                     />
                     <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-s-resize rounded-sm"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-s-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
                     />
                     <div
-                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-sky-500 cursor-se-resize rounded-sm"
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 cursor-se-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
                     />
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-sky-500 cursor-grab rounded-full"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 cursor-grab rounded-full shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.9)" }}
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-sky-500"></div>
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-cyan-400"
+                        style={{ boxShadow: "0 0 5px rgba(0, 255, 255, 0.8)" }}
+                      ></div>
                     </div>
                   </>
                 )}
@@ -674,7 +706,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-400 ring-opacity-80" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -683,6 +715,9 @@ export default function SlideCanvas({
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
                   perspective: element.imageEffect3d?.perspective || 800,
+                  ...(isSelected && {
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(128, 0, 255, 0.3)",
+                  }),
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
                 onMouseEnter={() => handleElementHover(element.id, true)}
@@ -707,44 +742,56 @@ export default function SlideCanvas({
                   <>
                     {/* Resize handles */}
                     <div
-                      className="absolute -top-1 -left-1 w-3 h-3 bg-sky-500 cursor-nw-resize rounded-sm"
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-cyan-400 cursor-nw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
                     />
                     <div
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-n-resize rounded-sm"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-n-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
                     />
                     <div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-sky-500 cursor-ne-resize rounded-sm"
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 cursor-ne-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-sky-500 cursor-w-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-cyan-400 cursor-w-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-sky-500 cursor-e-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-cyan-400 cursor-e-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
                     />
                     <div
-                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-sky-500 cursor-sw-resize rounded-sm"
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-cyan-400 cursor-sw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
                     />
                     <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-sky-500 cursor-s-resize rounded-sm"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-s-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
                     />
                     <div
-                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-sky-500 cursor-se-resize rounded-sm"
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 cursor-se-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
                     />
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-sky-500 cursor-grab rounded-full"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 cursor-grab rounded-full shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.9)" }}
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-sky-500"></div>
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-cyan-400"
+                        style={{ boxShadow: "0 0 5px rgba(0, 255, 255, 0.8)" }}
+                      ></div>
                     </div>
                   </>
                 )}
@@ -756,7 +803,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-400 ring-opacity-80" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -764,6 +811,9 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  ...(isSelected && {
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(128, 0, 255, 0.3)",
+                  }),
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
               >
@@ -780,44 +830,56 @@ export default function SlideCanvas({
                   <>
                     {/* Resize handles */}
                     <div
-                      className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 cursor-nw-resize rounded-sm"
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-cyan-400 cursor-nw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
                     />
                     <div
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 cursor-n-resize rounded-sm"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-n-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
                     />
                     <div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 cursor-ne-resize rounded-sm"
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 cursor-ne-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-blue-500 cursor-w-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-cyan-400 cursor-w-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-blue-500 cursor-e-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-cyan-400 cursor-e-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
                     />
                     <div
-                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-500 cursor-sw-resize rounded-sm"
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-cyan-400 cursor-sw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
                     />
                     <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 cursor-s-resize rounded-sm"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-s-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
                     />
                     <div
-                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 cursor-se-resize rounded-sm"
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 cursor-se-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
                     />
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-blue-500 cursor-grab rounded-full"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 cursor-grab rounded-full shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.9)" }}
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-blue-500"></div>
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-cyan-400"
+                        style={{ boxShadow: "0 0 5px rgba(0, 255, 255, 0.8)" }}
+                      ></div>
                     </div>
                   </>
                 )}
@@ -829,7 +891,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-blue-500" : ""}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-400 ring-opacity-80" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -837,6 +899,9 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  ...(isSelected && {
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(128, 0, 255, 0.3)",
+                  }),
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
               >
@@ -852,44 +917,56 @@ export default function SlideCanvas({
                   <>
                     {/* Resize handles */}
                     <div
-                      className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 cursor-nw-resize rounded-sm"
+                      className="absolute -top-1 -left-1 w-3 h-3 bg-cyan-400 cursor-nw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "nw")}
                     />
                     <div
-                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 cursor-n-resize rounded-sm"
+                      className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-n-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "n")}
                     />
                     <div
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 cursor-ne-resize rounded-sm"
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 cursor-ne-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "ne")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-blue-500 cursor-w-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-cyan-400 cursor-w-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "w")}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-blue-500 cursor-e-resize rounded-sm"
+                      className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-cyan-400 cursor-e-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "e")}
                     />
                     <div
-                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-500 cursor-sw-resize rounded-sm"
+                      className="absolute -bottom-1 -left-1 w-3 h-3 bg-cyan-400 cursor-sw-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "sw")}
                     />
                     <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 cursor-s-resize rounded-sm"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-cyan-400 cursor-s-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "s")}
                     />
                     <div
-                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 cursor-se-resize rounded-sm"
+                      className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 cursor-se-resize rounded-sm shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 8px rgba(0, 255, 255, 0.8)" }}
                       onMouseDown={(e) => handleResizeMouseDown(e, element, "se")}
                     />
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-blue-500 cursor-grab rounded-full"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-400 cursor-grab rounded-full shadow-lg hover:shadow-xl"
+                      style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.9)" }}
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-blue-500"></div>
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-cyan-400"
+                        style={{ boxShadow: "0 0 5px rgba(0, 255, 255, 0.8)" }}
+                      ></div>
                     </div>
                   </>
                 )}
