@@ -25,7 +25,6 @@ import {
   Save,
   Atom,
   ChevronDown,
-  Palette,
   LayoutGrid,
   Sparkles,
   FileJson,
@@ -72,12 +71,9 @@ import { exportToPdf, exportToPng, exportToJpg, exportCurrentSlide } from "@/uti
 import { exportToJson, importFromJson } from "@/utils/json-utils"
 import { ShapeSelector } from "@/components/shape-selector"
 import { loadCustomFont } from "@/utils/font-utils"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
 import { ImageLibrary } from "@/components/image-library"
-import { TemplateLibrary } from "@/components/template-library"
 import { ImageUploader } from "@/components/image-uploader"
 import { AuthModal } from "@/components/auth-modal"
 import { UserMenu } from "@/components/user-menu"
@@ -929,20 +925,6 @@ export default function DesignEditor() {
     }
   }
 
-  const handleSelectTemplate = (template: any) => {
-    setPresentationTitle(template.title)
-    setSlides(template.slides)
-    setCurrentSlideIndex(0)
-    setSelectedElementId(null)
-    setCurrentPresentationId(null) // Reset presentation ID for template
-
-    toast({
-      title: "Template applied",
-      description: `"${template.title}" template has been applied to your presentation.`,
-      variant: "default",
-    })
-  }
-
   const handleLoadPresentation = (presentation: any) => {
     setPresentationTitle(presentation.title)
     setSlides(presentation.slides)
@@ -1021,15 +1003,6 @@ export default function DesignEditor() {
             >
               <Film className="h-4 w-4 mr-2 text-cyan-400" />
               Present
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowTemplateLibrary(true)}
-            >
-              <LayoutGrid className="h-4 w-4 mr-2 text-purple-400" />
-              Templates
             </Button>
           </div>
 
@@ -1291,7 +1264,7 @@ export default function DesignEditor() {
         {/* Canvas Area */}
         <div className="flex-1 bg-gray-950 flex flex-col">
           {/* Canvas Controls - Enhanced Frosted Glass Dock */}
-          <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute top-24 left-1/2 z-20 transform -translate-x-1/2">
             <div className="relative group">
               {/* Subtle outer glow */}
               <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-cyan-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -1659,195 +1632,6 @@ export default function DesignEditor() {
                 </div>
               )}
 
-              {selectedElement.type === "shape" && (
-                <div className="space-y-4">
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
-                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-                      <Palette className="h-4 w-4 text-purple-400" />
-                      Shape Properties
-                    </h4>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
-                        >
-                          <span className="flex items-center">
-                            <div
-                              className="w-4 h-4 rounded-full mr-3 border border-gray-600"
-                              style={{ backgroundColor: selectedElement.color }}
-                            ></div>
-                            <span className="font-medium">Color</span>
-                          </span>
-                          <ChevronDown className="h-4 w-4 opacity-60" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-4 shadow-2xl">
-                        <div className="grid grid-cols-3 gap-3">
-                          {COLOR_PRESETS.map((color) => (
-                            <div
-                              key={color}
-                              className="w-10 h-10 rounded-2xl cursor-pointer border-2 border-gray-600 hover:border-gray-400 hover:scale-110 transition-all duration-200 shadow-lg"
-                              style={{ backgroundColor: color }}
-                              onClick={() => updateElement(selectedElementId!, { color })}
-                            />
-                          ))}
-                        </div>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Enhanced Corner Radius Control */}
-                    {(selectedElement.shape === "square" ||
-                      selectedElement.shape === "rounded-rect" ||
-                      selectedElement.shape === "triangle" ||
-                      selectedElement.shape === "pentagon" ||
-                      selectedElement.shape === "hexagon" ||
-                      selectedElement.shape === "diamond") && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-400">Corner Radius</span>
-                          <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
-                            {selectedElement.cornerRadius || 0}px
-                          </span>
-                        </div>
-                        <Slider
-                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-purple-500 [&>span:first-child]:to-pink-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-purple-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-purple-500 [&>span:first-child_span]:to-pink-500"
-                          min={0}
-                          max={Math.min(selectedElement.width, selectedElement.height) / 2}
-                          step={1}
-                          value={[selectedElement.cornerRadius || 0]}
-                          onValueChange={([value]) => updateElement(selectedElementId!, { cornerRadius: value })}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Enhanced Glassmorphism Controls */}
-                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-cyan-400" />
-                        <Label className="text-sm font-medium text-gray-300">Glassmorphism Effect</Label>
-                      </div>
-                      <Switch
-                        checked={selectedElement.glassmorphism?.enabled || false}
-                        onCheckedChange={(enabled) =>
-                          updateElement(selectedElementId!, {
-                            glassmorphism: {
-                              ...selectedElement.glassmorphism,
-                              enabled,
-                            },
-                          })
-                        }
-                        className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-500"
-                      />
-                    </div>
-
-                    {selectedElement.glassmorphism?.enabled && (
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs font-medium text-gray-400">Blur Intensity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
-                              {selectedElement.glassmorphism?.blur || 10}px
-                            </span>
-                          </div>
-                          <Slider
-                            min={0}
-                            max={30}
-                            step={1}
-                            value={[selectedElement.glassmorphism?.blur || 10]}
-                            onValueChange={([blur]) =>
-                              updateElement(selectedElementId!, {
-                                glassmorphism: {
-                                  ...selectedElement.glassmorphism,
-                                  blur,
-                                },
-                              })
-                            }
-                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs font-medium text-gray-400">Background Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
-                              {selectedElement.glassmorphism?.opacity || 20}%
-                            </span>
-                          </div>
-                          <Slider
-                            min={5}
-                            max={50}
-                            step={1}
-                            value={[selectedElement.glassmorphism?.opacity || 20]}
-                            onValueChange={([opacity]) =>
-                              updateElement(selectedElementId!, {
-                                glassmorphism: {
-                                  ...selectedElement.glassmorphism,
-                                  opacity,
-                                },
-                              })
-                            }
-                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs font-medium text-gray-400">Border Opacity</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
-                              {selectedElement.glassmorphism?.borderOpacity || 30}%
-                            </span>
-                          </div>
-                          <Slider
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[selectedElement.glassmorphism?.borderOpacity || 30]}
-                            onValueChange={([borderOpacity]) =>
-                              updateElement(selectedElementId!, {
-                                glassmorphism: {
-                                  ...selectedElement.glassmorphism,
-                                  borderOpacity,
-                                },
-                              })
-                            }
-                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs font-medium text-gray-400">Saturation</Label>
-                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
-                              {selectedElement.glassmorphism?.saturation || 180}%
-                            </span>
-                          </div>
-                          <Slider
-                            min={100}
-                            max={300}
-                            step={10}
-                            value={[selectedElement.glassmorphism?.saturation || 180]}
-                            onValueChange={([saturation]) =>
-                              updateElement(selectedElementId!, {
-                                glassmorphism: {
-                                  ...selectedElement.glassmorphism,
-                                  saturation,
-                                },
-                              })
-                            }
-                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {selectedElement.type === "image" && (
                 <div className="space-y-4">
                   <Button
@@ -1990,13 +1774,8 @@ export default function DesignEditor() {
       <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={addImageFromLibrary} />
 
       {/* Template Library Dialog */}
-      <TemplateLibrary
-        open={showTemplateLibrary}
-        onOpenChange={setShowTemplateLibrary}
-        onSelectTemplate={handleSelectTemplate}
-      />
 
-      {/* Enhanced Image Uploader Dialog */}
+      {/* Image Uploader Dialog */}
       <ImageUploader
         open={showImageUploader}
         onOpenChange={setShowImageUploader}
