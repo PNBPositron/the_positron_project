@@ -83,6 +83,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { PresentationsManager } from "@/components/presentations-manager"
 import { ShareDialog } from "@/components/share-dialog"
 import { exportToHtml } from "@/utils/html-export"
+import { WallpaperSelector } from "@/components/wallpaper-selector"
 // Import TemplateLibrary here
 // import { TemplateLibrary } from "@/components/template-library" // Removed TemplateLibrary import
 
@@ -106,7 +107,7 @@ const COLOR_PRESETS = [
   "#000000", // Black
 ]
 
-export default function DesignEditor() {
+export function DesignEditor() {
   const [presentationTitle, setPresentationTitle] = useState("Untitled Positron")
   const [slides, setSlides] = useState<Slide[]>([
     {
@@ -157,6 +158,7 @@ export default function DesignEditor() {
   const [showImageLibrary, setShowImageLibrary] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
+  const [wallpaper, setWallpaper] = useState<string>("/images/abstract-3d-wallpaper.jpg")
 
   // Auth states
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -989,6 +991,10 @@ export default function DesignEditor() {
     }
   }
 
+  const handleWallpaperSelect = (wallpaperUrl: string) => {
+    setWallpaper(wallpaperUrl)
+  }
+
   // const handleSelectTemplate = (template: any) => {
   //   setPresentationTitle(template.title)
   //   setSlides(template.slides)
@@ -1036,7 +1042,7 @@ export default function DesignEditor() {
   const allFonts = [...FONT_OPTIONS, ...customFonts]
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
+    <div className="flex flex-col h-screen bg-gray-950 text-gray-100 font-sans overflow-hidden">
       {/* Header - Enhanced Frosted Glass */}
       <header className="relative border-b border-white/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-white/5 shadow-2xl shadow-pink-500/10 z-50">
         {/* Enhanced glass effect overlay */}
@@ -1404,10 +1410,10 @@ export default function DesignEditor() {
             ref={canvasContainerRef}
             className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
             style={{
-              backgroundImage: "url('/images/abstract-3d-wallpaper.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
+              background:
+                wallpaper.startsWith("linear") || wallpaper.startsWith("radial")
+                  ? wallpaper
+                  : `url('${wallpaper}') center / cover no-repeat`,
             }}
           >
             {/* Optional overlay for better canvas visibility */}
@@ -1558,6 +1564,10 @@ export default function DesignEditor() {
               <Sparkles className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-xs font-medium">Animations</span>
             </Button>
+          </div>
+
+          <div className="absolute top-4 right-32 z-40 flex gap-2">
+            <WallpaperSelector onSelectWallpaper={handleWallpaperSelect} />
           </div>
 
           {selectedElement && (
@@ -1886,3 +1896,5 @@ export default function DesignEditor() {
     </div>
   )
 }
+
+export default DesignEditor
