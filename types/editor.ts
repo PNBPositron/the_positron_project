@@ -99,6 +99,15 @@ export interface ImageElement {
     translateZ?: number
     hover?: boolean
   }
+  interactions?: {
+    type: string
+    clickAction: "none" | "lightbox" | "link" | "toggle" | "animate"
+    hoverAction: "none" | "zoom" | "brightness" | "blur" | "grayscale" | "scale" | "glow"
+    linkUrl?: string
+    lightbox?: boolean
+    tooltip?: string
+    animationTrigger?: "onLoad" | "onHover" | "onClick" | "onScroll"
+  }
 }
 
 export interface VideoElement {

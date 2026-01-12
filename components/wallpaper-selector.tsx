@@ -82,26 +82,26 @@ export function WallpaperSelector({ onSelectWallpaper }: WallpaperSelectorProps)
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-200"
+          className="gap-2 bg-card/5 hover:bg-card/10 border-border/10 text-foreground"
         >
           <ImageIcon className="h-4 w-4" />
           Change Wallpaper
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl bg-gray-900 border-gray-800">
+      <DialogContent className="max-w-2xl bg-popover/80 backdrop-blur-xl border-border/10">
         <DialogHeader>
-          <DialogTitle className="text-gray-100">Select Wallpaper</DialogTitle>
+          <DialogTitle className="text-foreground">Select Wallpaper</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-96 w-full">
           <div className="grid grid-cols-2 gap-4 p-4">
             <label
               htmlFor="wallpaper-upload"
-              className="group relative overflow-hidden rounded-lg border border-dashed border-gray-600 p-2 cursor-pointer transition-all hover:border-gray-500 hover:bg-gray-800/50"
+              className="group relative overflow-hidden rounded-lg border border-dashed border-border/40 p-2 cursor-pointer transition-all hover:border-border/60 hover:bg-card/50"
             >
-              <div className="h-32 w-full rounded-md flex items-center justify-center bg-gray-800">
+              <div className="h-32 w-full rounded-md flex items-center justify-center bg-card/30">
                 <div className="text-center">
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-xs font-medium text-gray-300">Upload Image</p>
+                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground">Upload Image</p>
                 </div>
               </div>
               <input
@@ -117,7 +117,7 @@ export function WallpaperSelector({ onSelectWallpaper }: WallpaperSelectorProps)
               <button
                 key={wallpaper.id}
                 onClick={() => handleSelectWallpaper(wallpaper.url)}
-                className="group relative overflow-hidden rounded-lg border border-gray-700 p-2 text-left transition-all hover:border-gray-600"
+                className="group relative overflow-hidden rounded-lg border border-border/30 p-2 text-left transition-all hover:border-border/50"
               >
                 <div
                   className="h-32 w-full rounded-md bg-cover bg-center transition-transform group-hover:scale-105"
@@ -127,10 +127,10 @@ export function WallpaperSelector({ onSelectWallpaper }: WallpaperSelectorProps)
                       : { backgroundImage: `url(${wallpaper.url})` }
                   }
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
-                  <span className="text-white font-medium">Select</span>
+                <div className="absolute inset-0 bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+                  <span className="text-foreground font-medium">Select</span>
                 </div>
-                <p className="mt-2 text-xs font-medium text-gray-300">{wallpaper.name}</p>
+                <p className="mt-2 text-xs font-medium text-muted-foreground">{wallpaper.name}</p>
               </button>
             ))}
           </div>

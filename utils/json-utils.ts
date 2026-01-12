@@ -9,10 +9,12 @@ export interface PresentationData {
 /**
  * Exports presentation data to a JSON file
  */
-export function exportToJson(title: string, slides: Slide[]): void {
+export function exportToJson(title = "Untitled Presentation", slides: Slide[]): void {
+  const safeTitle = title || "Untitled Presentation"
+
   // Create the presentation data object
   const presentationData: PresentationData = {
-    title,
+    title: safeTitle,
     slides,
     version: "1.0.0", // For future compatibility checks
   }
@@ -29,7 +31,7 @@ export function exportToJson(title: string, slides: Slide[]): void {
   // Create a link element to trigger the download
   const link = document.createElement("a")
   link.href = url
-  link.download = `positron-${title.replace(/\s+/g, "-").toLowerCase()}.json`
+  link.download = `positron-${safeTitle.replace(/\s+/g, "-").toLowerCase()}.json`
 
   // Trigger the download
   document.body.appendChild(link)
