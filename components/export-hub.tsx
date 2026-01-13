@@ -105,8 +105,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "PDF Document",
       description: "High-quality PDF with all slides",
       icon: FileText,
-      color: "text-destructive",
-      bgColor: "bg-destructive/10",
+      color: "text-red-400",
+      bgColor: "bg-red-500/10",
       available: true,
     },
     {
@@ -114,8 +114,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "PNG Images",
       description: "Lossless image format, best quality",
       icon: ImageIcon,
-      color: "text-cyber-cyan",
-      bgColor: "bg-cyber-cyan/10",
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
       available: true,
     },
     {
@@ -123,8 +123,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "JPG Images",
       description: "Compressed images, smaller file size",
       icon: ImageIcon,
-      color: "text-cyber-green",
-      bgColor: "bg-cyber-green/10",
+      color: "text-green-400",
+      bgColor: "bg-green-500/10",
       available: true,
     },
     {
@@ -132,8 +132,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "HTML Presentation",
       description: "Interactive web presentation",
       icon: Globe,
-      color: "text-cyber-purple",
-      bgColor: "bg-cyber-purple/10",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
       available: true,
     },
     {
@@ -141,8 +141,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "Video (MP4)",
       description: "Record presentation as video",
       icon: Film,
-      color: "text-cyber-pink",
-      bgColor: "bg-cyber-pink/10",
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
       available: false,
     },
     {
@@ -150,8 +150,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "PowerPoint",
       description: "Microsoft PowerPoint format",
       icon: Presentation,
-      color: "text-cyber-yellow",
-      bgColor: "bg-cyber-yellow/10",
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/10",
       available: false,
     },
     {
@@ -159,37 +159,37 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
       name: "JSON Data",
       description: "Raw presentation data for backup",
       icon: Package,
-      color: "text-cyber-cyan",
-      bgColor: "bg-cyber-cyan/10",
+      color: "text-cyan-400",
+      bgColor: "bg-cyan-500/10",
       available: true,
     },
   ]
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-popover/40 border-border/30 text-foreground backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-popover/40 shadow-xl shadow-cyber-cyan/10 rounded-2xl max-w-4xl">
+      <DialogContent className="bg-gray-800/40 border-gray-700/30 text-gray-100 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-gray-800/40 shadow-xl shadow-blue-500/10 rounded-2xl max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-cyber-cyan" />
+            <Download className="h-5 w-5 text-blue-400" />
             Export & Publish
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-gray-400">
             Export your presentation in multiple formats or publish it online
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="export" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-card/30">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/30">
             <TabsTrigger value="export">Export</TabsTrigger>
             <TabsTrigger value="publish">Publish</TabsTrigger>
           </TabsList>
 
           <TabsContent value="export" className="space-y-4 mt-4">
             {isExporting && (
-              <div className="p-4 bg-card/30 rounded-lg border border-border/40">
+              <div className="p-4 bg-gray-800/30 rounded-lg border border-gray-700/40">
                 <div className="flex items-center gap-3 mb-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-cyber-cyan" />
-                  <span className="text-sm text-muted-foreground">Exporting as {exportType?.toUpperCase()}...</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
+                  <span className="text-sm text-gray-300">Exporting as {exportType?.toUpperCase()}...</span>
                 </div>
                 <Progress value={exportProgress} className="h-2" />
               </div>
@@ -203,8 +203,8 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
                   disabled={!format.available || isExporting}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     format.available
-                      ? "bg-card/30 border-border/40 hover:bg-card/50 hover:border-border/60"
-                      : "bg-card/20 border-border/20 opacity-50 cursor-not-allowed"
+                      ? "bg-gray-800/30 border-gray-700/40 hover:bg-gray-700/40 hover:border-gray-600/60"
+                      : "bg-gray-800/20 border-gray-700/20 opacity-50 cursor-not-allowed"
                   } ${isExporting ? "opacity-50" : ""}`}
                 >
                   <div className="flex items-start gap-3">
@@ -213,26 +213,26 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-foreground text-sm">{format.name}</h3>
+                        <h3 className="font-medium text-gray-100 text-sm">{format.name}</h3>
                         {!format.available && (
-                          <Badge variant="secondary" className="text-xs bg-secondary/50 text-muted-foreground">
+                          <Badge variant="secondary" className="text-xs bg-gray-700/50 text-gray-400">
                             Soon
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">{format.description}</p>
+                      <p className="text-xs text-gray-400">{format.description}</p>
                     </div>
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="p-4 bg-cyber-cyan/10 border border-cyber-cyan/20 rounded-lg">
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
               <div className="flex items-start gap-2">
-                <Sparkles className="h-4 w-4 text-cyber-cyan mt-0.5 shrink-0" />
+                <Sparkles className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
                 <div className="text-sm">
-                  <p className="text-cyber-cyan font-medium">Export Tips</p>
-                  <p className="text-cyber-cyan/80 text-xs mt-1">
+                  <p className="text-blue-300 font-medium">Export Tips</p>
+                  <p className="text-blue-200/80 text-xs mt-1">
                     • PDF and HTML preserve all animations and effects
                     <br />• PNG offers the highest image quality
                     <br />• JSON format is perfect for backups
@@ -245,13 +245,13 @@ export function ExportHub({ open, onOpenChange, slides, title, presentationTitle
 
           <TabsContent value="publish" className="space-y-4 mt-4">
             <div className="text-center py-12">
-              <Globe className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">Web Publishing</h3>
-              <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+              <Globe className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-300 mb-2">Web Publishing</h3>
+              <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto">
                 Publish your presentation to the web with custom domains, analytics, and viewer engagement tracking.
               </p>
               <div className="flex items-center justify-center gap-2">
-                <Badge variant="secondary" className="bg-cyber-purple/20 text-cyber-purple">
+                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
                   Coming Soon
                 </Badge>
               </div>

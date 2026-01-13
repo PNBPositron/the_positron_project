@@ -1060,861 +1060,859 @@ export function DesignEditor() {
   const allFonts = [...FONT_OPTIONS, ...customFonts]
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground font-sans overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-950 text-gray-100 font-sans overflow-hidden">
       {/* Header - Enhanced Frosted Glass */}
-      <header className="relative border-b border-border/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-card/5 shadow-2xl shadow-cyber-pink/10 z-50">
+      <header className="relative border-b border-white/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-white/5 shadow-2xl shadow-pink-500/10 z-50">
         {/* Enhanced glass effect overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyber-pink/5 via-cyber-cyan/5 to-cyber-purple/5 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
 
         {/* Subtle animated border effect - make it more prominent */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-foreground/50 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
 
         {/* Content wrapper with relative positioning */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="relative group">
             {/* Outer glow ring */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyber-pink/30 via-cyber-cyan/30 to-cyber-purple/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/30 via-cyan-500/30 to-purple-500/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
             {/* Main logo container - Frosted glass */}
-            <div className="relative backdrop-blur-md bg-card/5 p-2 rounded-xl shadow-lg border border-border/10">
-              <Atom className="h-6 w-6 text-cyber-cyan drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+            <div className="relative backdrop-blur-md bg-white/5 p-2 rounded-xl shadow-lg border border-white/10">
+              <Atom className="h-6 w-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyber-pink via-cyber-cyan to-cyber-purple drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-cyan-400 to-purple-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">
               POSITRON
             </span>
-            <span className="text-xs text-cyber-cyan/80 font-medium tracking-wider uppercase drop-shadow-[0_0_4px_rgba(34,211,238,0.3)]">
+            <span className="text-xs text-cyan-400/80 font-medium tracking-wider uppercase drop-shadow-[0_0_4px_rgba(34,211,238,0.3)]">
               Open-source presentation editor
             </span>
           </div>
-          <div className="h-8 w-px bg-gradient-to-b from-transparent via-border/20 to-transparent mx-2"></div>
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent mx-2"></div>
           <Input
-            className="w-72 h-10 backdrop-blur-md bg-card/5 border-border/10 text-foreground focus-visible:ring-2 focus-visible:ring-cyber-cyan/30 focus-visible:border-cyber-cyan/30 rounded-xl shadow-inner placeholder:text-muted-foreground transition-all duration-300 hover:bg-card/10 hover:border-border/20"
+            className="w-72 h-10 backdrop-blur-md bg-white/5 border-white/10 text-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/30 rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-white/10 hover:border-white/20"
             placeholder="Enter presentation title..."
             value={presentationTitle}
             onChange={(e) => setPresentationTitle(e.target.value)}
           />
         </div>
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-card/5 rounded-xl border border-border/10">
-            <span className="text-xs text-muted-foreground">Slides:</span>
-            <span className="text-sm font-semibold text-cyber-cyan">
-              {currentSlideIndex + 1}/{slides.length}
-            </span>
+          <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setIsPresentationMode(true)}
+            >
+              <Film className="h-4 w-4 mr-2 text-cyan-400" />
+              Present
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowImageLibrary(true)}
+            >
+              <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
+              Image
+            </Button>
           </div>
 
-          <WallpaperSelector onSelectWallpaper={handleWallpaperSelect} />
+          <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-9 px-4 rounded-xl backdrop-blur-md"
+            >
+              <svg
+                className="h-4 w-4 mr-2 text-pink-400"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+              GitHub
+            </Button>
+          </a>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowGrid(!showGrid)}
-            className={`gap-1 backdrop-blur-md border-border/10 text-foreground hover:bg-card/10 hover:border-border/20 transition-all duration-300 ${
-              showGrid ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan" : "bg-card/5"
-            }`}
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Grid
-          </Button>
+          {/* Auth Section */}
+          {user ? (
+            <UserMenu
+              user={user}
+              onSignOut={handleSignOut}
+              onOpenPresentations={() => setShowPresentationsManager(true)}
+            />
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-white/10 backdrop-blur-md bg-pink-500/10 hover:bg-pink-500/20 text-gray-100 shadow-lg shadow-pink-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+              onClick={() => setShowAuthModal(true)}
+            >
+              <User className="h-4 w-4 mr-2 text-pink-400" />
+              Sign In
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-card/10 hover:border-border/20 transition-all duration-300"
-                disabled={isExporting}
+                className="border-white/10 backdrop-blur-md bg-white/5 hover:bg-white/10 text-gray-100 shadow-lg shadow-cyan-500/5 h-9 px-4 rounded-xl transition-all duration-300"
               >
-                <Download className="h-4 w-4" />
-                Export
-                <ChevronDown className="h-3 w-3" />
+                <Save className="h-4 w-4 mr-2 text-cyan-400" />
+                Save
+                <ChevronDown className="h-3 w-3 ml-2 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="backdrop-blur-xl bg-popover/80 border-border/10 shadow-2xl shadow-cyber-cyan/10">
+            <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-2 min-w-[200px]">
+              {user && (
+                <>
+                  <DropdownMenuItem
+                    className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                    onClick={handleSavePresentation}
+                  >
+                    <Cloud className="h-4 w-4 mr-3 text-pink-400" />
+                    <span className="font-medium">Save to Cloud</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10 my-2" />
+                </>
+              )}
               <DropdownMenuItem
-                onClick={() => setShowExportHub(true)}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-              >
-                <Sparkles className="h-4 w-4 mr-2 text-cyber-purple" />
-                Export Hub
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border/20" />
-              <DropdownMenuItem
-                onClick={() => handleExport("pdf")}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-              >
-                <FileType className="h-4 w-4 mr-2 text-destructive" />
-                Export as PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport("png")}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-cyber-cyan" />
-                Export as PNG
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport("jpg")}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-              >
-                <ImageIcon className="h-4 w-4 mr-2 text-cyber-green" />
-                Export as JPG
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleExport("html")}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-              >
-                <Film className="h-4 w-4 mr-2 text-cyber-purple" />
-                Export as HTML
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border/20" />
-              <DropdownMenuItem
+                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
                 onClick={handleExportJson}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
               >
-                <FileJson className="h-4 w-4 mr-2 text-cyber-yellow" />
-                Export as JSON
+                <FileJson className="h-4 w-4 mr-3 text-green-400" />
+                <span className="font-medium">Export as JSON</span>
               </DropdownMenuItem>
               <DropdownMenuItem
+                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
                 onClick={handleImportClick}
-                className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
               >
-                <Upload className="h-4 w-4 mr-2 text-cyber-cyan" />
-                Import JSON
+                <Upload className="h-4 w-4 mr-3 text-yellow-400" />
+                <span className="font-medium">Import from JSON</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-white/10 my-2" />
+              <DropdownMenuItem
+                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                onClick={() => setShowExportHub(true)}
+              >
+                <Download className="h-4 w-4 mr-3 text-blue-400" />
+                <span className="font-medium">Export & Publish</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
+                onClick={() => handleExport("html")}
+              >
+                <FileType className="h-4 w-4 mr-3 text-purple-400" />
+                <span className="font-medium">Quick Export as HTML</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {user ? (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-card/10 hover:border-border/20 transition-all duration-300"
-                  >
-                    <Cloud className="h-4 w-4" />
-                    Cloud
-                    <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="backdrop-blur-xl bg-popover/80 border-border/10 shadow-2xl shadow-cyber-cyan/10">
-                  <DropdownMenuItem
-                    onClick={handleSavePresentation}
-                    className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-                  >
-                    <Save className="h-4 w-4 mr-2 text-cyber-green" />
-                    Save to Cloud
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setShowPresentationsManager(true)}
-                    className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-                  >
-                    <UploadCloud className="h-4 w-4 mr-2 text-cyber-cyan" />
-                    My Presentations
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border/20" />
-                  <DropdownMenuItem
-                    onClick={() => setShowShareDialog(true)}
-                    className="text-foreground hover:bg-accent/10 hover:text-accent-foreground focus:bg-accent/10"
-                    disabled={!currentPresentationId}
-                  >
-                    <Share2 className="h-4 w-4 mr-2 text-cyber-purple" />
-                    Share Presentation
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <UserMenu user={user} onSignOut={handleSignOut} />
-            </>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAuthModal(true)}
-              className="gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-card/10 hover:border-border/20 transition-all duration-300"
-            >
-              <User className="h-4 w-4" />
-              Sign In
-            </Button>
-          )}
-
           <Button
-            onClick={() => setIsPresentationMode(true)}
-            className="gap-1 bg-gradient-to-r from-cyber-pink via-cyber-purple to-cyber-cyan text-primary-foreground hover:opacity-90 shadow-lg shadow-cyber-pink/30 transition-all duration-300 hover:shadow-cyber-pink/50"
+            variant="outline"
+            size="sm"
+            className="border-white/10 backdrop-blur-md bg-white/5 hover:bg-white/10 text-gray-100 shadow-lg shadow-green-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+            onClick={() => setShowShareDialog(true)}
+            disabled={!user || !currentPresentationId}
           >
-            Present
+            <Share2 className="h-4 w-4 mr-2 text-green-400" />
+            Share
+          </Button>
+          {/* Add Deploy Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-white/10 backdrop-blur-md bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 text-gray-100 shadow-lg shadow-purple-500/5 h-9 px-4 rounded-xl transition-all duration-300"
+            onClick={() => {
+              const deployUrl =
+                "https://vercel.com/new/clone?repository-url=https://github.com/PNBFor/the_positron_project"
+              window.open(deployUrl, "_blank", "noopener,noreferrer")
+            }}
+          >
+            <svg className="h-4 w-4 mr-2" viewBox="0 0 76 65" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
+            </svg>
+            Deploy
           </Button>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar - Slides */}
-        <div className="w-48 backdrop-blur-xl bg-card/5 border-r border-border/10 flex flex-col overflow-hidden shadow-xl shadow-cyber-pink/5">
-          <div className="p-3 border-b border-border/10 backdrop-blur-md bg-card/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">Slides</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={addNewSlide}
-                className="h-7 w-7 text-cyber-cyan hover:text-cyber-cyan hover:bg-cyber-cyan/10 transition-all duration-300"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+        {/* Slides Sidebar - Enhanced Frosted Glass Panel */}
+        <div className="absolute left-6 top-28 w-72 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-pink-500/10 z-10">
+          {/* Subtle corner accents */}
+          <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-white/10 rounded-tl-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-white/10 rounded-br-3xl pointer-events-none"></div>
+
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+              <h3 className="text-base font-semibold text-cyan-400">Slides</h3>
+              <span className="text-xs text-gray-400 backdrop-blur-md bg-white/5 px-2 py-1 rounded-full border border-white/10">
+                {slides.length}
+              </span>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={addNewSlide}
+              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-8 w-8 rounded-xl shadow-lg"
+            >
+              <Plus className="h-4 w-4 text-cyan-400" />
+            </Button>
           </div>
-          <SlidesThumbnails
-            slides={slides}
-            currentSlideIndex={currentSlideIndex}
-            onSlideSelect={setCurrentSlideIndex}
-            onSlideDelete={deleteSlide}
-            onSlideDuplicate={duplicateSlide}
-          />
-        </div>
 
-        {/* Canvas Area */}
-        <div
-          ref={canvasContainerRef}
-          className="flex-1 p-4 flex items-center justify-center overflow-auto relative"
-          style={{
-            background:
-              wallpaper.startsWith("linear") || wallpaper.startsWith("radial")
-                ? wallpaper
-                : `url(${wallpaper}) center/cover no-repeat`,
-          }}
-        >
-          {/* Overlay for better contrast */}
-          <div className="absolute inset-0 bg-background/30 backdrop-blur-sm pointer-events-none"></div>
-
-          <div
-            className="relative"
-            style={{
-              transform: `scale(${zoomLevel / 100})`,
-              transformOrigin: "center center",
-              transition: "transform 0.2s ease-out",
-            }}
-          >
-            <SlideCanvas
-              slide={slides[currentSlideIndex]}
-              selectedElementId={selectedElementId}
-              onSelectElement={setSelectedElementId}
-              onUpdateElement={updateElement}
-              showGrid={showGrid}
-              isPreviewingAnimation={isPreviewingAnimation}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-cyan-500/5 rounded-2xl"></div>
+            <SlidesThumbnails
+              slides={slides}
+              currentSlideIndex={currentSlideIndex}
+              onSelectSlide={setCurrentSlideIndex}
             />
           </div>
 
-          {/* Canvas Navigation Controls - Frosted Glass Dock */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-2 backdrop-blur-xl bg-card/10 rounded-2xl border border-border/10 shadow-2xl shadow-cyber-cyan/10">
+          <div className="flex gap-3 mt-2">
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
-              disabled={currentSlideIndex === 0}
-              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-card/10 disabled:opacity-30 transition-all duration-300"
+              variant="outline"
+              size="sm"
+              className="flex-1 border-white/10 backdrop-blur-md bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 transition-all duration-300 rounded-xl"
+              onClick={deleteSlide}
+              disabled={slides.length <= 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <Trash2 className="h-3 w-3 mr-2" />
+              Delete
             </Button>
-            <span className="text-sm font-medium text-foreground min-w-[80px] text-center">
-              Slide {currentSlideIndex + 1} of {slides.length}
-            </span>
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
-              disabled={currentSlideIndex === slides.length - 1}
-              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-card/10 disabled:opacity-30 transition-all duration-300"
+              variant="outline"
+              size="sm"
+              className="flex-1 border-white/10 backdrop-blur-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 transition-all duration-300 rounded-xl"
+              onClick={duplicateSlide}
             >
-              <ChevronRight className="h-4 w-4" />
+              <Copy className="h-3 w-3 mr-2" />
+              Duplicate
             </Button>
-            <div className="w-px h-6 bg-border/20 mx-1"></div>
-            <ZoomControls zoomLevel={zoomLevel} onZoomChange={handleZoomChange} />
+          </div>
+
+          {/* Background Panel */}
+          {showBackgroundPanel && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <h4 className="text-sm font-medium text-gray-300 mb-3">Background Settings</h4>
+              <BackgroundEditor
+                background={slides[currentSlideIndex].background}
+                onUpdateBackground={updateBackground}
+              />
+            </div>
+          )}
+
+          {/* Animation Panel */}
+          {showAnimationPanel && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <Tabs defaultValue={selectedElement ? "element" : "slide"}>
+                <TabsList className="grid grid-cols-2 backdrop-blur-md bg-white/5">
+                  <TabsTrigger
+                    value="element"
+                    className="text-gray-300 data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-300"
+                    disabled={!selectedElement}
+                  >
+                    Element
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="slide"
+                    className="text-gray-300 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300"
+                  >
+                    Slide
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="element" className="mt-3">
+                  {selectedElement ? (
+                    <AnimationControls
+                      animation={selectedElement.animation}
+                      onUpdateAnimation={updateElementAnimation}
+                      onPreviewAnimation={previewElementAnimation}
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-400">Select an element to configure its animation.</p>
+                  )}
+                </TabsContent>
+                <TabsContent value="slide" className="mt-3">
+                  <TransitionControls
+                    transition={slides[currentSlideIndex].transition}
+                    onUpdateTransition={updateSlideTransition}
+                    onPreviewTransition={previewSlideTransition}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {/* Image Filters Panel */}
+          {showImagePanel && selectedElement?.type === "image" && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <h4 className="text-sm font-medium text-gray-300 mb-3">Image Filters & Effects</h4>
+              <ImageFilters element={selectedElement} onUpdateElement={updateElement} />
+            </div>
+          )}
+
+          {/* Media Controls Panel */}
+          {showMediaPanel && (selectedElement?.type === "video" || selectedElement?.type === "audio") && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <h4 className="text-sm font-medium text-gray-300 mb-3">Media Controls</h4>
+              <MediaControls element={selectedElement} onUpdateElement={updateElement} />
+            </div>
+          )}
+
+          {/* Text Effects Panel */}
+          {showTextEffectsPanel && selectedElement?.type === "text" && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <TextEffects element={selectedElement} onUpdateElement={updateElement} />
+            </div>
+          )}
+
+          {/* Image 3D Effects Panel */}
+          {showImage3dEffectsPanel && selectedElement?.type === "image" && (
+            <div className="mt-4 border border-white/10 rounded-md p-3 backdrop-blur-md bg-white/5">
+              <Image3DEffects element={selectedElement} onUpdateElement={updateElement} />
+            </div>
+          )}
+        </div>
+
+        {/* Canvas Area */}
+        <div className="flex-1 bg-gray-950 flex flex-col">
+          {/* Canvas Controls - Enhanced Frosted Glass Dock */}
+          <div className="absolute top-24 left-1/2 z-20 transform -translate-x-1/2">
+            <div className="relative group">
+              {/* Subtle outer glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-cyan-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              {/* Main container - Frosted Glass */}
+              <div className="relative px-8 py-4 flex items-center gap-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl">
+                <div className="flex items-center gap-2 transition-all duration-300 ease-out">
+                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-3"></div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
+                    disabled={currentSlideIndex === 0}
+                    className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
+                    title="Previous Slide"
+                  >
+                    <ChevronLeft className="h-6 w-6 group-hover:text-pink-400 transition-colors duration-200" />
+                  </Button>
+
+                  <div className="px-4 py-2 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 transition-all duration-300 ease-out hover:scale-105 shadow-inner">
+                    <span className="text-sm font-bold text-gray-200">{currentSlideIndex + 1}</span>
+                    <span className="text-xs text-gray-500 mx-1">/</span>
+                    <span className="text-sm font-medium text-gray-400">{slides.length}</span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
+                    disabled={currentSlideIndex === slides.length - 1}
+                    className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-12 w-12 rounded-2xl hover:scale-110 hover:shadow-lg flex items-center justify-center disabled:opacity-40 disabled:hover:scale-100 group"
+                    title="Next Slide"
+                  >
+                    <ChevronRight className="h-6 w-6 group-hover:text-cyan-400 transition-colors duration-200" />
+                  </Button>
+
+                  <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-3"></div>
+
+                  <div className="transition-all duration-300 ease-out hover:scale-105">
+                    <ZoomControls zoomLevel={zoomLevel} onZoomChange={handleZoomChange} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Canvas - Now with 3D Abstract Wallpaper */}
+          <div
+            ref={canvasContainerRef}
+            className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
+            style={{
+              background:
+                wallpaper.startsWith("linear") || wallpaper.startsWith("radial")
+                  ? wallpaper
+                  : `url('${wallpaper}') center / cover no-repeat`,
+            }}
+          >
+            {/* Optional overlay for better canvas visibility */}
+            <div className="absolute inset-0 bg-black/30 rounded-3xl"></div>
+            <div className="relative group z-10">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
+              <SlideCanvas
+                slide={slides[currentSlideIndex]}
+                selectedElementId={selectedElementId}
+                onSelectElement={setSelectedElementId}
+                onUpdateElement={updateElement}
+                zoomLevel={zoomLevel}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Right Sidebar - Properties */}
-        <div className="w-72 backdrop-blur-xl bg-card/5 border-l border-border/10 overflow-y-auto shadow-xl shadow-cyber-pink/5">
-          <Tabs defaultValue="elements" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b border-border/10 bg-card/5 p-1 backdrop-blur-md">
-              <TabsTrigger
-                value="elements"
-                className="text-muted-foreground data-[state=active]:text-cyber-cyan data-[state=active]:bg-cyber-cyan/10 transition-all duration-300"
-              >
-                Elements
-              </TabsTrigger>
-              <TabsTrigger
-                value="properties"
-                className="text-muted-foreground data-[state=active]:text-cyber-cyan data-[state=active]:bg-cyber-cyan/10 transition-all duration-300"
-              >
-                Properties
-              </TabsTrigger>
-              <TabsTrigger
-                value="animations"
-                className="text-muted-foreground data-[state=active]:text-cyber-cyan data-[state=active]:bg-cyber-cyan/10 transition-all duration-300"
-              >
-                Animations
-              </TabsTrigger>
-            </TabsList>
+        {/* Right Toolbar Panel - Enhanced Frosted Glass */}
+        <div className="w-80 absolute right-6 top-28 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-cyan-500/10 z-10">
+          {/* Subtle corner accents */}
+          <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-white/10 rounded-tr-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-white/10 rounded-bl-3xl pointer-events-none"></div>
 
-            <TabsContent value="elements" className="p-4 space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Add Elements</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="h-20 flex-col gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-cyan/10 hover:border-cyber-cyan/30 hover:text-cyber-cyan transition-all duration-300"
-                    onClick={addTextElement}
-                  >
-                    <Type className="h-5 w-5" />
-                    <span className="text-xs">Text</span>
-                  </Button>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+            <h3 className="text-base font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+              Design Tools
+            </h3>
+          </div>
 
-                  <ShapeSelector onSelectShape={addShapeElement} />
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={addTextElement}
+              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
+            >
+              <Type className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Text</span>
+            </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="h-20 flex-col gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-cyan/10 hover:border-cyber-cyan/30 hover:text-cyber-cyan transition-all duration-300"
-                      >
-                        <ImageIcon className="h-5 w-5" />
-                        <span className="text-xs">Image</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="backdrop-blur-xl bg-popover/80 border-border/10">
-                      <DropdownMenuItem
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-foreground hover:bg-accent/10"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Image
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setShowImageUploader(true)}
-                        className="text-foreground hover:bg-accent/10"
-                      >
-                        <UploadCloud className="h-4 w-4 mr-2" />
-                        Advanced Upload
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setShowImageLibrary(true)}
-                        className="text-foreground hover:bg-accent/10"
-                      >
-                        <LayoutGrid className="h-4 w-4 mr-2" />
-                        Image Library
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="h-20 flex-col gap-1 backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-cyan/10 hover:border-cyber-cyan/30 hover:text-cyber-cyan transition-all duration-300"
-                      >
-                        <Video className="h-5 w-5" />
-                        <span className="text-xs">Media</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="backdrop-blur-xl bg-popover/80 border-border/10">
-                      <DropdownMenuItem
-                        onClick={() => videoInputRef.current?.click()}
-                        className="text-foreground hover:bg-accent/10"
-                      >
-                        <Video className="h-4 w-4 mr-2" />
-                        Add Video
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => audioInputRef.current?.click()}
-                        className="text-foreground hover:bg-accent/10"
-                      >
-                        <Film className="h-4 w-4 mr-2" />
-                        Add Audio
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Slide Background</h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
-                  variant="outline"
-                  className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-purple/10 hover:border-cyber-purple/30 hover:text-cyber-purple transition-all duration-300"
-                  onClick={() => setShowBackgroundPanel(!showBackgroundPanel)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
                 >
-                  <Square className="h-4 w-4 mr-2" />
-                  Edit Background
+                  <Square className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Shapes</span>
                 </Button>
-              </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-[400px] rounded-2xl p-4 shadow-2xl">
+                <ShapeSelector onSelectShape={addShapeElement} />
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              {showBackgroundPanel && (
-                <div className="mt-4 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-purple/20 shadow-lg shadow-cyber-purple/5">
-                  <BackgroundEditor
-                    background={slides[currentSlideIndex].background}
-                    onUpdateBackground={updateBackground}
-                  />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Typography</h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
-                  variant="outline"
-                  className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-yellow/10 hover:border-cyber-yellow/30 hover:text-cyber-yellow transition-all duration-300"
-                  onClick={() => fontInputRef.current?.click()}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:bg-green-500/20 hover:text-green-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group"
                 >
-                  <FileType className="h-4 w-4 mr-2" />
-                  Upload Custom Font
+                  <ImageIcon className="h-5 w-5 text-green-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Image</span>
                 </Button>
-              </div>
-            </TabsContent>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-2 shadow-2xl">
+                <DropdownMenuItem
+                  onClick={() => setShowImageLibrary(true)}
+                  className="hover:bg-white/10 focus:bg-white/10 cursor-pointer rounded-xl px-4 py-3 transition-colors duration-200"
+                  role="button"
+                  onKeyDown={(e) => e.key === "Enter" && setShowImageLibrary(true)}
+                >
+                  <ImageIcon className="h-4 w-4 mr-3 text-green-400" />
+                  <span className="font-medium">Browse Library</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowImageUploader(true)}
+                  className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
+                  <UploadCloud className="h-4 w-4 mr-3 text-blue-400" />
+                  <span className="font-medium">Advanced Upload</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                >
+                  <label className="cursor-pointer">
+                    <Upload className="h-4 w-4 mr-3 text-yellow-400" />
+                    <span className="font-medium">Quick Upload</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={addImageElement} />
+                  </label>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <TabsContent value="properties" className="p-4 space-y-4">
-              {selectedElement ? (
-                <>
-                  {/* Element Type Badge */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-cyber-cyan uppercase tracking-wider">
-                      {selectedElement.type} Element
-                    </span>
-                    <div className="flex gap-1">
+            <label>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group cursor-pointer"
+                asChild
+              >
+                <span>
+                  <Video className="h-5 w-5 text-red-400 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-xs font-medium">Video</span>
+                </span>
+              </Button>
+              <input type="file" accept="video/*" className="hidden" onChange={addVideoElement} ref={videoInputRef} />
+            </label>
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showBackgroundPanel ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+              onClick={() => {
+                setShowBackgroundPanel(!showBackgroundPanel)
+                setShowImagePanel(false)
+                setShowAnimationPanel(false)
+                setShowMediaPanel(false)
+                setShowTextEffectsPanel(false)
+                setShowImage3dEffectsPanel(false)
+                setShowImageInteractionsPanel(false)
+              }}
+            >
+              <LayoutGrid className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Background</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showAnimationPanel ? "bg-purple-500/20 text-purple-300" : ""}`}
+              onClick={() => {
+                setShowAnimationPanel(!showAnimationPanel)
+                setShowBackgroundPanel(false)
+                setShowImagePanel(false)
+                setShowMediaPanel(false)
+                setShowTextEffectsPanel(false)
+                setShowImage3dEffectsPanel(false)
+                setShowImageInteractionsPanel(false)
+              }}
+            >
+              <Sparkles className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Animations</span>
+            </Button>
+          </div>
+
+          <div className="absolute top-4 right-32 z-40 flex gap-2">
+            <WallpaperSelector onSelectWallpaper={handleWallpaperSelect} />
+          </div>
+
+          {selectedElement && (
+            <>
+              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+                <h3 className="text-base font-semibold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-400">
+                  Element Properties
+                </h3>
+              </div>
+
+              {selectedElement.type === "text" && (
+                <div className="space-y-4">
+                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <Type className="h-4 w-4 text-cyan-400" />
+                      Text Formatting
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={duplicateElement}
-                        className="h-7 w-7 text-muted-foreground hover:text-cyber-cyan hover:bg-cyber-cyan/10"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontWeight === "bold" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
                       >
-                        <Copy className="h-3.5 w-3.5" />
+                        <Bold className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={deleteElement}
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.fontStyle === "italic" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Italic className="h-4 w-4" />
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          updateElement(selectedElementId!, {
+                            textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
+                          })
+                        }
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textDecoration === "underline" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                      >
+                        <Underline className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "left" })}
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "left" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                      >
+                        <AlignLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "center" })}
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "center" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                      >
+                        <AlignCenter className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateElement(selectedElementId!, { textAlign: "right" })}
+                        className={`text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-10 rounded-xl ${selectedElement.textAlign === "right" ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                      >
+                        <AlignRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl"
+                          >
+                            <span className="flex items-center">
+                              <FileType className="h-4 w-4 mr-3 text-cyan-400" />
+                              <span className="font-medium">Font Family</span>
+                            </span>
+                            <ChevronDown className="h-4 w-4 opacity-60" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-64 rounded-2xl p-2 shadow-2xl">
+                          {allFonts.map((font) => (
+                            <DropdownMenuItem
+                              key={font.value}
+                              onClick={() => updateElement(selectedElementId!, { fontFamily: font.value })}
+                              className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                            >
+                              <span style={{ fontFamily: font.value }} className="font-medium">
+                                {font.name}
+                              </span>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator className="bg-white/10 my-2" />
+                          <DropdownMenuItem
+                            className="hover:bg-white/10 rounded-xl px-4 py-3 transition-colors duration-200"
+                            onClick={() => fontInputRef.current?.click()}
+                          >
+                            <FileType className="h-4 w-4 mr-3 text-cyan-400" />
+                            <span className="font-medium">Upload Custom Font</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-400">Font Size</span>
+                          <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            {selectedElement.fontSize}px
+                          </span>
+                        </div>
+                        <Slider
+                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-purple-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-purple-500"
+                          min={12}
+                          max={72}
+                          step={1}
+                          value={[selectedElement.fontSize]}
+                          onValueChange={([value]) => updateElement(selectedElementId!, { fontSize: value })}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {selectedElement.type === "text" && (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Font Family</label>
-                        <select
-                          className="w-full h-9 px-3 rounded-md backdrop-blur-md bg-card/5 border border-border/10 text-foreground text-sm focus:border-cyber-cyan/30 focus:ring-1 focus:ring-cyber-cyan/30 transition-all"
-                          value={selectedElement.fontFamily}
-                          onChange={(e) => updateElement(selectedElement.id, { fontFamily: e.target.value })}
-                        >
-                          {allFonts.map((font) => (
-                            <option key={font.value} value={font.value}>
-                              {font.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Font Size</label>
-                        <div className="flex items-center gap-2">
-                          <Slider
-                            value={[selectedElement.fontSize]}
-                            onValueChange={(value) => updateElement(selectedElement.id, { fontSize: value[0] })}
-                            min={8}
-                            max={120}
-                            step={1}
-                            className="flex-1"
-                          />
-                          <span className="text-sm text-foreground w-12 text-right">{selectedElement.fontSize}px</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Text Color</label>
-                        <div className="flex gap-1 flex-wrap">
-                          {COLOR_PRESETS.map((color) => (
-                            <button
-                              key={color}
-                              className={`w-6 h-6 rounded-md border-2 transition-all duration-200 hover:scale-110 ${
-                                selectedElement.color === color
-                                  ? "border-cyber-cyan shadow-lg shadow-cyber-cyan/30"
-                                  : "border-border/30"
-                              }`}
-                              style={{ backgroundColor: color }}
-                              onClick={() => updateElement(selectedElement.id, { color })}
-                            />
-                          ))}
-                          <input
-                            type="color"
-                            value={selectedElement.color || "#ffffff"}
-                            onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
-                            className="w-6 h-6 rounded-md cursor-pointer border border-border/30"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Style</label>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.fontWeight === "bold"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() =>
-                              updateElement(selectedElement.id, {
-                                fontWeight: selectedElement.fontWeight === "bold" ? "normal" : "bold",
-                              })
-                            }
-                          >
-                            <Bold className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.fontStyle === "italic"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() =>
-                              updateElement(selectedElement.id, {
-                                fontStyle: selectedElement.fontStyle === "italic" ? "normal" : "italic",
-                              })
-                            }
-                          >
-                            <Italic className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.textDecoration === "underline"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() =>
-                              updateElement(selectedElement.id, {
-                                textDecoration: selectedElement.textDecoration === "underline" ? "none" : "underline",
-                              })
-                            }
-                          >
-                            <Underline className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Alignment</label>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.textAlign === "left"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() => updateElement(selectedElement.id, { textAlign: "left" })}
-                          >
-                            <AlignLeft className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.textAlign === "center"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() => updateElement(selectedElement.id, { textAlign: "center" })}
-                          >
-                            <AlignCenter className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className={`h-8 w-8 backdrop-blur-md border-border/10 transition-all ${
-                              selectedElement.textAlign === "right"
-                                ? "bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan"
-                                : "bg-card/5 text-foreground hover:bg-card/10"
-                            }`}
-                            onClick={() => updateElement(selectedElement.id, { textAlign: "right" })}
-                          >
-                            <AlignRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Text Effects Button */}
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-purple/10 hover:border-cyber-purple/30 hover:text-cyber-purple transition-all duration-300"
-                        onClick={() => setShowTextEffectsPanel(!showTextEffectsPanel)}
-                      >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Text Effects
-                      </Button>
-
-                      {showTextEffectsPanel && (
-                        <div className="mt-2 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-purple/20 shadow-lg shadow-cyber-purple/5">
-                          <TextEffects element={selectedElement} onUpdateElement={updateElement} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {selectedElement.type === "shape" && (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Shape Color</label>
-                        <div className="flex gap-1 flex-wrap">
-                          {COLOR_PRESETS.map((color) => (
-                            <button
-                              key={color}
-                              className={`w-6 h-6 rounded-md border-2 transition-all duration-200 hover:scale-110 ${
-                                selectedElement.color === color
-                                  ? "border-cyber-cyan shadow-lg shadow-cyber-cyan/30"
-                                  : "border-border/30"
-                              }`}
-                              style={{ backgroundColor: color }}
-                              onClick={() => updateElement(selectedElement.id, { color })}
-                            />
-                          ))}
-                          <input
-                            type="color"
-                            value={selectedElement.color || "#0ea5e9"}
-                            onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
-                            className="w-6 h-6 rounded-md cursor-pointer border border-border/30"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground">Corner Radius</label>
-                        <div className="flex items-center gap-2">
-                          <Slider
-                            value={[selectedElement.cornerRadius || 0]}
-                            onValueChange={(value) => updateElement(selectedElement.id, { cornerRadius: value[0] })}
-                            min={0}
-                            max={50}
-                            step={1}
-                            className="flex-1"
-                          />
-                          <span className="text-sm text-foreground w-12 text-right">
-                            {selectedElement.cornerRadius || 0}px
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Glassmorphism Controls */}
-                      <div className="space-y-3 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-cyan/20">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-medium text-muted-foreground">Glassmorphism</label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElement.glassmorphism?.enabled || false}
-                            onChange={(e) =>
-                              updateElement(selectedElement.id, {
-                                glassmorphism: {
-                                  ...selectedElement.glassmorphism,
-                                  enabled: e.target.checked,
-                                },
-                              })
-                            }
-                            className="rounded border-border/30 bg-card/5"
-                          />
-                        </div>
-
-                        {selectedElement.glassmorphism?.enabled && (
-                          <>
-                            <div className="space-y-1">
-                              <label className="text-xs text-muted-foreground">Blur</label>
-                              <Slider
-                                value={[selectedElement.glassmorphism?.blur || 10]}
-                                onValueChange={(value) =>
-                                  updateElement(selectedElement.id, {
-                                    glassmorphism: {
-                                      ...selectedElement.glassmorphism,
-                                      blur: value[0],
-                                    },
-                                  })
-                                }
-                                min={0}
-                                max={50}
-                                step={1}
-                              />
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-xs text-muted-foreground">Opacity</label>
-                              <Slider
-                                value={[selectedElement.glassmorphism?.opacity || 20]}
-                                onValueChange={(value) =>
-                                  updateElement(selectedElement.id, {
-                                    glassmorphism: {
-                                      ...selectedElement.glassmorphism,
-                                      opacity: value[0],
-                                    },
-                                  })
-                                }
-                                min={0}
-                                max={100}
-                                step={1}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedElement.type === "image" && (
-                    <div className="space-y-4">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-cyan/10 hover:border-cyber-cyan/30 hover:text-cyber-cyan transition-all duration-300"
-                        onClick={() => setShowImagePanel(!showImagePanel)}
-                      >
-                        <ImageIcon className="h-4 w-4 mr-2" />
-                        Image Filters
-                      </Button>
-
-                      {showImagePanel && (
-                        <div className="mt-2 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-cyan/20 shadow-lg shadow-cyber-cyan/5">
-                          <ImageFilters element={selectedElement} onUpdateElement={updateElement} />
-                        </div>
-                      )}
-
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-purple/10 hover:border-cyber-purple/30 hover:text-cyber-purple transition-all duration-300"
-                        onClick={() => setShowImage3dEffectsPanel(!showImage3dEffectsPanel)}
-                      >
-                        <Cube className="h-4 w-4 mr-2" />
-                        3D Effects
-                      </Button>
-
-                      {showImage3dEffectsPanel && (
-                        <div className="mt-2 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-purple/20 shadow-lg shadow-cyber-purple/5">
-                          <Image3DEffects element={selectedElement} onUpdateElement={updateElement} />
-                        </div>
-                      )}
-
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start backdrop-blur-md bg-card/5 border-border/10 text-foreground hover:bg-cyber-pink/10 hover:border-cyber-pink/30 hover:text-cyber-pink transition-all duration-300"
-                        onClick={() => setShowImageInteractionsPanel(!showImageInteractionsPanel)}
-                      >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Interactive Features
-                      </Button>
-
-                      {showImageInteractionsPanel && (
-                        <div className="mt-2 p-3 backdrop-blur-md bg-card/5 rounded-lg border border-cyber-pink/20 shadow-lg shadow-cyber-pink/5">
-                          <ImageInteractions element={selectedElement} onUpdateElement={updateElement} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {(selectedElement.type === "video" || selectedElement.type === "audio") && (
-                    <MediaControls element={selectedElement} onUpdateElement={updateElement} />
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-8">
-                  <Square className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-                  <p className="text-sm text-muted-foreground">Select an element to edit its properties</p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="animations" className="p-4 space-y-4">
-              {selectedElement ? (
-                <AnimationControls
-                  animation={selectedElement.animation}
-                  onUpdateAnimation={updateElementAnimation}
-                  onPreview={previewElementAnimation}
-                />
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-4">Select an element to edit animations</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showTextEffectsPanel ? "bg-purple-500/20 text-purple-300" : ""}`}
+                    onClick={() => {
+                      setShowTextEffectsPanel(!showTextEffectsPanel)
+                      setShowBackgroundPanel(false)
+                      setShowImagePanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowImage3dEffectsPanel(false)
+                      setShowImageInteractionsPanel(false)
+                    }}
+                  >
+                    <Cube className="h-5 w-5 mr-3 text-purple-400" />
+                    <span className="font-medium">3D Text Effects</span>
+                  </Button>
                 </div>
               )}
 
-              <div className="border-t border-border/10 pt-4">
-                <TransitionControls
-                  transition={slides[currentSlideIndex].transition}
-                  onUpdateTransition={updateSlideTransition}
-                  onPreview={previewSlideTransition}
-                />
+              {selectedElement.type === "image" && (
+                <div className="space-y-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-green-500/20 hover:text-green-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImagePanel ? "bg-green-500/20 text-green-300" : ""}`}
+                    onClick={() => {
+                      setShowImagePanel(!showImagePanel)
+                      setShowBackgroundPanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                      setShowImage3dEffectsPanel(false)
+                      setShowImageInteractionsPanel(false)
+                    }}
+                  >
+                    <ImageIcon className="h-5 w-5 mr-3 text-green-400" />
+                    <span className="font-medium">Image Filters & Effects</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImage3dEffectsPanel ? "bg-cyan-500/20 text-cyan-300" : ""}`}
+                    onClick={() => {
+                      setShowImage3dEffectsPanel(!showImage3dEffectsPanel)
+                      setShowBackgroundPanel(false)
+                      setShowImagePanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                      setShowImageInteractionsPanel(false)
+                    }}
+                  >
+                    <Cube className="h-5 w-5 mr-3 text-cyan-400" />
+                    <span className="font-medium">3D Image Effects</span>
+                  </Button>
+
+                  {/* Image Interactions Panel Button */}
+                  <Button
+                    className={`text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImageInteractionsPanel ? "bg-pink-500/20 text-pink-300" : ""}`}
+                    onClick={() => {
+                      setShowImageInteractionsPanel(!showImageInteractionsPanel)
+                      setShowImagePanel(false)
+                      setShowImage3dEffectsPanel(false)
+                      setShowBackgroundPanel(false)
+                      setShowAnimationPanel(false)
+                      setShowMediaPanel(false)
+                      setShowTextEffectsPanel(false)
+                    }}
+                  >
+                    <Sparkles className="h-5 w-5 mr-3 text-pink-400" />
+                    <span className="font-medium">Interactive Features</span>
+                  </Button>
+
+                  {/* Image Corner Radius Control */}
+                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-green-400" />
+                      Image Properties
+                    </h4>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-400">Corner Radius</span>
+                        <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                          {selectedElement.effects?.borderRadius || 0}%
+                        </span>
+                      </div>
+                      <Slider
+                        className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-green-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-green-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-green-500 [&>span:first-child_span]:to-blue-500"
+                        min={0}
+                        max={50}
+                        step={1}
+                        value={[selectedElement.effects?.borderRadius || 0]}
+                        onValueChange={([value]) =>
+                          updateElement(selectedElementId!, {
+                            effects: {
+                              ...selectedElement.effects,
+                              borderRadius: value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Render Image Interactions Panel */}
+              {showImageInteractionsPanel && selectedElement?.type === "image" && (
+                <div className="bg-gray-800/50 border border-pink-500/30 rounded-2xl p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-gray-300">Image Interactions</h4>
+                  <ImageInteractions element={selectedElement} onUpdateElement={updateElement} />
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 mt-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={duplicateElement}
+                  className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
+                >
+                  <Copy className="h-5 w-5 mr-3 text-cyan-400" />
+                  <span className="font-medium">Duplicate Element</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={deleteElement}
+                  className="text-gray-300 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl"
+                >
+                  <Trash2 className="h-5 w-5 mr-3 text-red-400" />
+                  <span className="font-medium">Delete Element</span>
+                </Button>
               </div>
-            </TabsContent>
-          </Tabs>
+            </>
+          )}
         </div>
       </div>
-
       {/* Hidden file inputs */}
+      <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={handleImportFile} />
       <input
-        ref={fileInputRef}
         type="file"
-        accept="image/*,.json"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) {
-            if (file.type === "application/json" || file.name.endsWith(".json")) {
-              handleImportFile(e)
-            } else {
-              addImageElement(e)
-            }
-          }
-        }}
-      />
-      <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={addVideoElement} />
-      <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={addAudioElement} />
-      <input
         ref={fontInputRef}
-        type="file"
-        accept=".ttf,.otf,.woff,.woff2"
         className="hidden"
+        accept=".ttf,.otf,.woff,.woff2"
         onChange={handleFontUpload}
       />
 
-      {/* Dialogs */}
+      {/* Import error dialog */}
       <AlertDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <AlertDialogContent className="backdrop-blur-xl bg-popover/80 border-border/10">
+        <AlertDialogContent className="backdrop-blur-2xl bg-gray-950/80 border-white/10 text-gray-100 shadow-xl rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Import Error</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">{importError}</AlertDialogDescription>
+            <AlertDialogTitle>Import Error</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {importError || "There was an error importing your presentation."}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-card/5 border-border/10 text-foreground hover:bg-card/10">
+            <AlertDialogCancel className="backdrop-blur-md bg-white/10 hover:bg-white/20 text-gray-100 border-white/10">
               Close
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Keyboard shortcuts dialog */}
       <KeyboardShortcuts open={showKeyboardShortcuts} onOpenChange={setShowKeyboardShortcuts} />
 
-      <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={addImageFromLibrary} />
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onAuthSuccess={() => setShowAuthModal(false)} />
 
-      <ImageUploader
-        open={showImageUploader}
-        onOpenChange={setShowImageUploader}
-        onImagesUploaded={handleImagesUploaded}
-      />
-
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
-
+      {/* Save Presentation Dialog */}
       <SavePresentationDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
@@ -1924,32 +1922,39 @@ export function DesignEditor() {
         onSaveSuccess={handleSaveSuccess}
       />
 
+      {/* Image Library Dialog */}
+      <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={handleAddImage} />
+
+      {/* Enhanced Image Uploader Dialog */}
+      <ImageUploader
+        open={showImageUploader}
+        onOpenChange={setShowImageUploader}
+        onImagesUploaded={handleImagesUploaded}
+        maxFileSize={10}
+        maxFiles={10}
+        enableCompression={true}
+      />
+
+      {/* Presentations Manager */}
       <PresentationsManager
         open={showPresentationsManager}
         onOpenChange={setShowPresentationsManager}
         onLoadPresentation={handleLoadPresentation}
       />
-
+      {/* Share Dialog */}
       <ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
         presentationId={currentPresentationId}
         presentationTitle={presentationTitle}
       />
-
+      {/* Export Hub Dialog */}
       <ExportHub
         open={showExportHub}
         onOpenChange={setShowExportHub}
-        slides={slides}
         presentationTitle={presentationTitle}
+        slides={slides}
       />
-
-      {/* Commented out TemplateLibrary */}
-      {/* <TemplateLibrary
-        open={showTemplateLibrary}
-        onOpenChange={setShowTemplateLibrary}
-        onSelectTemplate={handleSelectTemplate}
-      /> */}
     </div>
   )
 }
