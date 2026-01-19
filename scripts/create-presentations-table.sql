@@ -15,6 +15,12 @@ CREATE INDEX IF NOT EXISTS presentations_created_at_idx ON presentations(created
 -- Enable Row Level Security
 ALTER TABLE presentations ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own presentations" ON presentations;
+DROP POLICY IF EXISTS "Users can insert their own presentations" ON presentations;
+DROP POLICY IF EXISTS "Users can update their own presentations" ON presentations;
+DROP POLICY IF EXISTS "Users can delete their own presentations" ON presentations;
+
 -- Create policies
 CREATE POLICY "Users can view their own presentations" ON presentations
   FOR SELECT USING (auth.uid() = user_id);
@@ -36,6 +42,9 @@ BEGIN
   RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS update_presentations_updated_at ON presentations;
 
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER update_presentations_updated_at 
