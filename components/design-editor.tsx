@@ -7,38 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Bold,
-  Italic,
-  Underline,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Square,
-  Type,
-  ImageIcon,
-  Plus,
-  ChevronLeft,
-  ChevronRight,
-  Trash2,
-  Copy,
-  Save,
-  Atom,
-  ChevronDown,
-  LayoutGrid,
-  Sparkles,
-  FileJson,
-  Upload,
-  Video,
-  FileType,
-  Film,
-  Cable as Cube,
-  UploadCloud,
-  User,
-  Cloud,
-  Share2,
-  Download,
-} from "lucide-react"
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +58,7 @@ import { WallpaperSelector } from "@/components/wallpaper-selector"
 // import { TemplateLibrary } from "@/components/template-library" // Removed TemplateLibrary import
 import { ImageInteractions } from "@/components/image-interactions"
 import { ExportHub } from "@/components/export-hub"
+import { GradientEditor } from "@/components/gradient-editor"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -164,6 +134,7 @@ export function DesignEditor() {
   const [wallpaper, setWallpaper] = useState<string>("/images/abstract-3d-wallpaper.jpg")
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
+  const [showGradientEditor, setShowGradientEditor] = useState(false)
 
   // Auth states
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -1377,6 +1348,38 @@ export function DesignEditor() {
               <Image3DEffects element={selectedElement} onUpdateElement={updateElement} />
             </div>
           )}
+
+          {/* Gradient Editor Panel */}
+          {showGradientEditor && (
+            <div className="mt-4 border border-pink-500/20 rounded-2xl p-4 backdrop-blur-md bg-white/5">
+              <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <Palette className="h-4 w-4 text-pink-400" />
+                Gradient Editor
+              </h4>
+              <GradientEditor
+                value={
+                  selectedElement?.type === "shape"
+                    ? selectedElement.color
+                    : typeof slides[currentSlideIndex].background === "object" &&
+                        (slides[currentSlideIndex].background as SlideBackground).type === "gradient"
+                      ? (slides[currentSlideIndex].background as SlideBackground).value
+                      : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                }
+                onChange={(gradient) => {
+                  if (selectedElement?.type === "shape" && selectedElementId) {
+                    updateElement(selectedElementId, { color: gradient })
+                  } else {
+                    updateBackground({ type: "gradient", value: gradient })
+                  }
+                }}
+              />
+              <p className="text-xs text-gray-500 mt-3">
+                {selectedElement?.type === "shape"
+                  ? "Editing shape fill gradient"
+                  : "Editing slide background gradient"}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Canvas Area */}
@@ -1555,7 +1558,7 @@ export function DesignEditor() {
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -1568,6 +1571,7 @@ export function DesignEditor() {
                 setShowTextEffectsPanel(false)
                 setShowImage3dEffectsPanel(false)
                 setShowImageInteractionsPanel(false)
+                setShowGradientEditor(false)
               }}
             >
               <LayoutGrid className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
@@ -1586,10 +1590,30 @@ export function DesignEditor() {
                 setShowTextEffectsPanel(false)
                 setShowImage3dEffectsPanel(false)
                 setShowImageInteractionsPanel(false)
+                setShowGradientEditor(false)
               }}
             >
               <Sparkles className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-xs font-medium">Animations</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showGradientEditor ? "bg-pink-500/20 text-pink-300" : ""}`}
+              onClick={() => {
+                setShowGradientEditor(!showGradientEditor)
+                setShowBackgroundPanel(false)
+                setShowImagePanel(false)
+                setShowAnimationPanel(false)
+                setShowMediaPanel(false)
+                setShowTextEffectsPanel(false)
+                setShowImage3dEffectsPanel(false)
+                setShowImageInteractionsPanel(false)
+              }}
+            >
+              <Palette className="h-5 w-5 text-pink-400 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-xs font-medium">Gradients</span>
             </Button>
           </div>
 
