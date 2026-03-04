@@ -88,6 +88,22 @@ export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps
             <h3 className="text-sm font-medium text-sky-400">General</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
+                <span className="text-gray-300">Undo</span>
+                <div className="flex gap-1">
+                  <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl</kbd>
+                  <span className="text-gray-300">+</span>
+                  <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Z</kbd>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">Redo</span>
+                <div className="flex gap-1">
+                  <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl</kbd>
+                  <span className="text-gray-300">+</span>
+                  <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Y</kbd>
+                </div>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-gray-300">Show keyboard shortcuts</span>
                 <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">?</kbd>
               </div>

@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette } from "lucide-react"
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette, Undo2, Redo2, BrainCircuit } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +59,8 @@ import { WallpaperSelector } from "@/components/wallpaper-selector"
 import { ImageInteractions } from "@/components/image-interactions"
 import { ExportHub } from "@/components/export-hub"
 import { GradientEditor } from "@/components/gradient-editor"
+import { useUndoRedo } from "@/hooks/use-undo-redo"
+import { AIContentGenerator } from "@/components/ai-content-generator"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -135,6 +137,50 @@ export function DesignEditor() {
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
   const [showGradientEditor, setShowGradientEditor] = useState(false)
+  const [showAIGenerator, setShowAIGenerator] = useState(false)
+
+  // Undo/redo history
+  const undoHistoryRef = useRef<Slide[][]>([])
+  const redoHistoryRef = useRef<Slide[][]>([])
+  const isUndoRedoRef = useRef(false)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
+
+  const pushToHistory = useCallback((prevSlides: Slide[]) => {
+    if (isUndoRedoRef.current) {
+      isUndoRedoRef.current = false
+      return
+    }
+    undoHistoryRef.current.push(JSON.parse(JSON.stringify(prevSlides)))
+    if (undoHistoryRef.current.length > 50) {
+      undoHistoryRef.current = undoHistoryRef.current.slice(-50)
+    }
+    redoHistoryRef.current = []
+    setCanUndo(true)
+    setCanRedo(false)
+  }, [])
+
+  const handleUndo = useCallback(() => {
+    if (undoHistoryRef.current.length === 0) return
+    const prev = undoHistoryRef.current.pop()!
+    redoHistoryRef.current.push(JSON.parse(JSON.stringify(slides)))
+    isUndoRedoRef.current = true
+    setSlides(prev)
+    setCanUndo(undoHistoryRef.current.length > 0)
+    setCanRedo(true)
+    toast({ title: "Undo", description: "Action undone." })
+  }, [slides])
+
+  const handleRedo = useCallback(() => {
+    if (redoHistoryRef.current.length === 0) return
+    const next = redoHistoryRef.current.pop()!
+    undoHistoryRef.current.push(JSON.parse(JSON.stringify(slides)))
+    isUndoRedoRef.current = true
+    setSlides(next)
+    setCanRedo(redoHistoryRef.current.length > 0)
+    setCanUndo(true)
+    toast({ title: "Redo", description: "Action redone." })
+  }, [slides])
 
   // Auth states
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -225,6 +271,18 @@ export function DesignEditor() {
       if (e.key === "s" && e.ctrlKey) {
         e.preventDefault()
         handleSavePresentation()
+      }
+
+      // Undo (Ctrl+Z)
+      if (e.key === "z" && e.ctrlKey && !e.shiftKey) {
+        e.preventDefault()
+        handleUndo()
+      }
+
+      // Redo (Ctrl+Y or Ctrl+Shift+Z)
+      if ((e.key === "y" && e.ctrlKey) || (e.key === "z" && e.ctrlKey && e.shiftKey)) {
+        e.preventDefault()
+        handleRedo()
       }
     }
 
@@ -346,12 +404,14 @@ export function DesignEditor() {
         depth: 150,
       },
     }
+    pushToHistory(slides)
     setSlides([...slides, newSlide])
     setCurrentSlideIndex(slides.length)
   }
 
   const addTextElement = () => {
     const currentSlide = slides[currentSlideIndex]
+    pushToHistory(slides)
     const newElement = {
       id: `text-${Date.now()}`,
       type: "text" as const,
@@ -393,6 +453,7 @@ export function DesignEditor() {
 
   const addShapeElement = (shape: string) => {
     const currentSlide = slides[currentSlideIndex]
+    pushToHistory(slides)
     const newElement = {
       id: `shape-${Date.now()}`,
       type: "shape" as const,
@@ -604,6 +665,8 @@ export function DesignEditor() {
 
     if (elementIndex === -1) return
 
+    pushToHistory(slides)
+
     const updatedElements = [...currentSlide.elements]
     updatedElements[elementIndex] = {
       ...updatedElements[elementIndex],
@@ -658,6 +721,8 @@ export function DesignEditor() {
   const updateBackground = (background: SlideBackground) => {
     const currentSlide = slides[currentSlideIndex]
 
+    pushToHistory(slides)
+
     const updatedSlides = [...slides]
     updatedSlides[currentSlideIndex] = {
       ...currentSlide,
@@ -669,6 +734,8 @@ export function DesignEditor() {
 
   const deleteElement = () => {
     if (!selectedElementId) return
+
+    pushToHistory(slides)
 
     const currentSlide = slides[currentSlideIndex]
     const updatedElements = currentSlide.elements.filter((el) => el.id !== selectedElementId)
@@ -685,6 +752,8 @@ export function DesignEditor() {
 
   const duplicateElement = () => {
     if (!selectedElementId) return
+
+    pushToHistory(slides)
 
     const currentSlide = slides[currentSlideIndex]
     const elementToDuplicate = currentSlide.elements.find((el) => el.id === selectedElementId)
@@ -1067,7 +1136,40 @@ export function DesignEditor() {
           />
         </div>
         <div className="relative z-10 flex items-center gap-3">
+          {/* Undo/Redo buttons */}
+          <div className="flex items-center gap-1 px-2 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-8 w-8 p-0 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={handleUndo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 h-8 w-8 p-0 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={handleRedo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 className="h-4 w-4" />
+            </Button>
+          </div>
+
           <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowAIGenerator(true)}
+            >
+              <BrainCircuit className="h-4 w-4 mr-2 text-purple-400" />
+              AI Generate
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -1978,6 +2080,43 @@ export function DesignEditor() {
         onOpenChange={setShowExportHub}
         presentationTitle={presentationTitle}
         slides={slides}
+      />
+      {/* AI Content Generator */}
+      <AIContentGenerator
+        open={showAIGenerator}
+        onOpenChange={setShowAIGenerator}
+        selectedText={
+          selectedElementId
+            ? (slides[currentSlideIndex]?.elements.find(
+                (el) => el.id === selectedElementId && el.type === "text"
+              ) as { content?: string } | undefined)?.content
+            : undefined
+        }
+        onGenerateSlideContent={(elements) => {
+          pushToHistory(slides)
+          const currentSlide = slides[currentSlideIndex]
+          const updatedSlides = [...slides]
+          updatedSlides[currentSlideIndex] = {
+            ...currentSlide,
+            elements: [
+              ...currentSlide.elements,
+              ...(elements as SlideElement[]),
+            ],
+          }
+          setSlides(updatedSlides)
+        }}
+        onGeneratePresentation={(newSlides) => {
+          pushToHistory(slides)
+          setSlides([...slides, ...newSlides])
+          setCurrentSlideIndex(slides.length)
+          setSelectedElementId(null)
+        }}
+        onRewriteText={(newText) => {
+          if (selectedElementId) {
+            pushToHistory(slides)
+            updateElement(selectedElementId, { content: newText })
+          }
+        }}
       />
     </div>
   )
