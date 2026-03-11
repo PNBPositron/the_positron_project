@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette, Undo2, Redo2, BrainCircuit } from "lucide-react"
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette, Undo2, Redo2, Search } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,7 +60,7 @@ import { ImageInteractions } from "@/components/image-interactions"
 import { ExportHub } from "@/components/export-hub"
 import { GradientEditor } from "@/components/gradient-editor"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
-import { AIContentGenerator } from "@/components/ai-content-generator"
+import { UnsplashImageSearch } from "@/components/unsplash-image-search"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -137,7 +137,7 @@ export function DesignEditor() {
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
   const [showGradientEditor, setShowGradientEditor] = useState(false)
-  const [showAIGenerator, setShowAIGenerator] = useState(false)
+  const [showUnsplashSearch, setShowUnsplashSearch] = useState(false)
 
   // Undo/redo history
   const undoHistoryRef = useRef<Slide[][]>([])
@@ -1164,11 +1164,11 @@ export function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowAIGenerator(true)}
+              className="text-gray-300 hover:bg-teal-500/20 hover:text-teal-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowUnsplashSearch(true)}
             >
-              <BrainCircuit className="h-4 w-4 mr-2 text-purple-400" />
-              AI Generate
+              <Search className="h-4 w-4 mr-2 text-teal-400" />
+              Unsplash
             </Button>
             <Button
               variant="ghost"
@@ -2081,41 +2081,41 @@ export function DesignEditor() {
         presentationTitle={presentationTitle}
         slides={slides}
       />
-      {/* AI Content Generator */}
-      <AIContentGenerator
-        open={showAIGenerator}
-        onOpenChange={setShowAIGenerator}
-        selectedText={
-          selectedElementId
-            ? (slides[currentSlideIndex]?.elements.find(
-                (el) => el.id === selectedElementId && el.type === "text"
-              ) as { content?: string } | undefined)?.content
-            : undefined
-        }
-        onGenerateSlideContent={(elements) => {
+      {/* Unsplash Image Search */}
+      <UnsplashImageSearch
+        open={showUnsplashSearch}
+        onOpenChange={setShowUnsplashSearch}
+        onSelectImage={(imageUrl, photographer) => {
           pushToHistory(slides)
           const currentSlide = slides[currentSlideIndex]
+          const newElement = {
+            id: `element-${Date.now()}`,
+            type: "image" as const,
+            content: imageUrl,
+            x: 100,
+            y: 100,
+            width: 400,
+            height: 300,
+            rotation: 0,
+            opacity: 1,
+            zIndex: currentSlide.elements.length + 1,
+            filters: {
+              brightness: 100,
+              contrast: 100,
+              saturation: 100,
+              blur: 0,
+              grayscale: 0,
+              sepia: 0,
+              hueRotate: 0,
+            },
+          }
           const updatedSlides = [...slides]
           updatedSlides[currentSlideIndex] = {
             ...currentSlide,
-            elements: [
-              ...currentSlide.elements,
-              ...(elements as SlideElement[]),
-            ],
+            elements: [...currentSlide.elements, newElement],
           }
           setSlides(updatedSlides)
-        }}
-        onGeneratePresentation={(newSlides) => {
-          pushToHistory(slides)
-          setSlides([...slides, ...newSlides])
-          setCurrentSlideIndex(slides.length)
-          setSelectedElementId(null)
-        }}
-        onRewriteText={(newText) => {
-          if (selectedElementId) {
-            pushToHistory(slides)
-            updateElement(selectedElementId, { content: newText })
-          }
+          setSelectedElementId(newElement.id)
         }}
       />
     </div>
