@@ -19,7 +19,7 @@ import {
   ExternalLink,
   Download,
   Sparkles,
-  Landscape,
+  RectangleHorizontal,
   Square,
   RectangleVertical,
 } from "lucide-react"
@@ -235,7 +235,7 @@ export function UnsplashImageSearch({
                     : "text-gray-400 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <Landscape className="h-4 w-4 mr-1" />
+                <RectangleHorizontal className="h-4 w-4 mr-1" />
                 Landscape
               </Button>
               <Button
