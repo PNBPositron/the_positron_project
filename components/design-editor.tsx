@@ -60,7 +60,8 @@ import { ImageInteractions } from "@/components/image-interactions"
 import { ExportHub } from "@/components/export-hub"
 import { GradientEditor } from "@/components/gradient-editor"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
-import { UnsplashImageSearch } from "@/components/unsplash-image-search"
+import { SmartTemplates } from "@/components/smart-templates"
+import { AnalyticsDashboard } from "@/components/analytics-dashboard"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -136,8 +137,10 @@ export function DesignEditor() {
   const [wallpaper, setWallpaper] = useState<string>("/images/abstract-3d-wallpaper.jpg")
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
+  const [showSmartTemplates, setShowSmartTemplates] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
   const [showGradientEditor, setShowGradientEditor] = useState(false)
-  const [showUnsplashSearch, setShowUnsplashSearch] = useState(false)
+  
 
   // Undo/redo history
   const undoHistoryRef = useRef<Slide[][]>([])
@@ -1164,11 +1167,11 @@ export function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-teal-500/20 hover:text-teal-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowUnsplashSearch(true)}
+              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowSmartTemplates(true)}
             >
-              <Search className="h-4 w-4 mr-2 text-teal-400" />
-              Unsplash
+              <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
+              Templates
             </Button>
             <Button
               variant="ghost"
@@ -2081,41 +2084,15 @@ export function DesignEditor() {
         presentationTitle={presentationTitle}
         slides={slides}
       />
-      {/* Unsplash Image Search */}
-      <UnsplashImageSearch
-        open={showUnsplashSearch}
-        onOpenChange={setShowUnsplashSearch}
-        onSelectImage={(imageUrl, photographer) => {
+      {/* Smart Templates */}
+      <SmartTemplates
+        open={showSmartTemplates}
+        onOpenChange={setShowSmartTemplates}
+        onSelectTemplate={(template) => {
           pushToHistory(slides)
-          const currentSlide = slides[currentSlideIndex]
-          const newElement = {
-            id: `element-${Date.now()}`,
-            type: "image" as const,
-            content: imageUrl,
-            x: 100,
-            y: 100,
-            width: 400,
-            height: 300,
-            rotation: 0,
-            opacity: 1,
-            zIndex: currentSlide.elements.length + 1,
-            filters: {
-              brightness: 100,
-              contrast: 100,
-              saturation: 100,
-              blur: 0,
-              grayscale: 0,
-              sepia: 0,
-              hueRotate: 0,
-            },
-          }
-          const updatedSlides = [...slides]
-          updatedSlides[currentSlideIndex] = {
-            ...currentSlide,
-            elements: [...currentSlide.elements, newElement],
-          }
-          setSlides(updatedSlides)
-          setSelectedElementId(newElement.id)
+          setSlides(template.slides)
+          setCurrentSlideIndex(0)
+          setSelectedElementId(null)
         }}
       />
     </div>
