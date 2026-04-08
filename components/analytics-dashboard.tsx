@@ -78,12 +78,13 @@ interface AnalyticsDashboardProps {
 }
 
 // Generate mock analytics data for demo purposes
-function generateMockAnalytics(slides: Slide[]): AnalyticsData {
+function generateMockAnalytics(slides: Slide[] = []): AnalyticsData {
   const totalViews = Math.floor(Math.random() * 2000) + 500
   const uniqueViewers = Math.floor(totalViews * (0.6 + Math.random() * 0.3))
   const avgTimeSpent = Math.floor(Math.random() * 180) + 60
   
-  const slideMetrics: SlideMetric[] = slides.map((slide, index) => ({
+  const safeSlides = slides || []
+  const slideMetrics: SlideMetric[] = safeSlides.map((slide, index) => ({
     slideId: slide.id,
     slideIndex: index,
     views: Math.floor(totalViews * (1 - index * 0.05)),
