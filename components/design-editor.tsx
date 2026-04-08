@@ -62,6 +62,7 @@ import { GradientEditor } from "@/components/gradient-editor"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
 import { SmartTemplates } from "@/components/smart-templates"
 import { AnalyticsDashboard } from "@/components/analytics-dashboard"
+import { SlideEffects, type SlideEffect } from "@/components/slide-effects"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -139,6 +140,7 @@ export function DesignEditor() {
   const [showExportHub, setShowExportHub] = useState(false)
   const [showSmartTemplates, setShowSmartTemplates] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showSlideEffects, setShowSlideEffects] = useState(false)
   const [showGradientEditor, setShowGradientEditor] = useState(false)
   
 
@@ -1197,10 +1199,19 @@ export function DesignEditor() {
               className="text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all duration-300 h-8 px-3 rounded-lg"
               onClick={() => setShowAnalytics(true)}
             >
-              <LayoutGrid className="h-4 w-4 mr-2 text-emerald-400" />
-              Analytics
+<LayoutGrid className="h-4 w-4 mr-2 text-emerald-400" />
+  Analytics
+  </Button>
+  <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowSlideEffects(true)}
+            >
+              <Sparkles className="h-4 w-4 mr-2 text-pink-400" />
+              Effects
             </Button>
-          </div>
+  </div>
 
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
             <Button
@@ -2104,13 +2115,28 @@ export function DesignEditor() {
           setSelectedElementId(null)
         }}
       />
-      {/* Analytics Dashboard */}
+{/* Analytics Dashboard */}
       <AnalyticsDashboard
         open={showAnalytics}
         onOpenChange={setShowAnalytics}
         slides={slides}
         presentationId={currentPresentationId || "demo"}
         presentationTitle={presentationTitle}
+      />
+      {/* Slide Effects */}
+      <SlideEffects
+        open={showSlideEffects}
+        onOpenChange={setShowSlideEffects}
+        currentSlide={slides[currentSlideIndex]}
+        onApplyEffects={(effects: SlideEffect[]) => {
+          pushToHistory(slides)
+          const updatedSlides = [...slides]
+          updatedSlides[currentSlideIndex] = {
+            ...updatedSlides[currentSlideIndex],
+            effects,
+          } as any
+          setSlides(updatedSlides)
+        }}
       />
     </div>
   )

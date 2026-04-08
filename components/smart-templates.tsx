@@ -1755,34 +1755,58 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl h-[85vh] bg-gray-900/95 border-gray-800 text-gray-100 p-0 overflow-hidden backdrop-blur-xl">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-gray-800/50">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-                <Wand2 className="h-6 w-6 text-purple-400" />
-                Smart Templates
-              </DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Choose from trending designs or generate a custom template
-              </DialogDescription>
-            </DialogHeader>
-          </div>
+      <DialogContent className="max-w-7xl h-[92vh] p-0 overflow-hidden border-0 bg-transparent">
+        {/* Liquid Glass Container */}
+        <div className="relative h-full w-full rounded-3xl overflow-hidden">
+          {/* Glass Background Layers */}
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/85 via-gray-900/92 to-black/98" />
+          <div className="absolute inset-0 backdrop-blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/15 via-transparent to-cyan-500/15" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-pink-500/10 via-transparent to-blue-500/10" />
+          
+          {/* Animated Gradient Orbs */}
+          <div className="absolute -top-32 -left-32 w-72 h-72 bg-purple-500/25 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-cyan-500/25 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1.5s" }} />
+          <div className="absolute top-1/3 right-1/4 w-56 h-56 bg-pink-500/15 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: "0.7s" }} />
+          <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-indigo-500/15 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: "2.2s" }} />
+
+          {/* Glass Border with Glow */}
+          <div className="absolute inset-0 rounded-3xl border border-white/15 shadow-2xl shadow-purple-500/10" />
+          <div className="absolute inset-[1px] rounded-3xl border border-white/5" />
+          
+          {/* Inner Reflection */}
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white/5 to-transparent rounded-t-3xl" />
+
+          {/* Content */}
+          <div className="relative h-full flex flex-col z-10">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-purple-300 via-pink-300 to-cyan-300 bg-clip-text text-transparent flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-white/10 shadow-lg shadow-purple-500/20">
+                <Wand2 className="h-7 w-7 text-purple-300" />
+              </div>
+              Smart Templates
+            </DialogTitle>
+            <DialogDescription className="text-gray-400 text-base mt-2">
+              Choose from trending designs or generate a custom template
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-6 pt-4">
-              <TabsList className="bg-gray-800/50 border border-gray-700/50">
-                <TabsTrigger value="gallery" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+            <div className="px-8 pt-4">
+              <TabsList className="bg-white/5 border border-white/10 p-1.5 rounded-2xl shadow-inner shadow-black/20">
+                <TabsTrigger value="gallery" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/25 data-[state=active]:to-pink-500/25 data-[state=active]:text-purple-200 data-[state=active]:shadow-lg rounded-xl px-6 py-2.5 transition-all">
                   <Layout className="h-4 w-4 mr-2" />
                   Gallery
                 </TabsTrigger>
-                <TabsTrigger value="trending" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+                <TabsTrigger value="trending" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/25 data-[state=active]:to-pink-500/25 data-[state=active]:text-purple-200 data-[state=active]:shadow-lg rounded-xl px-6 py-2.5 transition-all">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Trending
                 </TabsTrigger>
-                <TabsTrigger value="generator" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+                <TabsTrigger value="generator" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/25 data-[state=active]:to-pink-500/25 data-[state=active]:text-purple-200 data-[state=active]:shadow-lg rounded-xl px-6 py-2.5 transition-all">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generator
                 </TabsTrigger>
@@ -1790,7 +1814,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </div>
 
             {/* Gallery Tab */}
-            <TabsContent value="gallery" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
+            <TabsContent value="gallery" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
               {/* Search and Filter */}
               <div className="flex gap-4 mb-4">
                 <div className="relative flex-1">
@@ -1911,7 +1935,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </TabsContent>
 
             {/* Trending Tab */}
-            <TabsContent value="trending" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
+            <TabsContent value="trending" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
               <ScrollArea className="h-full pr-1 [&>[data-radix-scroll-area-viewport]]:!overflow-y-scroll [&_[data-radix-scroll-area-scrollbar]]:!flex [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-scrollbar]]:!bg-gray-800/50 [&_[data-radix-scroll-area-thumb]]:!bg-purple-500/50 [&_[data-radix-scroll-area-thumb]]:hover:!bg-purple-500/70 [&_[data-radix-scroll-area-thumb]]:!rounded-full">
                 {/* Trending Section */}
                 <div className="mb-8">
@@ -2024,7 +2048,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </TabsContent>
 
             {/* Generator Tab */}
-            <TabsContent value="generator" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
+            <TabsContent value="generator" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
               <ScrollArea className="h-full pr-1 [&>[data-radix-scroll-area-viewport]]:!overflow-y-scroll [&_[data-radix-scroll-area-scrollbar]]:!flex [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-scrollbar]]:!bg-gray-800/50 [&_[data-radix-scroll-area-thumb]]:!bg-purple-500/50 [&_[data-radix-scroll-area-thumb]]:hover:!bg-purple-500/70 [&_[data-radix-scroll-area-thumb]]:!rounded-full">
                 <div className="space-y-6">
                   {/* Topic Input */}
@@ -2149,6 +2173,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
               </ScrollArea>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
