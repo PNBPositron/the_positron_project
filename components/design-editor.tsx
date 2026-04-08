@@ -1191,6 +1191,15 @@ export function DesignEditor() {
               <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
               Image
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowAnalytics(true)}
+            >
+              <LayoutGrid className="h-4 w-4 mr-2 text-emerald-400" />
+              Analytics
+            </Button>
           </div>
 
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
@@ -2094,6 +2103,14 @@ export function DesignEditor() {
           setCurrentSlideIndex(0)
           setSelectedElementId(null)
         }}
+      />
+      {/* Analytics Dashboard */}
+      <AnalyticsDashboard
+        open={showAnalytics}
+        onOpenChange={setShowAnalytics}
+        presentationId={presentationId || "demo"}
+        presentationTitle={presentationTitle}
+        totalSlides={slides.length}
       />
     </div>
   )
