@@ -2108,7 +2108,7 @@ export function DesignEditor() {
       <AnalyticsDashboard
         open={showAnalytics}
         onOpenChange={setShowAnalytics}
-        presentationId={presentationId || "demo"}
+        presentationId={currentPresentationId || "demo"}
         presentationTitle={presentationTitle}
         totalSlides={slides.length}
       />
