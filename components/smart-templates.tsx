@@ -1774,13 +1774,6 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </DialogDescription>
           </DialogHeader>
         </div>
-              Smart Templates
-            </DialogTitle>
-            <DialogDescription className="text-gray-400 text-base mt-2">
-              Choose from trending designs or generate a custom template
-            </DialogDescription>
-          </DialogHeader>
-        </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
