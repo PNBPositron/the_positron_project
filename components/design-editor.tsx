@@ -61,8 +61,8 @@ import { ExportHub } from "@/components/export-hub"
 import { GradientEditor } from "@/components/gradient-editor"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
 import { SmartTemplates } from "@/components/smart-templates"
-import { AnalyticsDashboard } from "@/components/analytics-dashboard"
 import { SlideEffects, type SlideEffect } from "@/components/slide-effects"
+import { AdvancedShapesEditor } from "@/components/advanced-shapes-editor"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -139,8 +139,8 @@ export function DesignEditor() {
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
   const [showSmartTemplates, setShowSmartTemplates] = useState(false)
-  const [showAnalytics, setShowAnalytics] = useState(false)
   const [showSlideEffects, setShowSlideEffects] = useState(false)
+  const [showAdvancedShapesEditor, setShowAdvancedShapesEditor] = useState(false)
   const [showGradientEditor, setShowGradientEditor] = useState(false)
   
 
@@ -1196,15 +1196,6 @@ export function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowAnalytics(true)}
-            >
-<LayoutGrid className="h-4 w-4 mr-2 text-emerald-400" />
-  Analytics
-  </Button>
-  <Button
-              variant="ghost"
-              size="sm"
               className="text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 h-8 px-3 rounded-lg"
               onClick={() => setShowSlideEffects(true)}
             >
@@ -1620,7 +1611,10 @@ export function DesignEditor() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-[400px] rounded-2xl p-4 shadow-2xl">
-                <ShapeSelector onSelectShape={addShapeElement} />
+                <ShapeSelector 
+                  onSelectShape={addShapeElement}
+                  onOpenAdvancedEditor={() => setShowAdvancedShapesEditor(true)}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -2115,14 +2109,6 @@ export function DesignEditor() {
           setSelectedElementId(null)
         }}
       />
-{/* Analytics Dashboard */}
-      <AnalyticsDashboard
-        open={showAnalytics}
-        onOpenChange={setShowAnalytics}
-        slides={slides}
-        presentationId={currentPresentationId || "demo"}
-        presentationTitle={presentationTitle}
-      />
       {/* Slide Effects */}
       <SlideEffects
         open={showSlideEffects}
@@ -2136,6 +2122,25 @@ export function DesignEditor() {
             effects,
           } as any
           setSlides(updatedSlides)
+        }}
+      />
+      {/* Advanced Shapes Editor */}
+      <AdvancedShapesEditor
+        open={showAdvancedShapesEditor}
+        onOpenChange={setShowAdvancedShapesEditor}
+        selectedShape={selectedElementId ? (slides[currentSlideIndex]?.elements.find((el) => el.id === selectedElementId) as any) : null}
+        onUpdateShape={(shape: any) => {
+          if (selectedElementId) {
+            pushToHistory(slides)
+            updateElement(selectedElementId, shape)
+          }
+        }}
+        onDeleteShape={() => {
+          if (selectedElementId) {
+            pushToHistory(slides)
+            deleteElement(selectedElementId)
+            setSelectedElementId(null)
+          }
         }}
       />
     </div>

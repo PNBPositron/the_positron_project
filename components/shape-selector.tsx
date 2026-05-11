@@ -13,14 +13,16 @@ import {
   MessageSquare,
   Frame,
   ImageIcon,
+  Sliders,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ShapeSelectorProps {
   onSelectShape: (shape: string) => void
+  onOpenAdvancedEditor?: () => void
 }
 
-export function ShapeSelector({ onSelectShape }: ShapeSelectorProps) {
+export function ShapeSelector({ onSelectShape, onOpenAdvancedEditor }: ShapeSelectorProps) {
   const basicShapes = [
     { name: "square", icon: <Square className="h-5 w-5" />, label: "Square" },
     { name: "circle", icon: <Circle className="h-5 w-5" />, label: "Circle" },
@@ -32,6 +34,8 @@ export function ShapeSelector({ onSelectShape }: ShapeSelectorProps) {
     { name: "diamond", icon: <Diamond className="h-5 w-5" />, label: "Diamond" },
     { name: "rounded-rect", icon: <Square className="h-5 w-5 rounded-md" />, label: "Rounded" },
     { name: "speech-bubble", icon: <MessageSquare className="h-5 w-5" />, label: "Speech" },
+    { name: "cross", icon: <ArrowRight className="h-5 w-5 rotate-45" />, label: "Cross" },
+    { name: "octagon", icon: <Star className="h-5 w-5" />, label: "Octagon" },
   ]
 
   const frameShapes = [
@@ -45,6 +49,17 @@ export function ShapeSelector({ onSelectShape }: ShapeSelectorProps) {
 
   return (
     <div className="p-3 bg-gray-800 rounded-md border border-gray-700">
+      {/* Advanced Editor Button */}
+      {onOpenAdvancedEditor && (
+        <Button
+          onClick={onOpenAdvancedEditor}
+          className="w-full mb-3 bg-purple-600 hover:bg-purple-700 h-9 flex items-center justify-center gap-2"
+        >
+          <Sliders className="h-4 w-4" />
+          Advanced Shape Editor
+        </Button>
+      )}
+
       <Tabs defaultValue="shapes">
         <TabsList className="grid grid-cols-2 mb-3 bg-gray-900">
           <TabsTrigger value="shapes" className="text-sm">
