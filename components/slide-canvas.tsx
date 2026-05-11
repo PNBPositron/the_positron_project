@@ -15,6 +15,7 @@ import {
 import { getTextEffectStyle } from "./text-effects"
 import { getImage3DEffectStyle } from "./image-3d-effects"
 import { getInteractionStyle, handleImageClick, getInteractionClasses } from "@/components/image-interaction-utils"
+import { CANVAS_CONFIG, constrainElementToBounds } from "@/lib/canvas-constants"
 
 interface SlideCanvasProps {
   slide: Slide
@@ -220,11 +221,22 @@ export default function SlideCanvas({
           // Check if center is close to guide
           else if (Math.abs(y + selectedElement.height / 2 - guide.position) < 5) {
             y = guide.position - selectedElement.height / 2
-          }
         }
+      }
+
+      // Constrain to canvas bounds
+      const constrained = constrainElementToBounds(newX, newY, newWidth, newHeight)
+
+      onUpdateElement(selectedElementId, {
+        width: constrained.width,
+        height: constrained.height,
+        x: constrained.x,
+        y: constrained.y,
       })
 
-      onUpdateElement(selectedElementId, { x, y })
+      // Constrain to canvas bounds
+      const constrained = constrainElementToBounds(x, y, selectedElement.width, selectedElement.height)
+      onUpdateElement(selectedElementId, { x: constrained.x, y: constrained.y })
     }
 
     if (resizing && resizeDirection) {
@@ -431,11 +443,13 @@ export default function SlideCanvas({
         height: `${562.5 * (zoomLevel / 100)}px`,
       }}
     >
-      <div
-        ref={canvasRef}
-        className="w-[1000px] h-[562.5px] shadow-2xl shadow-blue-500/10 relative overflow-hidden origin-top-left"
-        style={{
-          ...getBackgroundStyles(),
+  <div
+  ref={canvasRef}
+  className={`shadow-2xl shadow-purple-500/20 relative overflow-hidden origin-top-left`}
+  style={{
+    width: `${CANVAS_CONFIG.WIDTH}px`,
+    height: `${CANVAS_CONFIG.HEIGHT}px`,
+    ...getBackgroundStyles(),
           transform: `scale(${zoomLevel / 100})`,
           transformOrigin: "top left",
           marginLeft: "20px",
