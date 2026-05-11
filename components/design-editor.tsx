@@ -135,7 +135,7 @@ export function DesignEditor() {
   const [showImageLibrary, setShowImageLibrary] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
-  const [wallpaper, setWallpaper] = useState<string>("/images/abstract-3d-wallpaper.jpg")
+  const [wallpaper, setWallpaper] = useState<string>("linear-gradient(135deg, #0f172a 0%, #1e293b 100%)")
   const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
   const [showExportHub, setShowExportHub] = useState(false)
   const [showSmartTemplates, setShowSmartTemplates] = useState(false)

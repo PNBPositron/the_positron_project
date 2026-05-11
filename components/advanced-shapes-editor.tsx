@@ -62,9 +62,9 @@ interface ShapeProperties {
 interface AdvancedShapesEditorProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  selectedShape: ShapeProperties | null
-  onUpdateShape: (shape: ShapeProperties) => void
-  onDeleteShape: () => void
+  selectedShape?: ShapeProperties | null
+  onUpdateShape?: (shape: any) => void
+  onDeleteShape?: () => void
 }
 
 const SHAPE_PRESETS: Record<string, Partial<ShapeProperties>> = {
@@ -135,14 +135,14 @@ export function AdvancedShapesEditor({
     if (!shape) return
     const updated = { ...shape, ...updates }
     setShape(updated)
-    onUpdateShape(updated)
+    if (onUpdateShape) onUpdateShape(updated)
   }
 
   const applyPreset = (preset: Partial<ShapeProperties>) => {
     if (!shape) return
     const updated = { ...shape, ...preset }
     setShape(updated)
-    onUpdateShape(updated)
+    if (onUpdateShape) onUpdateShape(updated)
   }
 
   if (!shape) return null
@@ -486,7 +486,8 @@ export function AdvancedShapesEditor({
           <Button
             variant="outline"
             className="flex-1 border-gray-700 hover:bg-gray-800"
-            onClick={() => onDeleteShape()}
+            onClick={() => onDeleteShape?.()}
+            disabled={!onDeleteShape}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Delete Shape

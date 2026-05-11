@@ -46,7 +46,7 @@ export interface SlideEffect {
 interface SlideEffectsProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  currentSlide: Slide
+  currentSlide?: Slide
   onApplyEffects: (effects: SlideEffect[]) => void
 }
 
