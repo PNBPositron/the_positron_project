@@ -14,11 +14,6 @@ import {
   Frame,
   ImageIcon,
   Sliders,
-  Heart,
-  Cloud,
-  Sparkles,
-  Zap,
-  Leaf,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -41,14 +36,6 @@ export function ShapeSelector({ onSelectShape, onOpenAdvancedEditor }: ShapeSele
     { name: "speech-bubble", icon: <MessageSquare className="h-5 w-5" />, label: "Speech" },
     { name: "cross", icon: <ArrowRight className="h-5 w-5 rotate-45" />, label: "Cross" },
     { name: "octagon", icon: <Star className="h-5 w-5" />, label: "Octagon" },
-  ]
-
-  const specialShapes = [
-    { name: "heart", icon: <Heart className="h-5 w-5" />, label: "Heart" },
-    { name: "cloud", icon: <Cloud className="h-5 w-5" />, label: "Cloud" },
-    { name: "leaf", icon: <Leaf className="h-5 w-5" />, label: "Leaf" },
-    { name: "sparkle", icon: <Sparkles className="h-5 w-5" />, label: "Sparkle" },
-    { name: "lightning", icon: <Zap className="h-5 w-5" />, label: "Lightning" },
   ]
 
   const frameShapes = [
@@ -74,15 +61,12 @@ export function ShapeSelector({ onSelectShape, onOpenAdvancedEditor }: ShapeSele
       )}
 
       <Tabs defaultValue="shapes">
-        <TabsList className="grid grid-cols-3 mb-3 bg-gray-900 w-full">
+        <TabsList className="grid grid-cols-2 mb-3 bg-gray-900">
           <TabsTrigger value="shapes" className="text-sm">
-            Basic
-          </TabsTrigger>
-          <TabsTrigger value="special" className="text-sm">
-            Special
+            Basic Shapes
           </TabsTrigger>
           <TabsTrigger value="frames" className="text-sm">
-            Frames
+            Image Frames
           </TabsTrigger>
         </TabsList>
 
@@ -93,29 +77,10 @@ export function ShapeSelector({ onSelectShape, onOpenAdvancedEditor }: ShapeSele
                 key={shape.name}
                 variant="ghost"
                 size="sm"
-                className="flex flex-col items-center justify-center h-16 p-1 text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-colors rounded-lg"
+                className="flex flex-col items-center justify-center h-16 p-1 text-gray-300 hover:bg-gray-700 hover:text-gray-100"
                 onClick={() => onSelectShape(shape.name)}
-                title={shape.label}
               >
                 <div className="text-sky-400 mb-1">{shape.icon}</div>
-                <span className="text-xs">{shape.label}</span>
-              </Button>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="special">
-          <div className="grid grid-cols-5 gap-2">
-            {specialShapes.map((shape) => (
-              <Button
-                key={shape.name}
-                variant="ghost"
-                size="sm"
-                className="flex flex-col items-center justify-center h-16 p-1 text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-colors rounded-lg"
-                onClick={() => onSelectShape(shape.name)}
-                title={shape.label}
-              >
-                <div className="text-pink-400 mb-1">{shape.icon}</div>
                 <span className="text-xs">{shape.label}</span>
               </Button>
             ))}
@@ -129,11 +94,10 @@ export function ShapeSelector({ onSelectShape, onOpenAdvancedEditor }: ShapeSele
                 key={frame.name}
                 variant="ghost"
                 size="sm"
-                className="flex flex-col items-center justify-center h-16 p-1 text-gray-300 hover:bg-amber-500/20 hover:text-amber-300 transition-colors rounded-lg"
+                className="flex flex-col items-center justify-center h-16 p-1 text-gray-300 hover:bg-gray-700 hover:text-gray-100"
                 onClick={() => onSelectShape(frame.name)}
-                title={frame.label}
               >
-                <div className="text-amber-400 mb-1">{frame.icon}</div>
+                <div className="text-yellow-400 mb-1">{frame.icon}</div>
                 <span className="text-xs">{frame.label}</span>
               </Button>
             ))}
