@@ -82,25 +82,24 @@ export default function SlidesThumbnails({ slides, currentSlideIndex, onSelectSl
             key={slide.id}
             className={`relative group cursor-pointer transition-all duration-300 ${
               isActive
-                ? "ring-2 ring-pink-400 shadow-lg shadow-pink-500/30 scale-105"
-                : "hover:ring-2 hover:ring-cyan-500/50 hover:scale-102 hover:shadow-lg hover:shadow-cyan-500/20"
+                ? "ring-4 ring-primary scale-105 shadow-lg shadow-black/50"
+                : "hover:ring-2 hover:ring-secondary hover:scale-102 hover:shadow-lg"
             }`}
             onClick={() => onSelectSlide(index)}
           >
             <div className="relative">
-              {/* Cyberpunk glow effect for active slide */}
+              {/* Neobrutalist active state */}
               {isActive && (
                 <>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-500/30 via-cyan-500/30 to-purple-500/30 rounded-2xl blur-md animate-cyber-pulse"></div>
-                  <div className="absolute -inset-[2px] bg-gradient-to-r from-pink-500 via-cyan-500 to-purple-500 rounded-2xl opacity-20 animate-shimmer"></div>
+                  <div className="absolute -inset-2 border-4 border-primary opacity-80"></div>
                 </>
               )}
 
               <div
-                className={`relative w-full aspect-video rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                className={`relative w-full aspect-video overflow-hidden border-3 border-black transition-all duration-300 ${
                   isActive
-                    ? "border-pink-400/50 bg-gray-900/60 shadow-[0_0_20px_rgba(236,72,153,0.3)]"
-                    : "border-gray-700/40 bg-gray-900/40 group-hover:border-cyan-500/60 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                    ? "border-primary bg-muted shadow-lg shadow-black/50"
+                    : "border-black bg-background group-hover:border-secondary"
                 }`}
                 style={getBackgroundStyles(slide.background)}
               >

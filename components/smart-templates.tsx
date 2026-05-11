@@ -661,6 +661,963 @@ const SMART_TEMPLATES: SmartTemplate[] = [
       },
     ],
   },
+
+  // Tech & Startup Templates
+  {
+    id: "startup-pitch",
+    title: "Startup Pitch Deck",
+    description: "Perfect for investor pitches with modern tech aesthetic",
+    category: "business",
+    tags: ["startup", "pitch", "investor", "tech"],
+    trending: true,
+    new: true,
+    preview: "linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3b82f6 100%)",
+    style: "modern",
+    colorScheme: ["#0f172a", "#1e40af", "#3b82f6", "#60a5fa"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "logo-circle",
+            type: "shape",
+            shape: "circle",
+            x: 425,
+            y: 60,
+            width: 150,
+            height: 150,
+            color: "rgba(96, 165, 250, 0.3)",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Company Name",
+            x: 100,
+            y: 230,
+            width: 800,
+            height: 80,
+            fontSize: 56,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "tagline-1",
+            type: "text",
+            content: "Revolutionizing the way we work",
+            x: 100,
+            y: 320,
+            width: 800,
+            height: 50,
+            fontSize: 24,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#93c5fd",
+          },
+          {
+            id: "funding-1",
+            type: "text",
+            content: "Series A Funding Round",
+            x: 100,
+            y: 420,
+            width: 800,
+            height: 40,
+            fontSize: 18,
+            fontWeight: "medium",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#60a5fa",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3b82f6 100%)" },
+        transition: { type: "fade", duration: 0.7, easing: "ease-out" },
+      },
+    ],
+  },
+  {
+    id: "tech-product",
+    title: "Tech Product Launch",
+    description: "Sleek dark theme for product announcements and launches",
+    category: "business",
+    tags: ["product", "launch", "tech", "announcement"],
+    popular: true,
+    preview: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)",
+    style: "modern",
+    colorScheme: ["#18181b", "#27272a", "#a855f7", "#ffffff"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "accent-line",
+            type: "shape",
+            shape: "square",
+            x: 100,
+            y: 200,
+            width: 4,
+            height: 200,
+            color: "#a855f7",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Introducing",
+            x: 130,
+            y: 200,
+            width: 600,
+            height: 50,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#a1a1aa",
+          },
+          {
+            id: "product-name",
+            type: "text",
+            content: "Product Name",
+            x: 130,
+            y: 250,
+            width: 700,
+            height: 100,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "tagline",
+            type: "text",
+            content: "The future of technology is here",
+            x: 130,
+            y: 360,
+            width: 600,
+            height: 50,
+            fontSize: 24,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#71717a",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)" },
+        transition: { type: "slide", direction: "left", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Marketing Templates
+  {
+    id: "social-media-pack",
+    title: "Social Media Pack",
+    description: "Vibrant templates optimized for social media presentations",
+    category: "creative",
+    tags: ["social", "marketing", "vibrant", "instagram"],
+    new: true,
+    trending: true,
+    preview: "linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%)",
+    style: "creative",
+    colorScheme: ["#ec4899", "#8b5cf6", "#6366f1", "#ffffff"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "bg-shape-1",
+            type: "shape",
+            shape: "circle",
+            x: -50,
+            y: -50,
+            width: 300,
+            height: 300,
+            color: "rgba(255,255,255,0.1)",
+          },
+          {
+            id: "bg-shape-2",
+            type: "shape",
+            shape: "circle",
+            x: 750,
+            y: 300,
+            width: 250,
+            height: 250,
+            color: "rgba(255,255,255,0.08)",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Your Brand",
+            x: 100,
+            y: 150,
+            width: 800,
+            height: 100,
+            fontSize: 68,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+            textEffect: { type: "shadow", depth: 3, color: "rgba(0,0,0,0.2)" },
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "#MakeItHappen",
+            x: 100,
+            y: 270,
+            width: 800,
+            height: 60,
+            fontSize: 32,
+            fontWeight: "medium",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "rgba(255,255,255,0.9)",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%)" },
+        transition: { type: "zoom", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
+  {
+    id: "brand-guidelines",
+    title: "Brand Guidelines",
+    description: "Professional template for brand identity presentations",
+    category: "business",
+    tags: ["brand", "identity", "guidelines", "design"],
+    popular: true,
+    preview: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+    style: "minimal",
+    colorScheme: ["#f8fafc", "#e2e8f0", "#0f172a", "#6366f1"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "accent-square",
+            type: "shape",
+            shape: "square",
+            x: 50,
+            y: 50,
+            width: 100,
+            height: 100,
+            color: "#6366f1",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Brand",
+            x: 50,
+            y: 180,
+            width: 600,
+            height: 80,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#0f172a",
+          },
+          {
+            id: "title-2",
+            type: "text",
+            content: "Guidelines",
+            x: 50,
+            y: 260,
+            width: 600,
+            height: 80,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#6366f1",
+          },
+          {
+            id: "version",
+            type: "text",
+            content: "Version 2.0 | 2026",
+            x: 50,
+            y: 400,
+            width: 300,
+            height: 40,
+            fontSize: 16,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#64748b",
+          },
+        ],
+        background: { type: "solid", value: "#f8fafc" },
+        transition: { type: "slide", direction: "right", duration: 0.5, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Elegant Templates
+  {
+    id: "elegant-wedding",
+    title: "Elegant Wedding",
+    description: "Beautiful template for wedding presentations and events",
+    category: "creative",
+    tags: ["wedding", "elegant", "romantic", "events"],
+    new: true,
+    preview: "linear-gradient(135deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%)",
+    style: "elegant",
+    colorScheme: ["#fdf4ff", "#fae8ff", "#701a75", "#a21caf"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "ornament-top",
+            type: "shape",
+            shape: "circle",
+            x: 420,
+            y: 30,
+            width: 160,
+            height: 160,
+            color: "rgba(162, 28, 175, 0.1)",
+          },
+          {
+            id: "names",
+            type: "text",
+            content: "Sarah & Michael",
+            x: 100,
+            y: 180,
+            width: 800,
+            height: 100,
+            fontSize: 56,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "'Playfair Display', serif",
+            color: "#701a75",
+          },
+          {
+            id: "date",
+            type: "text",
+            content: "June 15, 2026",
+            x: 100,
+            y: 300,
+            width: 800,
+            height: 50,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#a21caf",
+          },
+          {
+            id: "divider",
+            type: "shape",
+            shape: "square",
+            x: 400,
+            y: 370,
+            width: 200,
+            height: 2,
+            color: "#d946ef",
+          },
+          {
+            id: "venue",
+            type: "text",
+            content: "The Grand Ballroom | New York",
+            x: 100,
+            y: 400,
+            width: 800,
+            height: 40,
+            fontSize: 18,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#86198f",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%)" },
+        transition: { type: "fade", duration: 0.8, easing: "ease-out" },
+      },
+    ],
+  },
+  {
+    id: "luxury-collection",
+    title: "Luxury Collection",
+    description: "Premium gold-accented template for high-end presentations",
+    category: "business",
+    tags: ["luxury", "premium", "gold", "elegant"],
+    popular: true,
+    preview: "linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)",
+    style: "elegant",
+    colorScheme: ["#1c1917", "#292524", "#d4af37", "#f5f5f4"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "gold-line-top",
+            type: "shape",
+            shape: "square",
+            x: 100,
+            y: 100,
+            width: 800,
+            height: 1,
+            color: "#d4af37",
+          },
+          {
+            id: "gold-line-bottom",
+            type: "shape",
+            shape: "square",
+            x: 100,
+            y: 430,
+            width: 800,
+            height: 1,
+            color: "#d4af37",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "LUXURY",
+            x: 100,
+            y: 180,
+            width: 800,
+            height: 100,
+            fontSize: 80,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#d4af37",
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "Collection 2026",
+            x: 100,
+            y: 290,
+            width: 800,
+            height: 50,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#a8a29e",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)" },
+        transition: { type: "fade", duration: 0.8, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Nature & Environment
+  {
+    id: "nature-eco",
+    title: "Eco Nature",
+    description: "Earth-toned template for environmental and sustainability topics",
+    category: "education",
+    tags: ["nature", "eco", "sustainability", "green"],
+    new: true,
+    preview: "linear-gradient(135deg, #14532d 0%, #166534 50%, #22c55e 100%)",
+    style: "modern",
+    colorScheme: ["#14532d", "#166534", "#22c55e", "#dcfce7"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "leaf-shape",
+            type: "shape",
+            shape: "circle",
+            x: 750,
+            y: 50,
+            width: 200,
+            height: 200,
+            color: "rgba(34, 197, 94, 0.2)",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Sustainability",
+            x: 80,
+            y: 150,
+            width: 700,
+            height: 100,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#dcfce7",
+          },
+          {
+            id: "title-2",
+            type: "text",
+            content: "Report 2026",
+            x: 80,
+            y: 250,
+            width: 700,
+            height: 80,
+            fontSize: 48,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#86efac",
+          },
+          {
+            id: "tagline",
+            type: "text",
+            content: "Building a greener tomorrow",
+            x: 80,
+            y: 380,
+            width: 500,
+            height: 40,
+            fontSize: 20,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#4ade80",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #14532d 0%, #166534 50%, #22c55e 100%)" },
+        transition: { type: "slide", direction: "left", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Data & Analytics
+  {
+    id: "data-dashboard",
+    title: "Data Dashboard",
+    description: "Modern template for data presentations and analytics reports",
+    category: "business",
+    tags: ["data", "analytics", "dashboard", "charts"],
+    trending: true,
+    popular: true,
+    preview: "linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #292524 100%)",
+    style: "modern",
+    colorScheme: ["#0c0a09", "#1c1917", "#22d3ee", "#a5f3fc"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "grid-line-1",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 150,
+            width: 1000,
+            height: 1,
+            color: "rgba(34, 211, 238, 0.2)",
+          },
+          {
+            id: "grid-line-2",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 300,
+            width: 1000,
+            height: 1,
+            color: "rgba(34, 211, 238, 0.2)",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Analytics",
+            x: 80,
+            y: 100,
+            width: 600,
+            height: 80,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#22d3ee",
+          },
+          {
+            id: "title-2",
+            type: "text",
+            content: "Dashboard",
+            x: 80,
+            y: 180,
+            width: 600,
+            height: 80,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "stats-box",
+            type: "shape",
+            shape: "rounded-rect",
+            x: 80,
+            y: 320,
+            width: 200,
+            height: 100,
+            color: "rgba(34, 211, 238, 0.1)",
+            cornerRadius: 12,
+          },
+          {
+            id: "metric",
+            type: "text",
+            content: "+127%",
+            x: 100,
+            y: 345,
+            width: 160,
+            height: 50,
+            fontSize: 36,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#22d3ee",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #292524 100%)" },
+        transition: { type: "fade", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Photography & Art
+  {
+    id: "photo-gallery",
+    title: "Photo Gallery",
+    description: "Minimalist template for photography portfolios and galleries",
+    category: "creative",
+    tags: ["photography", "gallery", "portfolio", "art"],
+    new: true,
+    preview: "linear-gradient(135deg, #fafafa 0%, #f5f5f5 50%, #e5e5e5 100%)",
+    style: "minimal",
+    colorScheme: ["#fafafa", "#f5f5f5", "#171717", "#525252"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "frame",
+            type: "shape",
+            shape: "square",
+            x: 200,
+            y: 50,
+            width: 600,
+            height: 350,
+            color: "#e5e5e5",
+          },
+          {
+            id: "inner-frame",
+            type: "shape",
+            shape: "square",
+            x: 220,
+            y: 70,
+            width: 560,
+            height: 310,
+            color: "#ffffff",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "PORTFOLIO",
+            x: 100,
+            y: 430,
+            width: 400,
+            height: 50,
+            fontSize: 32,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#171717",
+          },
+          {
+            id: "year",
+            type: "text",
+            content: "2026",
+            x: 700,
+            y: 430,
+            width: 200,
+            height: 50,
+            fontSize: 32,
+            fontWeight: "bold",
+            textAlign: "right",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#525252",
+          },
+        ],
+        background: { type: "solid", value: "#fafafa" },
+        transition: { type: "fade", duration: 0.5, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Healthcare & Medical
+  {
+    id: "medical-clean",
+    title: "Medical Clean",
+    description: "Professional template for healthcare and medical presentations",
+    category: "education",
+    tags: ["medical", "healthcare", "clean", "professional"],
+    popular: true,
+    preview: "linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)",
+    style: "corporate",
+    colorScheme: ["#0891b2", "#06b6d4", "#22d3ee", "#ffffff"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "cross",
+            type: "shape",
+            shape: "square",
+            x: 50,
+            y: 50,
+            width: 80,
+            height: 80,
+            color: "rgba(255,255,255,0.2)",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "Healthcare",
+            x: 100,
+            y: 160,
+            width: 800,
+            height: 80,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "Innovation Summit 2026",
+            x: 100,
+            y: 260,
+            width: 800,
+            height: 50,
+            fontSize: 28,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#cffafe",
+          },
+          {
+            id: "divider",
+            type: "shape",
+            shape: "square",
+            x: 350,
+            y: 340,
+            width: 300,
+            height: 3,
+            color: "rgba(255,255,255,0.5)",
+          },
+          {
+            id: "date",
+            type: "text",
+            content: "April 15-17 | San Francisco",
+            x: 100,
+            y: 380,
+            width: 800,
+            height: 40,
+            fontSize: 18,
+            fontWeight: "normal",
+            textAlign: "center",
+            fontFamily: "Inter, sans-serif",
+            color: "#a5f3fc",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)" },
+        transition: { type: "slide", direction: "bottom", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Retro & Vintage
+  {
+    id: "retro-wave",
+    title: "Retro Wave",
+    description: "80s-inspired synthwave aesthetic with neon colors",
+    category: "creative",
+    tags: ["retro", "synthwave", "80s", "neon"],
+    trending: true,
+    new: true,
+    preview: "linear-gradient(135deg, #1a0533 0%, #2d1b4e 50%, #581c87 100%)",
+    style: "creative",
+    colorScheme: ["#1a0533", "#2d1b4e", "#f0abfc", "#22d3ee"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "sun",
+            type: "shape",
+            shape: "circle",
+            x: 350,
+            y: 250,
+            width: 300,
+            height: 300,
+            color: "#f0abfc",
+          },
+          {
+            id: "line-1",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 350,
+            width: 1000,
+            height: 2,
+            color: "#22d3ee",
+          },
+          {
+            id: "line-2",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 380,
+            width: 1000,
+            height: 2,
+            color: "#f0abfc",
+          },
+          {
+            id: "line-3",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 410,
+            width: 1000,
+            height: 2,
+            color: "#22d3ee",
+          },
+          {
+            id: "title-1",
+            type: "text",
+            content: "RETRO",
+            x: 100,
+            y: 100,
+            width: 800,
+            height: 100,
+            fontSize: 96,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#f0abfc",
+            textEffect: { type: "neon", intensity: 20, color: "#f0abfc" },
+          },
+          {
+            id: "subtitle-1",
+            type: "text",
+            content: "WAVE",
+            x: 100,
+            y: 200,
+            width: 800,
+            height: 80,
+            fontSize: 64,
+            fontWeight: "bold",
+            textAlign: "center",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#22d3ee",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(180deg, #1a0533 0%, #2d1b4e 50%, #581c87 100%)" },
+        transition: { type: "zoom", duration: 0.7, easing: "ease-out" },
+      },
+    ],
+  },
+
+  // Conference & Events
+  {
+    id: "conference-2026",
+    title: "Conference 2026",
+    description: "Professional template for conferences and large events",
+    category: "business",
+    tags: ["conference", "event", "professional", "keynote"],
+    popular: true,
+    preview: "linear-gradient(135deg, #0f172a 0%, #334155 50%, #475569 100%)",
+    style: "corporate",
+    colorScheme: ["#0f172a", "#334155", "#f97316", "#ffffff"],
+    slides: [
+      {
+        id: "slide-1",
+        elements: [
+          {
+            id: "accent-corner",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 8,
+            color: "#f97316",
+          },
+          {
+            id: "accent-corner-2",
+            type: "shape",
+            shape: "square",
+            x: 0,
+            y: 0,
+            width: 8,
+            height: 200,
+            color: "#f97316",
+          },
+          {
+            id: "event-name",
+            type: "text",
+            content: "TECH SUMMIT",
+            x: 80,
+            y: 150,
+            width: 840,
+            height: 100,
+            fontSize: 72,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#ffffff",
+          },
+          {
+            id: "year",
+            type: "text",
+            content: "2026",
+            x: 80,
+            y: 250,
+            width: 200,
+            height: 80,
+            fontSize: 56,
+            fontWeight: "bold",
+            textAlign: "left",
+            fontFamily: "'Bebas Neue', sans-serif",
+            color: "#f97316",
+          },
+          {
+            id: "details",
+            type: "text",
+            content: "Innovation | Technology | Future",
+            x: 80,
+            y: 350,
+            width: 600,
+            height: 40,
+            fontSize: 20,
+            fontWeight: "normal",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#94a3b8",
+          },
+          {
+            id: "date-location",
+            type: "text",
+            content: "October 15-18 | Las Vegas",
+            x: 80,
+            y: 420,
+            width: 600,
+            height: 40,
+            fontSize: 18,
+            fontWeight: "medium",
+            textAlign: "left",
+            fontFamily: "Inter, sans-serif",
+            color: "#64748b",
+          },
+        ],
+        background: { type: "gradient", value: "linear-gradient(135deg, #0f172a 0%, #334155 50%, #475569 100%)" },
+        transition: { type: "slide", direction: "right", duration: 0.6, easing: "ease-out" },
+      },
+    ],
+  },
 ]
 
 const CATEGORIES = [
@@ -798,34 +1755,39 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl h-[85vh] bg-gray-900/95 border-gray-800 text-gray-100 p-0 overflow-hidden backdrop-blur-xl">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-gray-800/50">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-                <Wand2 className="h-6 w-6 text-purple-400" />
-                Smart Templates
-              </DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Choose from trending designs or generate a custom template
-              </DialogDescription>
-            </DialogHeader>
-          </div>
+      <DialogContent className="max-w-7xl h-[92vh] p-0 overflow-hidden bg-background border-4 border-black">
+        {/* Neobrutalist Container */}
+        <div className="relative h-full w-full overflow-hidden bg-background">
+          {/* Content */}
+          <div className="relative h-full flex flex-col z-10">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b-4 border-black bg-primary text-primary-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black text-primary-foreground flex items-center gap-3 uppercase tracking-wider">
+              <div className="p-2.5 border-3 border-black bg-primary-foreground">
+                <Wand2 className="h-7 w-7 text-black" />
+              </div>
+              Smart Templates
+            </DialogTitle>
+            <DialogDescription className="text-primary-foreground/80 text-base mt-2 font-bold uppercase">
+              Choose from trending designs or generate a custom template
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-6 pt-4">
-              <TabsList className="bg-gray-800/50 border border-gray-700/50">
-                <TabsTrigger value="gallery" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+            <div className="px-8 pt-4">
+              <TabsList className="bg-muted border-3 border-black p-1.5">
+                <TabsTrigger value="gallery" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-black border-2 px-6 py-2.5 transition-all uppercase font-bold text-sm">
                   <Layout className="h-4 w-4 mr-2" />
                   Gallery
                 </TabsTrigger>
-                <TabsTrigger value="trending" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+                <TabsTrigger value="trending" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-black border-2 px-6 py-2.5 transition-all uppercase font-bold text-sm">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Trending
                 </TabsTrigger>
-                <TabsTrigger value="generator" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+                <TabsTrigger value="generator" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-black border-2 px-6 py-2.5 transition-all uppercase font-bold text-sm">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generator
                 </TabsTrigger>
@@ -833,7 +1795,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </div>
 
             {/* Gallery Tab */}
-            <TabsContent value="gallery" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
+            <TabsContent value="gallery" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
               {/* Search and Filter */}
               <div className="flex gap-4 mb-4">
                 <div className="relative flex-1">
@@ -868,8 +1830,8 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
               </div>
 
               {/* Template Grid */}
-              <ScrollArea className="h-[calc(100%-120px)]">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pr-4">
+              <ScrollArea className="h-[calc(100%-120px)] pr-1 [&>[data-radix-scroll-area-viewport]]:!overflow-y-scroll [&_[data-radix-scroll-area-scrollbar]]:!flex [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-scrollbar]]:!bg-gray-800/50 [&_[data-radix-scroll-area-thumb]]:!bg-purple-500/50 [&_[data-radix-scroll-area-thumb]]:hover:!bg-purple-500/70 [&_[data-radix-scroll-area-thumb]]:!rounded-full">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pr-3">
                   {filteredTemplates.map((template) => (
                     <div
                       key={template.id}
@@ -954,8 +1916,8 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </TabsContent>
 
             {/* Trending Tab */}
-            <TabsContent value="trending" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
-              <ScrollArea className="h-full">
+            <TabsContent value="trending" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
+              <ScrollArea className="h-full pr-1 [&>[data-radix-scroll-area-viewport]]:!overflow-y-scroll [&_[data-radix-scroll-area-scrollbar]]:!flex [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-scrollbar]]:!bg-gray-800/50 [&_[data-radix-scroll-area-thumb]]:!bg-purple-500/50 [&_[data-radix-scroll-area-thumb]]:hover:!bg-purple-500/70 [&_[data-radix-scroll-area-thumb]]:!rounded-full">
                 {/* Trending Section */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
@@ -1067,8 +2029,8 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
             </TabsContent>
 
             {/* Generator Tab */}
-            <TabsContent value="generator" className="flex-1 overflow-hidden px-6 pb-6 mt-4">
-              <ScrollArea className="h-full pr-4">
+            <TabsContent value="generator" className="flex-1 overflow-hidden px-8 pb-8 mt-4">
+              <ScrollArea className="h-full pr-1 [&>[data-radix-scroll-area-viewport]]:!overflow-y-scroll [&_[data-radix-scroll-area-scrollbar]]:!flex [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-scrollbar]]:!bg-gray-800/50 [&_[data-radix-scroll-area-thumb]]:!bg-purple-500/50 [&_[data-radix-scroll-area-thumb]]:hover:!bg-purple-500/70 [&_[data-radix-scroll-area-thumb]]:!rounded-full">
                 <div className="space-y-6">
                   {/* Topic Input */}
                   <div>
@@ -1192,6 +2154,7 @@ export function SmartTemplates({ open, onOpenChange, onSelectTemplate }: SmartTe
               </ScrollArea>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

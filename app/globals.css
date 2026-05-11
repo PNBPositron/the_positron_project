@@ -2,31 +2,31 @@
 @import "tw-animate-css";
 
 :root {
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(210 40% 98%);
-  --primary-foreground: hsl(222.2 84% 4.9%);
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  --accent: hsl(217.2 32.6% 17.5%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(212.7 26.8% 83.9%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --radius: 0.5rem;
+  --background: #001a3d;
+  --foreground: #FFFF00;
+  --card: #001a3d;
+  --card-foreground: #FFFF00;
+  --popover: #001a3d;
+  --popover-foreground: #FFFF00;
+  --primary: #FFFF00;
+  --primary-foreground: #001a3d;
+  --secondary: #00D4FF;
+  --secondary-foreground: #001a3d;
+  --muted: #003366;
+  --muted-foreground: #00D4FF;
+  --accent: #FFFF00;
+  --accent-foreground: #001a3d;
+  --destructive: #FF0000;
+  --destructive-foreground: #FFFFFF;
+  --border: #000000;
+  --input: #003366;
+  --ring: #FFFF00;
+  --chart-1: #FFFF00;
+  --chart-2: #00D4FF;
+  --chart-3: #FF6B00;
+  --chart-4: #00FF00;
+  --chart-5: #FF00FF;
+  --radius: 0;
   --sidebar-background: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(240 5.9% 10%);
@@ -36,12 +36,12 @@
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 
-  /* Enhanced color palette for modern design */
-  --cyber-pink: hsl(326 100% 74%);
-  --cyber-cyan: hsl(191 100% 50%);
-  --cyber-purple: hsl(271 91% 65%);
-  --cyber-yellow: hsl(48 100% 50%);
-  --cyber-green: hsl(142 71% 45%);
+  /* Neobrutalist color palette */
+  --neo-yellow: #FFFF00;
+  --neo-navy: #001a3d;
+  --neo-cyan: #00D4FF;
+  --neo-black: #000000;
+  --neo-white: #FFFFFF;
 
   /* New spacing tokens for better visual hierarchy */
   --spacing-xs: 0.25rem;
@@ -53,38 +53,38 @@
 }
 
 .dark {
-  --background: hsl(0 0% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(0 0% 9%);
-  --secondary: hsl(0 0% 14.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0 0% 14.9%);
-  --muted-foreground: hsl(0 0% 63.9%);
-  --accent: hsl(0 0% 14.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(0 0% 14.9%);
-  --input: hsl(0 0% 14.9%);
-  --ring: hsl(0 0% 83.1%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --sidebar-background: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --background: #001a3d;
+  --foreground: #FFFF00;
+  --card: #001a3d;
+  --card-foreground: #FFFF00;
+  --popover: #001a3d;
+  --popover-foreground: #FFFF00;
+  --primary: #FFFF00;
+  --primary-foreground: #001a3d;
+  --secondary: #00D4FF;
+  --secondary-foreground: #001a3d;
+  --muted: #003366;
+  --muted-foreground: #00D4FF;
+  --accent: #FFFF00;
+  --accent-foreground: #001a3d;
+  --destructive: #FF0000;
+  --destructive-foreground: #FFFFFF;
+  --border: #000000;
+  --input: #003366;
+  --ring: #FFFF00;
+  --chart-1: #FFFF00;
+  --chart-2: #00D4FF;
+  --chart-3: #FF6B00;
+  --chart-4: #00FF00;
+  --chart-5: #FF00FF;
+  --sidebar-background: #001a3d;
+  --sidebar-foreground: #FFFF00;
+  --sidebar-primary: #FFFF00;
+  --sidebar-primary-foreground: #001a3d;
+  --sidebar-accent: #00D4FF;
+  --sidebar-accent-foreground: #001a3d;
+  --sidebar-border: #000000;
+  --sidebar-ring: #FFFF00;
 }
 
 @theme inline {
