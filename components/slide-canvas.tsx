@@ -235,8 +235,8 @@ export default function SlideCanvas({
       })
 
       // Constrain to canvas bounds
-      const constrained = constrainElementToBounds(x, y, selectedElement.width, selectedElement.height)
-      onUpdateElement(selectedElementId, { x: constrained.x, y: constrained.y })
+      const constrainedDrag = constrainElementToBounds(x, y, selectedElement.width, selectedElement.height)
+      onUpdateElement(selectedElementId, { x: constrainedDrag.x, y: constrainedDrag.y })
     }
 
     if (resizing && resizeDirection) {
