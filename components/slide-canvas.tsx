@@ -14,7 +14,6 @@ import {
 } from "@/utils/drag-utils"
 import { getTextEffectStyle } from "./text-effects"
 import { getImage3DEffectStyle } from "./image-3d-effects"
-import { getInteractionStyle, handleImageClick, getInteractionClasses } from "@/components/image-interaction-utils"
 
 interface SlideCanvasProps {
   slide: Slide
@@ -514,7 +513,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-purple-500 shadow-lg shadow-purple-500/50" : "hover:ring-1 hover:ring-purple-400/30"}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -595,7 +594,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-cyan-500 shadow-lg shadow-cyan-500/50" : "hover:ring-1 hover:ring-cyan-400/30"}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -675,7 +674,7 @@ export default function SlideCanvas({
             return (
               <div
                 key={element.id}
-                className={`absolute ${isSelected ? "ring-2 ring-sky-500" : ""} ${getInteractionClasses(element.interactions)}`}
+                className={`absolute cursor-move transition-all duration-150 ${isSelected ? "ring-2 ring-sky-500" : ""}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -683,29 +682,26 @@ export default function SlideCanvas({
                   height: `${element.height}px`,
                   transform: getElementTransform(element),
                   transformOrigin: "center center",
+                  perspective: element.imageEffect3d?.perspective || 800,
                 }}
                 onMouseDown={(e) => handleElementMouseDown(e, element)}
                 onMouseEnter={() => handleElementHover(element.id, true)}
                 onMouseLeave={() => handleElementHover(element.id, false)}
-                onClick={(e) => handleImageClick(e, element, element.interactions)}
               >
-                <img
-                  src={element.src || "/placeholder.svg"}
-                  alt="Slide element"
-                  className="w-full h-full object-cover pointer-events-none"
+                <div
+                  className="w-full h-full"
                   style={{
-                    ...imageStyle,
-                    ...getInteractionStyle(element, hoveredElements.has(element.id), element.interactions),
+                    ...image3DEffectStyle,
+                    transition: "all 0.5s ease",
                   }}
-                />
-
-                {/* Tooltip */}
-                {element.interactions?.tooltip && hoveredElements.has(element.id) && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap pointer-events-none z-50">
-                    {element.interactions.tooltip}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900" />
-                  </div>
-                )}
+                >
+                  <img
+                    src={element.src || "/placeholder.svg"}
+                    alt="Slide element"
+                    className="w-full h-full object-cover"
+                    style={imageStyle}
+                  />
+                </div>
 
                 {isSelected && (
                   <>
@@ -745,10 +741,10 @@ export default function SlideCanvas({
 
                     {/* Rotation handle */}
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 cursor-grab rounded-full shadow-lg hover:scale-125 transition-transform active:cursor-grabbing"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-sky-500 cursor-grab rounded-full"
                       onMouseDown={(e) => handleRotateMouseDown(e, element)}
                     >
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-6 bg-gradient-to-b from-cyan-500 to-blue-500"></div>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-5 bg-sky-500"></div>
                     </div>
                   </>
                 )}

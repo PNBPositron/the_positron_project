@@ -2,12 +2,43 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Square, Type, ImageIcon, Plus, ChevronLeft, ChevronRight, Trash2, Copy, Save, Atom, ChevronDown, LayoutGrid, Sparkles, FileJson, Upload, Video, FileType, Film, Cable as Cube, UploadCloud, User, Cloud, Share2, Download, Palette, Undo2, Redo2, Search } from "lucide-react"
+import {
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Square,
+  Type,
+  ImageIcon,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Copy,
+  Save,
+  Atom,
+  ChevronDown,
+  Palette,
+  LayoutGrid,
+  Sparkles,
+  FileJson,
+  Upload,
+  Video,
+  FileType,
+  Film,
+  Cable as Cube,
+  UploadCloud,
+  User,
+  Cloud,
+  Share2,
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +58,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import SlideCanvas from "@/components/slide-canvas"
+import KonvaCanvas from "@/components/konva-canvas"
 import SlidesThumbnails from "@/components/slides-thumbnails"
 import PresentationMode from "@/components/presentation-mode"
 import { ImageFilters } from "@/components/image-filters"
@@ -41,9 +72,12 @@ import { exportToPdf, exportToPng, exportToJpg, exportCurrentSlide } from "@/uti
 import { exportToJson, importFromJson } from "@/utils/json-utils"
 import { ShapeSelector } from "@/components/shape-selector"
 import { loadCustomFont } from "@/utils/font-utils"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { TextEffects } from "./text-effects"
 import { Image3DEffects } from "./image-3d-effects"
 import { ImageLibrary } from "@/components/image-library"
+import { TemplateLibrary } from "@/components/template-library"
 import { ImageUploader } from "@/components/image-uploader"
 import { AuthModal } from "@/components/auth-modal"
 import { UserMenu } from "@/components/user-menu"
@@ -53,16 +87,6 @@ import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { PresentationsManager } from "@/components/presentations-manager"
 import { ShareDialog } from "@/components/share-dialog"
 import { exportToHtml } from "@/utils/html-export"
-import { WallpaperSelector } from "@/components/wallpaper-selector"
-// Import TemplateLibrary here
-// import { TemplateLibrary } from "@/components/template-library" // Removed TemplateLibrary import
-import { ImageInteractions } from "@/components/image-interactions"
-import { ExportHub } from "@/components/export-hub"
-import { GradientEditor } from "@/components/gradient-editor"
-import { useUndoRedo } from "@/hooks/use-undo-redo"
-import { SmartTemplates } from "@/components/smart-templates"
-import { SlideEffects, type SlideEffect } from "@/components/slide-effects"
-import { AdvancedShapesEditor } from "@/components/advanced-shapes-editor"
 
 const FONT_OPTIONS = [
   { name: "Default", value: "Inter, sans-serif" },
@@ -84,7 +108,7 @@ const COLOR_PRESETS = [
   "#000000", // Black
 ]
 
-export function DesignEditor() {
+export default function DesignEditor() {
   const [presentationTitle, setPresentationTitle] = useState("Untitled Positron")
   const [slides, setSlides] = useState<Slide[]>([
     {
@@ -135,57 +159,6 @@ export function DesignEditor() {
   const [showImageLibrary, setShowImageLibrary] = useState(false)
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
   const [showImageUploader, setShowImageUploader] = useState(false)
-  const [wallpaper, setWallpaper] = useState<string>("linear-gradient(135deg, #0f172a 0%, #1e293b 100%)")
-  const [showImageInteractionsPanel, setShowImageInteractionsPanel] = useState(false)
-  const [showExportHub, setShowExportHub] = useState(false)
-  const [showSmartTemplates, setShowSmartTemplates] = useState(false)
-  const [showSlideEffects, setShowSlideEffects] = useState(false)
-  const [showAdvancedShapesEditor, setShowAdvancedShapesEditor] = useState(false)
-  const [showGradientEditor, setShowGradientEditor] = useState(false)
-  
-
-  // Undo/redo history
-  const undoHistoryRef = useRef<Slide[][]>([])
-  const redoHistoryRef = useRef<Slide[][]>([])
-  const isUndoRedoRef = useRef(false)
-  const [canUndo, setCanUndo] = useState(false)
-  const [canRedo, setCanRedo] = useState(false)
-
-  const pushToHistory = useCallback((prevSlides: Slide[]) => {
-    if (isUndoRedoRef.current) {
-      isUndoRedoRef.current = false
-      return
-    }
-    undoHistoryRef.current.push(JSON.parse(JSON.stringify(prevSlides)))
-    if (undoHistoryRef.current.length > 50) {
-      undoHistoryRef.current = undoHistoryRef.current.slice(-50)
-    }
-    redoHistoryRef.current = []
-    setCanUndo(true)
-    setCanRedo(false)
-  }, [])
-
-  const handleUndo = useCallback(() => {
-    if (undoHistoryRef.current.length === 0) return
-    const prev = undoHistoryRef.current.pop()!
-    redoHistoryRef.current.push(JSON.parse(JSON.stringify(slides)))
-    isUndoRedoRef.current = true
-    setSlides(prev)
-    setCanUndo(undoHistoryRef.current.length > 0)
-    setCanRedo(true)
-    toast({ title: "Undo", description: "Action undone." })
-  }, [slides])
-
-  const handleRedo = useCallback(() => {
-    if (redoHistoryRef.current.length === 0) return
-    const next = redoHistoryRef.current.pop()!
-    undoHistoryRef.current.push(JSON.parse(JSON.stringify(slides)))
-    isUndoRedoRef.current = true
-    setSlides(next)
-    setCanRedo(redoHistoryRef.current.length > 0)
-    setCanUndo(true)
-    toast({ title: "Redo", description: "Action redone." })
-  }, [slides])
 
   // Auth states
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -202,9 +175,6 @@ export function DesignEditor() {
   const fontInputRef = useRef<HTMLInputElement>(null)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
-
-  // Store previous selected element ID to detect changes
-  const previousSelectedId = useRef<string | null>(null)
 
   // Initialize auth state
   useEffect(() => {
@@ -277,18 +247,6 @@ export function DesignEditor() {
         e.preventDefault()
         handleSavePresentation()
       }
-
-      // Undo (Ctrl+Z)
-      if (e.key === "z" && e.ctrlKey && !e.shiftKey) {
-        e.preventDefault()
-        handleUndo()
-      }
-
-      // Redo (Ctrl+Y or Ctrl+Shift+Z)
-      if ((e.key === "y" && e.ctrlKey) || (e.key === "z" && e.ctrlKey && e.shiftKey)) {
-        e.preventDefault()
-        handleRedo()
-      }
     }
 
     window.addEventListener("keydown", handleKeyDown)
@@ -297,16 +255,6 @@ export function DesignEditor() {
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [selectedElementId, user])
-
-  // Close interactions panels when element changes
-  useEffect(() => {
-    if (selectedElementId !== previousSelectedId.current) {
-      setShowImagePanel(false)
-      setShowImage3dEffectsPanel(false)
-      setShowImageInteractionsPanel(false)
-      previousSelectedId.current = selectedElementId
-    }
-  }, [selectedElementId])
 
   const handleSavePresentation = () => {
     if (!user) {
@@ -409,14 +357,12 @@ export function DesignEditor() {
         depth: 150,
       },
     }
-    pushToHistory(slides)
     setSlides([...slides, newSlide])
     setCurrentSlideIndex(slides.length)
   }
 
   const addTextElement = () => {
     const currentSlide = slides[currentSlideIndex]
-    pushToHistory(slides)
     const newElement = {
       id: `text-${Date.now()}`,
       type: "text" as const,
@@ -458,7 +404,6 @@ export function DesignEditor() {
 
   const addShapeElement = (shape: string) => {
     const currentSlide = slides[currentSlideIndex]
-    pushToHistory(slides)
     const newElement = {
       id: `shape-${Date.now()}`,
       type: "shape" as const,
@@ -670,8 +615,6 @@ export function DesignEditor() {
 
     if (elementIndex === -1) return
 
-    pushToHistory(slides)
-
     const updatedElements = [...currentSlide.elements]
     updatedElements[elementIndex] = {
       ...updatedElements[elementIndex],
@@ -726,8 +669,6 @@ export function DesignEditor() {
   const updateBackground = (background: SlideBackground) => {
     const currentSlide = slides[currentSlideIndex]
 
-    pushToHistory(slides)
-
     const updatedSlides = [...slides]
     updatedSlides[currentSlideIndex] = {
       ...currentSlide,
@@ -739,8 +680,6 @@ export function DesignEditor() {
 
   const deleteElement = () => {
     if (!selectedElementId) return
-
-    pushToHistory(slides)
 
     const currentSlide = slides[currentSlideIndex]
     const updatedElements = currentSlide.elements.filter((el) => el.id !== selectedElementId)
@@ -757,8 +696,6 @@ export function DesignEditor() {
 
   const duplicateElement = () => {
     if (!selectedElementId) return
-
-    pushToHistory(slides)
 
     const currentSlide = slides[currentSlideIndex]
     const elementToDuplicate = currentSlide.elements.find((el) => el.id === selectedElementId)
@@ -864,68 +801,6 @@ export function DesignEditor() {
   const selectedElement = selectedElementId
     ? slides[currentSlideIndex].elements.find((el) => el.id === selectedElementId)
     : null
-
-  const handleAddImage = (imageSrc: string) => {
-    const currentSlide = slides[currentSlideIndex]
-    const newElement = {
-      id: `image-${Date.now()}`,
-      type: "image" as const,
-      src: imageSrc,
-      x: 250,
-      y: 200,
-      width: 300,
-      height: 200,
-      filters: {
-        grayscale: 0,
-        sepia: 0,
-        blur: 0,
-        brightness: 100,
-        contrast: 100,
-        hueRotate: 0,
-        saturate: 100,
-        opacity: 100,
-      },
-      effects: {
-        borderRadius: 0,
-        borderWidth: 0,
-        borderColor: "#ffffff",
-        shadowBlur: 0,
-        shadowColor: "#000000",
-        shadowOffsetX: 0,
-        shadowOffsetY: 0,
-        skewX: 0,
-        skewY: 0,
-        scale: 100,
-      },
-      animation: {
-        type: "fade",
-        delay: 0.4,
-        duration: 1.2,
-        trigger: "onLoad",
-        easing: "ease-in-out",
-      },
-      imageEffect3d: {
-        type: "none",
-        intensity: 5,
-        angle: 15,
-        perspective: 800,
-        rotateX: 0,
-        rotateY: 0,
-        rotateZ: 0,
-        translateZ: 0,
-        hover: false,
-      },
-    }
-
-    const updatedSlides = [...slides]
-    updatedSlides[currentSlideIndex] = {
-      ...currentSlide,
-      elements: [...currentSlide.elements, newElement],
-    }
-
-    setSlides(updatedSlides)
-    setSelectedElementId(newElement.id)
-  }
 
   const addImageFromLibrary = (imageSrc: string) => {
     const currentSlide = slides[currentSlideIndex]
@@ -1054,23 +929,19 @@ export function DesignEditor() {
     }
   }
 
-  const handleWallpaperSelect = (wallpaperUrl: string) => {
-    setWallpaper(wallpaperUrl)
+  const handleSelectTemplate = (template: any) => {
+    setPresentationTitle(template.title)
+    setSlides(template.slides)
+    setCurrentSlideIndex(0)
+    setSelectedElementId(null)
+    setCurrentPresentationId(null) // Reset presentation ID for template
+
+    toast({
+      title: "Template applied",
+      description: `"${template.title}" template has been applied to your presentation.`,
+      variant: "default",
+    })
   }
-
-  // const handleSelectTemplate = (template: any) => {
-  //   setPresentationTitle(template.title)
-  //   setSlides(template.slides)
-  //   setCurrentSlideIndex(0)
-  //   setSelectedElementId(null)
-  //   setCurrentPresentationId(null) // Reset presentation ID for template
-
-  //   toast({
-  //     title: "Template applied",
-  //     description: `"${template.title}" template has been applied to your presentation.`,
-  //     variant: "default",
-  //   })
-  // }
 
   const handleLoadPresentation = (presentation: any) => {
     setPresentationTitle(presentation.title)
@@ -1105,71 +976,43 @@ export function DesignEditor() {
   const allFonts = [...FONT_OPTIONS, ...customFonts]
 
   return (
-    <div className="flex flex-col h-screen bg-[#001a3d] text-[#FFFF00] font-sans overflow-hidden border-4 border-[#000000]">
-      {/* Header - Neobrutalist Bold */}
-      <header className="relative border-b-4 border-[#000000] p-4 flex items-center justify-between bg-[#FFFF00] z-50">
-        {/* No glass effects - solid neobrutalist */}
-        <div className="absolute inset-0 pointer-events-none"></div>
+    <div className="flex flex-col h-screen bg-gray-950 text-gray-100">
+      {/* Header - Enhanced Frosted Glass */}
+      <header className="relative border-b border-white/20 p-4 flex items-center justify-between backdrop-blur-2xl bg-white/5 shadow-2xl shadow-pink-500/10 z-50">
+        {/* Enhanced glass effect overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
+
+        {/* Subtle animated border effect - make it more prominent */}
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
 
         {/* Content wrapper with relative positioning */}
-        <div className="relative z-10 flex items-center gap-4">
+        <div className="relative z-10 flex items-center gap-3">
           <div className="relative group">
-            {/* Solid logo box with thick border */}
-            <div className="relative bg-[#001a3d] p-2 border-3 border-[#000000]">
-              <Atom className="h-6 w-6 text-[#00D4FF]" />
+            {/* Outer glow ring */}
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/30 via-cyan-500/30 to-purple-500/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* Main logo container - Frosted glass */}
+            <div className="relative backdrop-blur-md bg-white/5 p-2 rounded-xl shadow-lg border border-white/10">
+              <Atom className="h-6 w-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-black text-[#001a3d] uppercase tracking-wider">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-cyan-400 to-purple-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.3)]">
               POSITRON
             </span>
-            <span className="text-xs text-[#001a3d] font-bold tracking-wider uppercase">
+            <span className="text-xs text-cyan-400/80 font-medium tracking-wider uppercase drop-shadow-[0_0_4px_rgba(34,211,238,0.3)]">
               Open-source presentation editor
             </span>
           </div>
-          <div className="h-8 w-1 bg-[#000000] mx-4"></div>
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent mx-2"></div>
           <Input
-            className="w-72 h-10 bg-[#FFFFFF] border-3 border-[#000000] text-[#001a3d] focus-visible:ring-2 focus-visible:ring-[#FFFF00] focus-visible:border-[#000000] placeholder:text-[#003366] transition-all duration-300 font-bold"
+            className="w-72 h-10 backdrop-blur-md bg-white/5 border-white/10 text-gray-100 focus-visible:ring-2 focus-visible:ring-cyan-500/30 focus-visible:border-cyan-500/30 rounded-xl shadow-inner placeholder:text-gray-500 transition-all duration-300 hover:bg-white/10 hover:border-white/20"
             placeholder="Enter presentation title..."
             value={presentationTitle}
             onChange={(e) => setPresentationTitle(e.target.value)}
           />
         </div>
         <div className="relative z-10 flex items-center gap-3">
-          {/* Undo/Redo buttons */}
-          <div className="flex items-center gap-1 px-2 py-1.5 bg-[#003366] border-2 border-[#000000]">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-[#00D4FF] hover:bg-[#00D4FF] hover:text-[#001a3d] transition-all duration-300 h-8 w-8 p-0 border-2 border-[#000000] disabled:opacity-30 disabled:cursor-not-allowed font-bold"
-              onClick={handleUndo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-            >
-              <Undo2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-[#00D4FF] hover:bg-[#00D4FF] hover:text-[#001a3d] transition-all duration-300 h-8 w-8 p-0 border-2 border-[#000000] disabled:opacity-30 disabled:cursor-not-allowed font-bold"
-              onClick={handleRedo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-            >
-              <Redo2 className="h-4 w-4" />
-            </Button>
-          </div>
-
           <div className="flex items-center gap-2 px-3 py-1.5 backdrop-blur-md bg-white/5 rounded-xl border border-white/10">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowSmartTemplates(true)}
-            >
-              <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
-              Templates
-            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -1182,22 +1025,13 @@ export function DesignEditor() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowImageLibrary(true)}
+              className="text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition-all duration-300 h-8 px-3 rounded-lg"
+              onClick={() => setShowTemplateLibrary(true)}
             >
-              <ImageIcon className="h-4 w-4 mr-2 text-blue-400" />
-              Image
+              <LayoutGrid className="h-4 w-4 mr-2 text-purple-400" />
+              Templates
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 h-8 px-3 rounded-lg"
-              onClick={() => setShowSlideEffects(true)}
-            >
-              <Sparkles className="h-4 w-4 mr-2 text-pink-400" />
-              Effects
-            </Button>
-  </div>
+          </div>
 
           <a href="https://github.com/PNBFor/the_positron_project" target="_blank" rel="noopener noreferrer">
             <Button
@@ -1278,17 +1112,10 @@ export function DesignEditor() {
               <DropdownMenuSeparator className="bg-white/10 my-2" />
               <DropdownMenuItem
                 className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
-                onClick={() => setShowExportHub(true)}
-              >
-                <Download className="h-4 w-4 mr-3 text-blue-400" />
-                <span className="font-medium">Export & Publish</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-white/10 rounded-xl px-3 py-2 transition-colors duration-200"
                 onClick={() => handleExport("html")}
               >
                 <FileType className="h-4 w-4 mr-3 text-purple-400" />
-                <span className="font-medium">Quick Export as HTML</span>
+                <span className="font-medium">Export as HTML</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1324,13 +1151,16 @@ export function DesignEditor() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Slides Sidebar - Enhanced Frosted Glass Panel */}
-        <div className="absolute left-6 top-28 w-72 bg-[#003366] border-4 border-[#000000] p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] z-10">
-          {/* Panel Heading */}
-          <div className="flex justify-between items-center pb-3 border-b-3 border-[#FFFF00]">
+        <div className="absolute left-6 top-28 w-72 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-6 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-9rem)] shadow-2xl shadow-pink-500/10 z-10">
+          {/* Subtle corner accents */}
+          <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-white/10 rounded-tl-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-white/10 rounded-br-3xl pointer-events-none"></div>
+
+          <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-[#FFFF00]"></div>
-              <h3 className="text-base font-black text-[#FFFF00] uppercase">Slides</h3>
-              <span className="text-xs text-[#001a3d] bg-[#FFFF00] px-2 py-1 border-2 border-[#000000] font-bold">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+              <h3 className="text-base font-semibold text-cyan-400">Slides</h3>
+              <span className="text-xs text-gray-400 backdrop-blur-md bg-white/5 px-2 py-1 rounded-full border border-white/10">
                 {slides.length}
               </span>
             </div>
@@ -1338,13 +1168,14 @@ export function DesignEditor() {
               variant="ghost"
               size="icon"
               onClick={addNewSlide}
-              className="text-[#001a3d] bg-[#FFFF00] hover:bg-[#FFFF00] hover:text-[#001a3d] transition-all duration-300 h-8 w-8 border-2 border-[#000000] font-bold"
+              className="text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-all duration-300 h-8 w-8 rounded-xl shadow-lg"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 text-cyan-400" />
             </Button>
           </div>
 
           <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-cyan-500/5 rounded-2xl"></div>
             <SlidesThumbnails
               slides={slides}
               currentSlideIndex={currentSlideIndex}
@@ -1356,7 +1187,7 @@ export function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-2 border-[#000000] bg-[#FF0000] hover:bg-[#CC0000] text-[#FFFFFF] transition-all duration-300 font-bold uppercase"
+              className="flex-1 border-white/10 backdrop-blur-md bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 transition-all duration-300 rounded-xl"
               onClick={deleteSlide}
               disabled={slides.length <= 1}
             >
@@ -1366,7 +1197,7 @@ export function DesignEditor() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-2 border-[#000000] bg-[#00D4FF] hover:bg-[#00A8CC] text-[#001a3d] transition-all duration-300 font-bold uppercase"
+              className="flex-1 border-white/10 backdrop-blur-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 transition-all duration-300 rounded-xl"
               onClick={duplicateSlide}
             >
               <Copy className="h-3 w-3 mr-2" />
@@ -1455,44 +1286,12 @@ export function DesignEditor() {
               <Image3DEffects element={selectedElement} onUpdateElement={updateElement} />
             </div>
           )}
-
-          {/* Gradient Editor Panel */}
-          {showGradientEditor && (
-            <div className="mt-4 border border-pink-500/20 rounded-2xl p-4 backdrop-blur-md bg-white/5">
-              <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-                <Palette className="h-4 w-4 text-pink-400" />
-                Gradient Editor
-              </h4>
-              <GradientEditor
-                value={
-                  selectedElement?.type === "shape"
-                    ? selectedElement.color
-                    : typeof slides[currentSlideIndex].background === "object" &&
-                        (slides[currentSlideIndex].background as SlideBackground).type === "gradient"
-                      ? (slides[currentSlideIndex].background as SlideBackground).value
-                      : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                }
-                onChange={(gradient) => {
-                  if (selectedElement?.type === "shape" && selectedElementId) {
-                    updateElement(selectedElementId, { color: gradient })
-                  } else {
-                    updateBackground({ type: "gradient", value: gradient })
-                  }
-                }}
-              />
-              <p className="text-xs text-gray-500 mt-3">
-                {selectedElement?.type === "shape"
-                  ? "Editing shape fill gradient"
-                  : "Editing slide background gradient"}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Canvas Area */}
         <div className="flex-1 bg-gray-950 flex flex-col">
           {/* Canvas Controls - Enhanced Frosted Glass Dock */}
-          <div className="absolute top-24 left-1/2 z-20 transform -translate-x-1/2">
+          <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20">
             <div className="relative group">
               {/* Subtle outer glow */}
               <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-cyan-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -1545,20 +1344,20 @@ export function DesignEditor() {
             ref={canvasContainerRef}
             className="flex-1 overflow-auto flex items-center justify-center p-8 rounded-3xl font-mono relative"
             style={{
-              background:
-                wallpaper.startsWith("linear") || wallpaper.startsWith("radial")
-                  ? wallpaper
-                  : `url('${wallpaper}') center / cover no-repeat`,
+              backgroundImage: "url('/images/abstract-3d-wallpaper.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }}
           >
             {/* Optional overlay for better canvas visibility */}
             <div className="absolute inset-0 bg-black/30 rounded-3xl"></div>
             <div className="relative group z-10">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
-              <SlideCanvas
-                slide={slides[currentSlideIndex]}
-                selectedElementId={selectedElementId}
-                onSelectElement={setSelectedElementId}
+  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
+  <KonvaCanvas
+    slide={slides[currentSlideIndex]}
+    selectedElementId={selectedElementId}
+    onSelectElement={setSelectedElementId}
                 onUpdateElement={updateElement}
                 zoomLevel={zoomLevel}
               />
@@ -1602,10 +1401,7 @@ export function DesignEditor() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 w-[400px] rounded-2xl p-4 shadow-2xl">
-                <ShapeSelector 
-                  onSelectShape={addShapeElement}
-                  onOpenAdvancedEditor={() => setShowAdvancedShapesEditor(true)}
-                />
+                <ShapeSelector onSelectShape={addShapeElement} />
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -1668,7 +1464,7 @@ export function DesignEditor() {
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -1680,8 +1476,6 @@ export function DesignEditor() {
                 setShowMediaPanel(false)
                 setShowTextEffectsPanel(false)
                 setShowImage3dEffectsPanel(false)
-                setShowImageInteractionsPanel(false)
-                setShowGradientEditor(false)
               }}
             >
               <LayoutGrid className="h-5 w-5 text-cyan-400 group-hover:scale-110 transition-transform duration-200" />
@@ -1699,36 +1493,11 @@ export function DesignEditor() {
                 setShowMediaPanel(false)
                 setShowTextEffectsPanel(false)
                 setShowImage3dEffectsPanel(false)
-                setShowImageInteractionsPanel(false)
-                setShowGradientEditor(false)
               }}
             >
               <Sparkles className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-xs font-medium">Animations</span>
             </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 group ${showGradientEditor ? "bg-pink-500/20 text-pink-300" : ""}`}
-              onClick={() => {
-                setShowGradientEditor(!showGradientEditor)
-                setShowBackgroundPanel(false)
-                setShowImagePanel(false)
-                setShowAnimationPanel(false)
-                setShowMediaPanel(false)
-                setShowTextEffectsPanel(false)
-                setShowImage3dEffectsPanel(false)
-                setShowImageInteractionsPanel(false)
-              }}
-            >
-              <Palette className="h-5 w-5 text-pink-400 group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-xs font-medium">Gradients</span>
-            </Button>
-          </div>
-
-          <div className="absolute top-4 right-32 z-40 flex gap-2">
-            <WallpaperSelector onSelectWallpaper={handleWallpaperSelect} />
           </div>
 
           {selectedElement && (
@@ -1882,12 +1651,200 @@ export function DesignEditor() {
                       setShowAnimationPanel(false)
                       setShowMediaPanel(false)
                       setShowImage3dEffectsPanel(false)
-                      setShowImageInteractionsPanel(false)
                     }}
                   >
                     <Cube className="h-5 w-5 mr-3 text-purple-400" />
                     <span className="font-medium">3D Text Effects</span>
                   </Button>
+                </div>
+              )}
+
+              {selectedElement.type === "shape" && (
+                <div className="space-y-4">
+                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-purple-400" />
+                      Shape Properties
+                    </h4>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-300 hover:bg-white/10 hover:text-gray-100 transition-all duration-300 w-full justify-between h-10 rounded-xl mb-4"
+                        >
+                          <span className="flex items-center">
+                            <div
+                              className="w-4 h-4 rounded-full mr-3 border border-gray-600"
+                              style={{ backgroundColor: selectedElement.color }}
+                            ></div>
+                            <span className="font-medium">Color</span>
+                          </span>
+                          <ChevronDown className="h-4 w-4 opacity-60" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="backdrop-blur-xl bg-gray-950/80 border-white/10 text-gray-100 rounded-2xl p-4 shadow-2xl">
+                        <div className="grid grid-cols-3 gap-3">
+                          {COLOR_PRESETS.map((color) => (
+                            <div
+                              key={color}
+                              className="w-10 h-10 rounded-2xl cursor-pointer border-2 border-gray-600 hover:border-gray-400 hover:scale-110 transition-all duration-200 shadow-lg"
+                              style={{ backgroundColor: color }}
+                              onClick={() => updateElement(selectedElementId!, { color })}
+                            />
+                          ))}
+                        </div>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Enhanced Corner Radius Control */}
+                    {(selectedElement.shape === "square" ||
+                      selectedElement.shape === "rounded-rect" ||
+                      selectedElement.shape === "triangle" ||
+                      selectedElement.shape === "pentagon" ||
+                      selectedElement.shape === "hexagon" ||
+                      selectedElement.shape === "diamond") && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-400">Corner Radius</span>
+                          <span className="text-sm font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                            {selectedElement.cornerRadius || 0}px
+                          </span>
+                        </div>
+                        <Slider
+                          className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-purple-500 [&>span:first-child]:to-pink-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-purple-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-purple-500 [&>span:first-child_span]:to-pink-500"
+                          min={0}
+                          max={Math.min(selectedElement.width, selectedElement.height) / 2}
+                          step={1}
+                          value={[selectedElement.cornerRadius || 0]}
+                          onValueChange={([value]) => updateElement(selectedElementId!, { cornerRadius: value })}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Enhanced Glassmorphism Controls */}
+                  <div className="p-4 backdrop-blur-md bg-white/5 rounded-2xl border border-white/10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-cyan-400" />
+                        <Label className="text-sm font-medium text-gray-300">Glassmorphism Effect</Label>
+                      </div>
+                      <Switch
+                        checked={selectedElement.glassmorphism?.enabled || false}
+                        onCheckedChange={(enabled) =>
+                          updateElement(selectedElementId!, {
+                            glassmorphism: {
+                              ...selectedElement.glassmorphism,
+                              enabled,
+                            },
+                          })
+                        }
+                        className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-500"
+                      />
+                    </div>
+
+                    {selectedElement.glassmorphism?.enabled && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Blur Intensity</Label>
+                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.blur || 10}px
+                            </span>
+                          </div>
+                          <Slider
+                            min={0}
+                            max={30}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.blur || 10]}
+                            onValueChange={([blur]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  blur,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Background Opacity</Label>
+                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.opacity || 20}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={5}
+                            max={50}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.opacity || 20]}
+                            onValueChange={([opacity]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  opacity,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Border Opacity</Label>
+                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.borderOpacity || 30}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={[selectedElement.glassmorphism?.borderOpacity || 30]}
+                            onValueChange={([borderOpacity]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  borderOpacity,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-xs font-medium text-gray-400">Saturation</Label>
+                            <span className="text-xs font-bold text-gray-300 backdrop-blur-md bg-white/5 px-2 py-1 rounded-lg">
+                              {selectedElement.glassmorphism?.saturation || 180}%
+                            </span>
+                          </div>
+                          <Slider
+                            min={100}
+                            max={300}
+                            step={10}
+                            value={[selectedElement.glassmorphism?.saturation || 180]}
+                            onValueChange={([saturation]) =>
+                              updateElement(selectedElementId!, {
+                                glassmorphism: {
+                                  ...selectedElement.glassmorphism,
+                                  saturation,
+                                },
+                              })
+                            }
+                            className="[&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-cyan-500 [&>span:first-child]:to-blue-500 [&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-cyan-400 [&_[role=slider]]:shadow-lg [&>span:first-child_span]:bg-gradient-to-r [&>span:first-child_span]:from-cyan-500 [&>span:first-child_span]:to-blue-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1904,7 +1861,6 @@ export function DesignEditor() {
                       setShowMediaPanel(false)
                       setShowTextEffectsPanel(false)
                       setShowImage3dEffectsPanel(false)
-                      setShowImageInteractionsPanel(false)
                     }}
                   >
                     <ImageIcon className="h-5 w-5 mr-3 text-green-400" />
@@ -1922,28 +1878,10 @@ export function DesignEditor() {
                       setShowAnimationPanel(false)
                       setShowMediaPanel(false)
                       setShowTextEffectsPanel(false)
-                      setShowImageInteractionsPanel(false)
                     }}
                   >
                     <Cube className="h-5 w-5 mr-3 text-cyan-400" />
                     <span className="font-medium">3D Image Effects</span>
-                  </Button>
-
-                  {/* Image Interactions Panel Button */}
-                  <Button
-                    className={`text-gray-300 hover:bg-pink-500/20 hover:text-pink-300 transition-all duration-300 w-full justify-start h-12 rounded-2xl ${showImageInteractionsPanel ? "bg-pink-500/20 text-pink-300" : ""}`}
-                    onClick={() => {
-                      setShowImageInteractionsPanel(!showImageInteractionsPanel)
-                      setShowImagePanel(false)
-                      setShowImage3dEffectsPanel(false)
-                      setShowBackgroundPanel(false)
-                      setShowAnimationPanel(false)
-                      setShowMediaPanel(false)
-                      setShowTextEffectsPanel(false)
-                    }}
-                  >
-                    <Sparkles className="h-5 w-5 mr-3 text-pink-400" />
-                    <span className="font-medium">Interactive Features</span>
                   </Button>
 
                   {/* Image Corner Radius Control */}
@@ -1977,14 +1915,6 @@ export function DesignEditor() {
                       />
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* Render Image Interactions Panel */}
-              {showImageInteractionsPanel && selectedElement?.type === "image" && (
-                <div className="bg-gray-800/50 border border-pink-500/30 rounded-2xl p-4 space-y-3">
-                  <h4 className="text-sm font-medium text-gray-300">Image Interactions</h4>
-                  <ImageInteractions element={selectedElement} onUpdateElement={updateElement} />
                 </div>
               )}
 
@@ -2057,7 +1987,14 @@ export function DesignEditor() {
       />
 
       {/* Image Library Dialog */}
-      <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={handleAddImage} />
+      <ImageLibrary open={showImageLibrary} onOpenChange={setShowImageLibrary} onSelectImage={addImageFromLibrary} />
+
+      {/* Template Library Dialog */}
+      <TemplateLibrary
+        open={showTemplateLibrary}
+        onOpenChange={setShowTemplateLibrary}
+        onSelectTemplate={handleSelectTemplate}
+      />
 
       {/* Enhanced Image Uploader Dialog */}
       <ImageUploader
@@ -2082,60 +2019,6 @@ export function DesignEditor() {
         presentationId={currentPresentationId}
         presentationTitle={presentationTitle}
       />
-      {/* Export Hub Dialog */}
-      <ExportHub
-        open={showExportHub}
-        onOpenChange={setShowExportHub}
-        presentationTitle={presentationTitle}
-        slides={slides}
-      />
-      {/* Smart Templates */}
-      <SmartTemplates
-        open={showSmartTemplates}
-        onOpenChange={setShowSmartTemplates}
-        onSelectTemplate={(template) => {
-          pushToHistory(slides)
-          setSlides(template.slides)
-          setCurrentSlideIndex(0)
-          setSelectedElementId(null)
-        }}
-      />
-      {/* Slide Effects */}
-      <SlideEffects
-        open={showSlideEffects}
-        onOpenChange={setShowSlideEffects}
-        currentSlide={slides[currentSlideIndex]}
-        onApplyEffects={(effects: SlideEffect[]) => {
-          pushToHistory(slides)
-          const updatedSlides = [...slides]
-          updatedSlides[currentSlideIndex] = {
-            ...updatedSlides[currentSlideIndex],
-            effects,
-          } as any
-          setSlides(updatedSlides)
-        }}
-      />
-      {/* Advanced Shapes Editor */}
-      <AdvancedShapesEditor
-        open={showAdvancedShapesEditor}
-        onOpenChange={setShowAdvancedShapesEditor}
-        selectedShape={selectedElementId ? (slides[currentSlideIndex]?.elements.find((el) => el.id === selectedElementId) as any) : null}
-        onUpdateShape={(shape: any) => {
-          if (selectedElementId) {
-            pushToHistory(slides)
-            updateElement(selectedElementId, shape)
-          }
-        }}
-        onDeleteShape={() => {
-          if (selectedElementId) {
-            pushToHistory(slides)
-            deleteElement(selectedElementId)
-            setSelectedElementId(null)
-          }
-        }}
-      />
     </div>
   )
 }
-
-export default DesignEditor

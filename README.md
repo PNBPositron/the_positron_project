@@ -1,6 +1,6 @@
-# ⚛️ Positron - Futuristic Presentation Design Studio
+# ⚛️ Positron - Cyberpunk Presentation Design Studio
 
-A powerful, modern presentation design editor built with Next.js, featuring stunning futursitic aesthetics, real-time collaboration, and advanced design tools.
+A powerful, modern presentation design editor built with Next.js, featuring stunning cyberpunk aesthetics, real-time collaboration, and advanced design tools.
 
 ![Positron Banner](https://img.shields.io/badge/Positron-Design%20Studio-ff69b4?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
@@ -50,7 +50,15 @@ A powerful, modern presentation design editor built with Next.js, featuring stun
 - **Export**: jsPDF, html2canvas
 - **Icons**: Lucide React
 
+## 🚀 Getting Started
 
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- Supabase account (for cloud features)
+
+### Installation
 
 1. **Clone the repository**
 \`\`\`bash
@@ -204,4 +212,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [jsPDF](https://github.com/parallax/jsPDF) - PDF generation
 - [html2canvas](https://html2canvas.hertzen.com/) - HTML to canvas conversion
 
-Made with v0
+## 🐛 Known Issues
+
+- Large presentations (50+ slides) may experience performance issues
+- Video export is not yet supported
+- Mobile touch gestures need improvement
+
+## 🗺️ Roadmap
+
+- [ ] Real-time multiplayer editing
+- [ ] AI-powered design suggestions
+- [ ] Video recording/export
+- [ ] Mobile app (React Native)
+- [ ] Desktop app (Electron)
+- [ ] Plugin system
+- [ ] Advanced animation timeline
+- [ ] Presentation analytics
+- [ ] Team collaboration features
+- [ ] Version history
+
+## 📧 Contact
+
+Project Link: [https://github.com/PNBFor/the_positron_project](https://github.com/PNBFor/the_positron_project)
+
+## ⭐ Star History
+
+If you find this project useful, please consider giving it a star on GitHub!
+
+---
+
+Made with ❤️ and ⚛️ by the Positron Team
