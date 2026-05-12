@@ -443,70 +443,35 @@ export function RenderShape({
   }
 }) {
   const size = Math.min(width, height)
-  const isGradient = color.includes("gradient")
-
-  // Parse CSS gradient into SVG gradient stops for SVG shapes
-  const parseSvgGradient = () => {
-    if (!isGradient) return null
-    const id = `grad-${shape}-${Math.random().toString(36).slice(2, 8)}`
-    const colorStops: { color: string; offset: string }[] = []
-    const parts = color.replace(/^[^(]+\(/, "").replace(/\)$/, "").split(",").map(s => s.trim())
-    for (const part of parts) {
-      const colorMatch = part.match(/(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))/)
-      const posMatch = part.match(/([\d.]+)%/)
-      if (colorMatch) {
-        colorStops.push({
-          color: colorMatch[1],
-          offset: posMatch ? `${posMatch[1]}%` : "0%",
-        })
-      }
-    }
-    if (colorStops.length === 0) return null
-    // Auto-fill offsets
-    for (let i = 0; i < colorStops.length; i++) {
-      if (colorStops[i].offset === "0%" && i > 0 && i < colorStops.length - 1) {
-        colorStops[i].offset = `${(i / (colorStops.length - 1)) * 100}%`
-      }
-    }
-    if (colorStops.length > 0) colorStops[colorStops.length - 1].offset = colorStops[colorStops.length - 1].offset || "100%"
-
-    const angleMatch = color.match(/([\d.]+)deg/)
-    const angle = angleMatch ? Number.parseFloat(angleMatch[1]) : 135
-    const rad = (angle - 90) * (Math.PI / 180)
-    const x1 = 50 - Math.cos(rad) * 50
-    const y1 = 50 - Math.sin(rad) * 50
-    const x2 = 50 + Math.cos(rad) * 50
-    const y2 = 50 + Math.sin(rad) * 50
-
-    return { id, colorStops, x1, y1, x2, y2, isRadial: color.includes("radial") }
-  }
 
   // Generate glassmorphism styles
   const getGlassmorphismStyles = () => {
     if (!glassmorphism?.enabled) return {}
-    const baseColor = isGradient ? "#888888" : color
+    
     return {
       backdropFilter: `blur(${glassmorphism.blur}px) saturate(${glassmorphism.saturation}%)`,
-      backgroundColor: `${baseColor}${Math.round(glassmorphism.opacity * 2.55).toString(16).padStart(2, '0')}`,
-      border: `1px solid ${baseColor}${Math.round(glassmorphism.borderOpacity * 2.55).toString(16).padStart(2, '0')}`,
+      backgroundColor: `${color}${Math.round(glassmorphism.opacity * 2.55).toString(16).padStart(2, '0')}`,
+      border: `1px solid ${color}${Math.round(glassmorphism.borderOpacity * 2.55).toString(16).padStart(2, '0')}`,
       boxShadow: `0 8px 32px 0 rgba(31, 38, 135, 0.37)`,
     }
   }
 
   const glassmorphismStyles = getGlassmorphismStyles()
 
-  // Apply corner radius to basic shapes - supports gradient
-  const getShapeStyles = (): React.CSSProperties => {
-    if (glassmorphism?.enabled) {
-      const base: React.CSSProperties = { backgroundColor: 'transparent', ...glassmorphismStyles }
-      if (cornerRadius > 0) base.borderRadius = `${cornerRadius}px`
-      return base
+  // Apply corner radius to basic shapes
+  const getShapeStyles = () => {
+    const baseStyles = glassmorphism?.enabled ? 
+      { backgroundColor: 'transparent', ...glassmorphismStyles } : 
+      { backgroundColor: color }
+    
+    if (cornerRadius > 0) {
+      return {
+        ...baseStyles,
+        borderRadius: `${cornerRadius}px`
+      }
     }
-    const base: React.CSSProperties = isGradient
-      ? { background: color }
-      : { backgroundColor: color }
-    if (cornerRadius > 0) base.borderRadius = `${cornerRadius}px`
-    return base
+    
+    return baseStyles
   }
 
   switch (shape) {
@@ -522,9 +487,8 @@ export function RenderShape({
         <div 
           className={`w-full h-full rounded-full ${className}`} 
           style={{ 
-            ...(glassmorphism?.enabled
-              ? { backgroundColor: 'transparent', ...glassmorphismStyles }
-              : isGradient ? { background: color } : { backgroundColor: color }),
+            backgroundColor: glassmorphism?.enabled ? 'transparent' : color,
+            ...glassmorphismStyles
           }} 
         />
       )
@@ -533,10 +497,9 @@ export function RenderShape({
         <div 
           className={`w-full h-full ${className}`} 
           style={{
-            ...(glassmorphism?.enabled
-              ? { backgroundColor: 'transparent', ...glassmorphismStyles }
-              : isGradient ? { background: color } : { backgroundColor: color }),
+            backgroundColor: glassmorphism?.enabled ? 'transparent' : color,
             borderRadius: cornerRadius > 0 ? `${cornerRadius}px` : '12px',
+            ...glassmorphismStyles
           }} 
         />
       )
@@ -579,29 +542,11 @@ export function RenderShape({
         )
       }
 
-      const svgGrad = parseSvgGradient()
       return (
         <svg viewBox={`0 0 ${width} ${height}`} className={`w-full h-full ${className}`} preserveAspectRatio="none">
-          {svgGrad && (
-            <defs>
-              {svgGrad.isRadial ? (
-                <radialGradient id={svgGrad.id} cx="50%" cy="50%" r="50%">
-                  {svgGrad.colorStops.map((stop, i) => (
-                    <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                  ))}
-                </radialGradient>
-              ) : (
-                <linearGradient id={svgGrad.id} x1={`${svgGrad.x1}%`} y1={`${svgGrad.y1}%`} x2={`${svgGrad.x2}%`} y2={`${svgGrad.y2}%`}>
-                  {svgGrad.colorStops.map((stop, i) => (
-                    <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                  ))}
-                </linearGradient>
-              )}
-            </defs>
-          )}
           <path 
             d={path} 
-            fill={svgGrad ? `url(#${svgGrad.id})` : color} 
+            fill={color} 
             rx={cornerRadius > 0 ? cornerRadius : undefined}
           />
         </svg>
@@ -646,29 +591,11 @@ export function RenderShape({
         )
       }
 
-      const frameGrad = parseSvgGradient()
       return (
         <svg viewBox={`0 0 ${width} ${height}`} className={`w-full h-full ${className}`} preserveAspectRatio="none">
-          {frameGrad && (
-            <defs>
-              {frameGrad.isRadial ? (
-                <radialGradient id={frameGrad.id} cx="50%" cy="50%" r="50%">
-                  {frameGrad.colorStops.map((stop, i) => (
-                    <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                  ))}
-                </radialGradient>
-              ) : (
-                <linearGradient id={frameGrad.id} x1={`${frameGrad.x1}%`} y1={`${frameGrad.y1}%`} x2={`${frameGrad.x2}%`} y2={`${frameGrad.y2}%`}>
-                  {frameGrad.colorStops.map((stop, i) => (
-                    <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                  ))}
-                </linearGradient>
-              )}
-            </defs>
-          )}
           <path 
             d={framePath} 
-            fill={frameGrad ? `url(#${frameGrad.id})` : color} 
+            fill={color} 
             fillRule="evenodd" 
             rx={cornerRadius > 0 ? cornerRadius : undefined}
           />
