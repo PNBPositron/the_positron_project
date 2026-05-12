@@ -398,13 +398,13 @@ export default function EnhancedSlideCanvas({
       ref={containerRef}
       className="relative overflow-hidden"
       style={{
-        width: `${1000 * (zoomLevel / 100)}px`,
-        height: `${562.5 * (zoomLevel / 100)}px`,
+        width: `${1280 * (zoomLevel / 100)}px`,
+        height: `${720 * (zoomLevel / 100)}px`,
       }}
     >
       <div
         ref={canvasRef}
-        className="w-[1000px] h-[562.5px] relative overflow-hidden origin-top-left cursor-default"
+        className="w-[1280px] h-[720px] relative overflow-hidden origin-top-left cursor-default"
         style={{
           ...getBackgroundStyles(),
           transform: `scale(${zoomLevel / 100})`,
