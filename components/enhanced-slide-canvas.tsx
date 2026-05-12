@@ -165,6 +165,16 @@ export default function EnhancedSlideCanvas({
     setRotating(true)
   }
 
+  const CANVAS_WIDTH = 1280
+  const CANVAS_HEIGHT = 720
+
+  const constrainToCanvas = (x: number, y: number, width: number, height: number) => {
+    return {
+      x: Math.max(0, Math.min(x, CANVAS_WIDTH - width)),
+      y: Math.max(0, Math.min(y, CANVAS_HEIGHT - height)),
+    }
+  }
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!selectedElementId) return
 
@@ -180,6 +190,11 @@ export default function EnhancedSlideCanvas({
       // Always snap to grid for better precision
       x = snapToGrid(x)
       y = snapToGrid(y)
+
+      // Constrain to canvas bounds
+      const constrained = constrainToCanvas(x, y, selectedElement.width, selectedElement.height)
+      x = constrained.x
+      y = constrained.y
 
       const otherElements = slide.elements.filter((el) => el.id !== selectedElementId)
       const currentElement = {
@@ -290,10 +305,45 @@ export default function EnhancedSlideCanvas({
   }
 
   const handleMouseUp = () => {
-    if (dragging || resizing || rotating) {
-      setAlignmentGuides([])
-      setDragPreview(null)
+    if (dragging && selectedElementId) {
+      const selectedElement = slide.elements.find((el) => el.id === selectedElementId)
+      if (selectedElement) {
+        // Ensure element stays within canvas bounds
+        const constrained = constrainToCanvas(selectedElement.x, selectedElement.y, selectedElement.width, selectedElement.height)
+        onUpdateElement(selectedElementId, {
+          x: constrained.x,
+          y: constrained.y,
+        })
+      }
     }
+    setDragging(false)
+    setAlignmentGuides([])
+
+    if (resizing && selectedElementId) {
+      const selectedElement = slide.elements.find((el) => el.id === selectedElementId)
+      if (selectedElement) {
+        // Ensure element stays within canvas bounds after resizing
+        const constrained = constrainToCanvas(selectedElement.x, selectedElement.y, selectedElement.width, selectedElement.height)
+        onUpdateElement(selectedElementId, {
+          x: constrained.x,
+          y: constrained.y,
+          width: selectedElement.width,
+          height: selectedElement.height,
+        })
+      }
+    }
+    setResizing(false)
+
+    if (rotating && selectedElementId) {
+      const selectedElement = slide.elements.find((el) => el.id === selectedElementId)
+      if (selectedElement) {
+        onUpdateElement(selectedElementId, {
+          rotation: selectedElement.rotation || 0,
+        })
+      }
+    }
+    setRotating(false)
+  }
 
     setDragging(false)
     setResizing(false)
@@ -396,24 +446,27 @@ export default function EnhancedSlideCanvas({
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden"
+      className="relative flex items-center justify-center bg-slate-900/30 border border-slate-700 rounded-lg"
       style={{
-        width: `${1280 * (zoomLevel / 100)}px`,
-        height: `${720 * (zoomLevel / 100)}px`,
+        width: "100%",
+        height: "100%",
+        minHeight: "calc(100vh - 200px)",
+        maxHeight: "calc(100vh - 200px)",
+        overflow: "auto",
+        padding: "20px",
       }}
     >
       <div
         ref={canvasRef}
-        className="w-[1280px] h-[720px] relative overflow-hidden origin-top-left cursor-default"
+        className="w-[1280px] h-[720px] relative overflow-hidden origin-top-left cursor-default flex-shrink-0"
         style={{
           ...getBackgroundStyles(),
           transform: `scale(${zoomLevel / 100})`,
           transformOrigin: "top left",
-          marginLeft: "20px",
-          marginTop: "20px",
-          borderRadius: "32px",
-          boxShadow: "0 0 40px rgba(14, 165, 233, 0.25), 0 0 20px rgba(234, 179, 8, 0.15), inset 0 0 40px rgba(14, 165, 233, 0.05)",
-          border: "1px solid rgba(14, 165, 233, 0.1)",
+          borderRadius: "12px",
+          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5), 0 0 60px rgba(14, 165, 233, 0.3), inset 0 0 30px rgba(14, 165, 233, 0.08)",
+          border: "2px solid rgba(14, 165, 233, 0.3)",
+          background: getBackgroundStyles().background || "white",
         }}
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
