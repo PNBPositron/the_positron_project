@@ -345,12 +345,6 @@ export default function EnhancedSlideCanvas({
     setRotating(false)
   }
 
-    setDragging(false)
-    setResizing(false)
-    setResizeDirection(null)
-    setRotating(false)
-  }
-
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, element: SlideElement) => {
     if (element.type !== "text") return
     onUpdateElement(element.id, { content: e.target.value })
