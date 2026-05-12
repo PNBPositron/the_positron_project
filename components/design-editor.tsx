@@ -58,7 +58,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import SlideCanvas from "@/components/slide-canvas"
+import EnhancedSlideCanvas from "@/components/enhanced-slide-canvas"
 import SlidesThumbnails from "@/components/slides-thumbnails"
 import PresentationMode from "@/components/presentation-mode"
 import { ImageFilters } from "@/components/image-filters"
@@ -1354,7 +1354,7 @@ export default function DesignEditor() {
             <div className="absolute inset-0 bg-black/30 rounded-3xl"></div>
             <div className="relative group z-10">
   <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-yellow-400/30 rounded-2xl blur-xl opacity-30 group-hover:opacity-70 transition duration-1000 animate-pulse"></div>
-  <SlideCanvas
+  <EnhancedSlideCanvas
     slide={slides[currentSlideIndex]}
     selectedElementId={selectedElementId}
     onSelectElement={setSelectedElementId}
